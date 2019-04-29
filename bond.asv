@@ -23,17 +23,10 @@ classdef bond
             obj.lastPrice = str2double(overview.lastValidPrice);
             obj.lastYield = str2double(overview.lastValidYield([1:strfind(overview.lastValidYield,"%")-1]))/100;
             obj.yield = str2double(overview.yield([1:strfind(overview.yield,"%")-1]))/100;
-            
             if attributes.attributes(7).name == "coupon"
-                obj.coupon = attributes.attributes(7).value;
-            else 
-                obj.coupon = attributes.attributes(6).value;
-            end
-            if attributes.attributes(8).name == "Interest"
-                obj.interest = str2double(attributes.attributes(8).value([1:strfind(attributes.attributes(8).value,"%")-1]))/100;
-            elseif attributes.attributes(9).name == "Interest"
-                obj.interest = str2double(attributes.attributes(9).value([1:strfind(attributes.attributes(9).value,"%")-1]))/100;
-            end
+                
+            obj.coupon = attributes.attributes(7).value;
+            obj.interest = str2double(attributes.attributes(8).value([1:strfind(attributes.attributes(8).value,"%")-1]))/100;
         end
         
         function outputArg = method1(obj,inputArg)
