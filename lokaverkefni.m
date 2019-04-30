@@ -17,7 +17,6 @@ end
 for i = 1:length(NonIndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", NonIndexedBonds(i).orderbookId);
     tempBond = bond(NonIndexedBonds(i), webread(url));
-    temp = webread(url);
     if i == 1
         NonIndexedPortfolio = portfolio(tempBond);
     else

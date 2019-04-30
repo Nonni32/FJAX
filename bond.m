@@ -9,6 +9,7 @@ classdef bond
         duration
         ask
         bid
+        price
         lastPrice
         lastYield
         yield
@@ -24,6 +25,7 @@ classdef bond
             obj.duration = str2double(overview.duration([1:strfind(overview.duration," ")-1]));
             obj.ask = str2double(overview.askPrice);
             obj.bid = str2double(overview.bidPrice);
+            obj.price = str2double(overview.price);
             obj.lastPrice = str2double(overview.lastValidPrice);
             obj.lastYield = str2double(overview.lastValidYield([1:strfind(overview.lastValidYield,"%")-1]))/100;
             obj.yield = str2double(overview.yield([1:strfind(overview.yield,"%")-1]))/100;
@@ -39,12 +41,6 @@ classdef bond
                     obj.interest = str2double(attributes.attributes(i).value([1:strfind(attributes.attributes(i).value,"%")-1]))/100;
                 end
             end
-        end
-        
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            outputArg = obj.Property1 + inputArg;
         end
     end
 end

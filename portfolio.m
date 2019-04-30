@@ -5,14 +5,17 @@ classdef portfolio
         issue = [];
         maturity = [];
         coupon = [];
+        frequency = [];
         duration = [];
         ask = [];
         bid = [];
+        price = [];
         lastPrice = [];
         lastYield = [];
         yield = [];
         interest = [];
-        
+        zerorates = [];
+        curvedates = [];
     end
     
     methods
@@ -23,11 +26,18 @@ classdef portfolio
             obj.maturity = string(bond.maturity);
             obj.ask = bond.ask;
             obj.bid = bond.bid;
+            obj.price = bond.price;
             obj.lastPrice = bond.lastPrice;
             obj.lastYield = bond.lastYield;
             obj.yield = bond.yield;
             obj.coupon = string(bond.coupon);
+            if(string(bond.coupon) == "Semiannual")
+                obj.frequency = 2;
+            else
+                obj.frequency = 1;
+            end
             obj.interest = bond.interest;
+            
         end
        
         function obj = addToPortfolio(obj, bond)
@@ -37,10 +47,16 @@ classdef portfolio
             obj.maturity = horzcat(obj.maturity, bond.maturity);
             obj.ask = horzcat(obj.ask, bond.ask);
             obj.bid = horzcat(obj.bid, bond.bid);
+            obj.price = horzcat(obj.price, bond.price);
             obj.lastPrice = horzcat(obj.lastPrice, bond.lastPrice);
             obj.lastYield = horzcat(obj.lastYield, bond.lastYield);
             obj.yield = horzcat(obj.yield, bond.yield);
             obj.coupon = horzcat(obj.coupon, string(bond.coupon));
+            if(string(bond.coupon) == "Semiannual")
+                obj.frequency = 2;
+            else
+                obj.frequency = 1;
+            end
             obj.interest = horzcat(obj.interest, bond.interest);
         end
         
@@ -71,8 +87,13 @@ classdef portfolio
             xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end
         
-        function yieldCurveMethod2(obj)
-           % TODO
+        function zeroCurve(obj)
+           % TODO Fjalla um
+           % https://se.mathworks.com/help/finance/zbtprice.html í skýrslu
+           Bonds = [datenum(obj.maturity) obj.interest 100*ones(length(obj.ticker),1) obj.frequency 8*ones(length(obj.ticker),1)];
+           Prices = obj.price;
+           
+           
         end
         
     end
