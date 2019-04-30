@@ -25,7 +25,4 @@ for i = 1:length(NonIndexedBonds)
     end
 end
 
-IndexedPortfolio
-NonIndexedPortfolio
-
-
+NonIndexedPortfolio.yieldCurve

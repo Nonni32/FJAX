@@ -2,40 +2,61 @@ classdef portfolio
     % PORTFOLIO
     properties
         ticker = [];
+        issue = [];
+        maturity = [];
+        coupon = [];
         duration = [];
         ask = [];
         bid = [];
-        lastPrice = []; 
+        lastPrice = [];
         lastYield = [];
         yield = [];
-        coupon = [];
         interest = [];
     end
     
     methods
-        function obj = addBond(obj, bond)
-            % Adding a bond to the portfolio
-            if ~isempty(ticker)
-                obj.ticker(end+1) = bond.ticker;
-                obj.duration(end+1) = bond.duration;
-                obj.ask(end+1) = bond.ask; 
-                obj.bid(end+1) = bond.bid;
-                obj.lastPrice(end+1) = bond.lastPrice;
-                obj.lastYield(end+1) = bond.lastYield;
-                obj.yield(end+1) = bond.yield;
-                obj.coupon(end+1) = bond.coupon;
-                obj.interest(end+1) = bond.interest;
-            else 
-                obj.ticker = bond.ticker;
-                obj.duration = bond.duration;
-                obj.ask = bond.ask; 
-                obj.bid = bond.bid;
-                obj.lastPrice = bond.lastPrice;
-                obj.lastYield = bond.lastYield;
-                obj.yield = bond.yield;
-                obj.coupon = bond.coupon;
-                obj.interest( = bond.interest;
-
+        function obj = portfolio(bond)
+            obj.ticker = string(bond.ticker);
+            obj.duration = double(bond.duration);
+            obj.issue = string(bond.issue);
+            obj.maturity = string(bond.maturity);
+            obj.ask = bond.ask;
+            obj.bid = bond.bid;
+            obj.lastPrice = bond.lastPrice;
+            obj.lastYield = bond.lastYield;
+            obj.yield = bond.yield;
+            obj.coupon = string(bond.coupon);
+            obj.interest = bond.interest;
+        end
+       
+        function obj = addToPortfolio(obj, bond)
+            obj.ticker = horzcat(obj.ticker, string(bond.ticker));
+            obj.duration = horzcat(obj.duration, bond.duration);
+            obj.issue = horzcat(obj.issue, string(bond.issue));
+            obj.maturity = horzcat(obj.maturity, bond.maturity);
+            obj.ask = horzcat(obj.ask, bond.ask);
+            obj.bid = horzcat(obj.bid, bond.bid);
+            obj.lastPrice = horzcat(obj.lastPrice, bond.lastPrice);
+            obj.lastYield = horzcat(obj.lastYield, bond.lastYield);
+            obj.yield = horzcat(obj.yield, bond.yield);
+            obj.coupon = horzcat(obj.coupon, string(bond.coupon));
+            obj.interest = horzcat(obj.interest, bond.interest);
+        end
+        
+        function yieldCurve(obj)   
+            x = []; y = [];
+            for i = 1:length(obj.ticker)
+                if(obj.ticker{i}(1:3) == "RIK")
+                    x(i) = datenum(obj.maturity(i),'dd/mm/yyyy');
+                    y(i) = obj.yield(i);
+                end
+            end
+            plot(x,y)
+        end
+        
+        
+        function yieldCurveMethod2(obj)
+           % TODO
         end
     end
 end

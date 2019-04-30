@@ -12,6 +12,7 @@ classdef portfolio
         lastYield = [];
         yield = [];
         interest = [];
+        
     end
     
     methods
@@ -43,11 +44,21 @@ classdef portfolio
             obj.interest = horzcat(obj.interest, bond.interest);
         end
         
-        function yieldCurveMethod1(obj)
-%            % TODO
-           x = 0:10;
-           y = 0:10;
-           plot(x,y)
+        function yieldCurve(obj)   
+            % TODO: LAGA ÞETTA - TEIKNA BARA BOND SEM BYRJA Á "RIK"
+%             x = []; y = [];
+%             for i = 1:length(obj.ticker)
+%                 if(obj.ticker{i}(1:3) == 'RIK')
+%                     x(i) = datenum(obj.maturity(i),'dd/mm/yyyy');
+%                     y(i) = obj.yield(i);
+%                 end
+%             end
+%             plot(x,y)
+            plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'b');
+            hold on
+            plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'bo');
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            datetick('x','dd/mm/yyyy','keeplimits')
         end
         
         
