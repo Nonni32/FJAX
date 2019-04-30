@@ -54,17 +54,21 @@ classdef portfolio
 %                 end
 %             end
 %             plot(x,y)
+
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'b');
             hold on
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'bo');
+            labels = reshape(sprintf('%5.1f%%',obj.yield*100),6,[]).';
+            set(gca,'yticklabel',labels)
+            datetick('x','dd/mm/yyyy')
             xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
-            datetick('x','dd/mm/yyyy','keeplimits')
+            
         end
-        
         
         function yieldCurveMethod2(obj)
            % TODO
         end
+        
     end
 end
 
