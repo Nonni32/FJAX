@@ -24,15 +24,16 @@ classdef bond
             obj.lastYield = str2double(overview.lastValidYield([1:strfind(overview.lastValidYield,"%")-1]))/100;
             obj.yield = str2double(overview.yield([1:strfind(overview.yield,"%")-1]))/100;
             
-            if attributes.attributes(7).name == "coupon"
+            if attributes.attributes(7).name == "Coupon"
                 obj.coupon = attributes.attributes(7).value;
             else 
                 obj.coupon = attributes.attributes(6).value;
             end
+            
             if attributes.attributes(8).name == "Interest"
-                obj.interest = str2double(attributes.attributes(8).value([1:strfind(attributes.attributes(8).value,"%")-1]))/100;
+                obj.interest = 1.00; %str2double(attributes.attributes(8).value([1:strfind(attributes.attributes(8).value,"%")-1]))/100;
             elseif attributes.attributes(9).name == "Interest"
-                obj.interest = str2double(attributes.attributes(9).value([1:strfind(attributes.attributes(9).value,"%")-1]))/100;
+                obj.interest = 2.00; %str2double(attributes.attributes(9).value([1:strfind(attributes.attributes(9).value,"%")-1]))/100;
             end
         end
         
