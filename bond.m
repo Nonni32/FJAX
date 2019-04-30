@@ -4,6 +4,8 @@ classdef bond
         % HÆGT AÐ BÆTA Í ÞETTA 
         ticker
         duration
+        issue
+        maturity
         ask
         bid
         lastPrice
@@ -23,7 +25,8 @@ classdef bond
             obj.lastPrice = str2double(overview.lastValidPrice);
             obj.lastYield = str2double(overview.lastValidYield([1:strfind(overview.lastValidYield,"%")-1]))/100;
             obj.yield = str2double(overview.yield([1:strfind(overview.yield,"%")-1]))/100;
-               
+            obj.issue = attributes.attributes(4).value;
+            obj.maturity = attributes.attributes(5).value;
             
             if attributes.attributes(7).name == "Coupon"
                 obj.coupon = attributes.attributes(7).value;

@@ -3,6 +3,8 @@ classdef portfolio
     properties
         ticker = [];
         duration = [];
+        issue = [];
+        maturity = [];
         ask = [];
         bid = [];
         lastPrice = [];
@@ -16,6 +18,8 @@ classdef portfolio
         function obj = portfolio(bond)
             obj.ticker = string(bond.ticker);
             obj.duration = bond.duration;
+            obj.issue = string(bond.issue);
+            obj.maturity = string(bond.maturity);
             obj.ask = bond.ask;
             obj.bid = bond.bid;
             obj.lastPrice = bond.lastPrice;
@@ -27,7 +31,9 @@ classdef portfolio
        
         function obj = addToPortfolio(obj, bond)
             obj.ticker = horzcat(obj.ticker, string(bond.ticker));
-            obj.duration = horzcat(obj.duration, bond.duration);
+            obj.duration = horzcat(obj.duration, string(bond.duration));
+            obj.issue = horzcat(obj.issue, string(bond.issue));
+            obj.maturity = horzcat(obj.maturity, bond.maturity);
             obj.ask = horzcat(obj.ask, bond.ask);
             obj.bid = horzcat(obj.bid, bond.bid);
             obj.lastPrice = horzcat(obj.lastPrice, bond.lastPrice);

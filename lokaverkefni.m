@@ -26,4 +26,3 @@ for i = 1:length(NonIndexedBonds)
 end
 
 IndexedPortfolio
-NonIndexedPortfolio
