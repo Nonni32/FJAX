@@ -1,6 +1,6 @@
 % WEB SCRAPING DATA FROM BONDS.IS
-IndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=true&nOrderbookId=-1";
-NonIndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=false&nOrderbookId=-1";
+IndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=false&nOrderbookId=-1";
+NonIndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=true&nOrderbookId=-1";
 IndexedBonds = webread(IndexedUrl);
 NonIndexedBonds = webread(NonIndexedUrl);
 
@@ -27,3 +27,5 @@ end
 
 IndexedPortfolio
 NonIndexedPortfolio
+
+
