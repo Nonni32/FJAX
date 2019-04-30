@@ -2,9 +2,11 @@ function [rates_T, mu, sig, rates] = Wiener_for_rates(sigma, T, r_0,simulations)
 %dr(t) = sigma*dW(t)
 %P(t,T) = exp(-heildi frá t uppí T af (r(s)ds))
 
-dt = 1/252;
-N = T*252;
-days = 1:N;
+% Dagafjöldi í ári
+t = 252;
+dt = 1/t;
+N = T*t;
+Total_days = 1:N;
 
 %simulating rates for each day
 for sim = 1:simulations 
@@ -20,7 +22,7 @@ end
 %ploting the simulated rates
 figure
 for sim = 1:simulations
-    plot(days,rates(sim,:))
+    plot(Total_days,rates(sim,:))
     hold on
     xlabel('Time [days]');
     ylabel('Term rate evolution');

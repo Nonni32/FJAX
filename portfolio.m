@@ -5,7 +5,7 @@ classdef portfolio
         duration = [];
         ask = [];
         bid = [];
-        lastPrice = []; 
+        lastPrice = [];
         lastYield = [];
         yield = [];
         coupon = [];
@@ -38,7 +38,7 @@ classdef portfolio
         end
         
         function yieldCurveMethod1(obj)
-           % TODO
+%            % TODO
            x = 0:10;
            y = 0:10;
            plot(x,y)
