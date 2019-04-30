@@ -24,3 +24,11 @@ for i = 1:length(NonIndexedBonds)
     end
 end
 
+%% 
+NonIndexedPortfolio.yieldCurve
+%%
+NonIndexedPortfolio.zeroCurve
+%% 
+NonIndexedPortfolio.forwardCurve
+%% 
+NonIndexedPortfolio.discountCurve

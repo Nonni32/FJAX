@@ -14,10 +14,10 @@ classdef portfolio
         lastYield = [];
         yield = [];
         interest = [];
-        curveDates = [];
-        zeroRates = [];
-        forwardRates = [];
-        discRates = [];
+        curveDates
+        zeroRates
+        forwardRates
+        discountRates
     end
     
     methods
@@ -81,12 +81,10 @@ classdef portfolio
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'b');
             hold on
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'bo');
-            
             % x-axis date, y-axis percentage
-            labels = reshape(sprintf('%5.1f%%',obj.yield*100),6,[]).';
-            set(gca,'yticklabel',labels)
             datetick('x','dd/mm/yyyy')
             xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            ytickformat('percentage')
         end
         
         % Í CURVES þARF AÐ LAGA XLIM MAX
@@ -96,47 +94,48 @@ classdef portfolio
            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)]
            Prices = obj.price;
            Settle = today();
-           [obj.zeroRates, obj.curveDates] = zbtprice(Bonds, Prices, Settle)
-           plot(obj.curveDates,obj.zeroRates)
+           [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle)
+           plot(curveDates, zeroRates)
            % x-axis date, y-axis percentage
-           labels = reshape(sprintf('%5.1f%%',obj.zeroRates*100),6,[]).';
-           set(gca,'yticklabel',labels)
            datetick('x','dd/mm/yyyy')
-           xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+           ytickformat('percentage')
+           xlim([min(curveDates) max(curveDates)]);
+           obj.curveDates = curveDates';
+           obj.zeroRates = zeroRates';
         end        
         
         function obj = forwardCurve(obj)
             Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)]
             Prices = obj.price;
             Settle = today();
-            [obj.zeroRates, obj.curveDates] = zbtprice(Bonds, Prices, Settle);
-            [obj.forwardRates, obj.curveDates] = zero2fwd(obj.zeroRates, obj.curveDates, Settle);
-            plot(obj.curveDates,obj.forwardRates)
+            [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
+            [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
+            plot(curveDates,forwardRates)
             % x-axis date, y-axis percentage
-            labels = reshape(sprintf('%5.1f%%',obj.forwardRates*100),6,[]).';
-            set(gca,'yticklabel',labels)
+            ytickformat('percentage')
             datetick('x','dd/mm/yyyy')
-            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            xlim([min(curveDates) max(curveDates)]);
+            obj.curveDates = curveDates';
+            obj.zeroRates = zeroRates';
+            obj.forwardRates = zeroRates';
         end        
         
         function obj = discountCurve(obj)
-            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)]
+            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
             Prices = obj.price;
             Settle = today();
-            [obj.zeroRates, obj.curveDates] = zbtprice(Bonds, Prices, Settle);
-            [obj.forwardRates, obj.curveDates] = zero2fwd(obj.zeroRates, obj.curveDates, Settle);
-            [obj.discRates, obj.curveDates] = zero2disc(obj.zeroRates, obj.curveDates, Settle);
-            plot(obj.curveDates,obj.discRates)
+            [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
+            [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
+            [discRates, curveDates] = zero2disc(zeroRates, curveDates, Settle);
+            plot(curveDates,discRates)
             % x-axis date, y-axis percentage
-            labels = reshape(sprintf('%5.1f%%',obj.discRates*100),6,[]).';
-            set(gca,'yticklabel',labels)
+            ytickformat('percentage')
             datetick('x','dd/mm/yyyy')
-            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
-            % x-axis date, y-axis percentage
-            labels = reshape(sprintf('%5.1f%%',obj.zeroRates*100),6,[]).';
-            set(gca,'yticklabel',labels)
-            datetick('x','dd/mm/yyyy')
-            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            xlim([min(curveDates) max(curveDates)]);
+            obj.curveDates = curveDates';
+            obj.zeroRates = zeroRates';
+            obj.forwardRates = forwardRates';
+            obj.discountRates = discRates';
         end        
     end
 end
