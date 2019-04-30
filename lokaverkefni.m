@@ -21,7 +21,7 @@ for i = 1:length(NonIndexedBonds)
     if i == 1
         NonIndexedPortfolio = portfolio(tempBond);
     else
-        NonIndexedPortfolio = IndexedPortfolio.addToPortfolio(tempBond);
+        NonIndexedPortfolio = NonIndexedPortfolio.addToPortfolio(tempBond);
     end
 end
 
