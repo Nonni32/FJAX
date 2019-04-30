@@ -3,15 +3,15 @@ classdef bond
     properties
         % HÆGT AÐ BÆTA Í ÞETTA 
         ticker
-        duration
         issue
         maturity
+        coupon
+        duration
         ask
         bid
         lastPrice
         lastYield
         yield
-        coupon
         interest
     end
     
@@ -19,15 +19,15 @@ classdef bond
         function obj = bond(overview, attributes)
             % Assigning values to bond (from www.bonds.is)
             obj.ticker = overview.shortName;
+            obj.issue = attributes.attributes(4).value;
+            obj.maturity = attributes.attributes(5).value;
             obj.duration = str2double(overview.duration([1:strfind(overview.duration," ")-1]));
             obj.ask = str2double(overview.askPrice);
             obj.bid = str2double(overview.bidPrice);
             obj.lastPrice = str2double(overview.lastValidPrice);
             obj.lastYield = str2double(overview.lastValidYield([1:strfind(overview.lastValidYield,"%")-1]))/100;
             obj.yield = str2double(overview.yield([1:strfind(overview.yield,"%")-1]))/100;
-            obj.issue = attributes.attributes(4).value;
-            obj.maturity = attributes.attributes(5).value;
-            
+           
             if attributes.attributes(7).name == "Coupon"
                 obj.coupon = attributes.attributes(7).value;
             else

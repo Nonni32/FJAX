@@ -6,7 +6,7 @@ NonIndexedBonds = webread(NonIndexedUrl);
 
 for i = 1:length(IndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", IndexedBonds(i).orderbookId);
-    tempBond = bond(IndexedBonds(i), webread(url));
+    tempBond = bond(IndexedBonds(i), webread(url))
     if i == 1
         IndexedPortfolio = portfolio(tempBond);
     else
@@ -26,3 +26,4 @@ for i = 1:length(NonIndexedBonds)
 end
 
 IndexedPortfolio
+NonIndexedPortfolio
