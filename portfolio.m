@@ -46,14 +46,20 @@ classdef portfolio
         
         function yieldCurve(obj)   
             % TODO: LAGA ÞETTA - TEIKNA BARA BOND SEM BYRJA Á "RIK"
+            
 %             x = []; y = [];
+%             p = 1;
 %             for i = 1:length(obj.ticker)
 %                 if(obj.ticker{i}(1:3) == 'RIK')
-%                     x(i) = datenum(obj.maturity(i),'dd/mm/yyyy');
-%                     y(i) = obj.yield(i);
+%                     x(i) = datenum(obj.maturity(i),'dd/mm/yyyy')
+%                     y(i) = obj.yield(i)
+%                     p = p + 1;
+%                     % Þarf að sorta eða kanna afhverju 3 stak er með lengra
+%                     % maturity en það 4 og afhverju 4 er með það styðsta
 %                 end
 %             end
 %             plot(x,y)
+
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'b');
             hold on
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'bo');
