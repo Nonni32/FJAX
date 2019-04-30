@@ -14,27 +14,36 @@ classdef portfolio
     
     methods
         function obj = portfolio(bond)
-            obj.ticker = bond.ticker;
+            obj.ticker = string(bond.ticker);
             obj.duration = bond.duration;
             obj.ask = bond.ask;
             obj.bid = bond.bid;
             obj.lastPrice = bond.lastPrice;
             obj.lastYield = bond.lastYield;
             obj.yield = bond.yield;
-            obj.coupon = bond.coupon;
+            obj.coupon = string(bond.coupon);
             obj.interest = bond.interest;
         end
+       
+        function obj = addToPortfolio(obj, bond)
+            obj.ticker = horzcat(obj.ticker, string(bond.ticker));
+            obj.duration = horzcat(obj.duration, bond.duration);
+            obj.ask = horzcat(obj.ask, bond.ask);
+            obj.bid = horzcat(obj.bid, bond.bid);
+            obj.lastPrice = horzcat(obj.lastPrice, bond.lastPrice);
+            obj.lastYield = horzcat(obj.lastYield, bond.lastYield);
+            obj.yield = horzcat(obj.yield, bond.yield);
+            obj.coupon = horzcat(obj.coupon, string(bond.coupon));
+            obj.interest = horzcat(obj.interest, bond.interest);
+        end
         
-        function addToPortfolio(bond)
-            obj.ticker(end+1) = bond.ticker;
-            obj.duration(end+1) = bond.duration;
-            obj.ask(end+1) = bond.ask;
-            obj.bid(end+1) = bond.bid;
-            obj.lastPrice(end+1) = bond.lastPrice;
-            obj.lastYield(end+1) = bond.lastYield;
-            obj.yield(end+1) = bond.yield;
-            obj.coupon(end+1) = bond.coupon;
-            obj.interest(end+1) = bond.interest;
+        function yieldCurveMethod1(obj)
+           % TODO
+        end
+        
+        
+        function yieldCurveMethod2(obj)
+           % TODO
         end
     end
 end

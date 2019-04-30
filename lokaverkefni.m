@@ -10,10 +10,18 @@ for i = 1:length(IndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en",IndexedBonds(i).orderbookId);
     tempBond = bond(IndexedBonds(i), webread(url));
     if i == 1
-        IndexedPortfolio = portfolio(tempBond);
+        IndexedPortfolio = portfolio(tempBond)
     else
-        IndexedPortfolio.addToPortfolio(tempBond);
+        IndexedPortfolio = IndexedPortfolio.addToPortfolio(tempBond)
     end
 end
 
-IndexedPortfolio
+for i = 1:length(NonIndexedBonds)
+    url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en",NonIndexedBonds(i).orderbookId);
+    tempBond = bond(NonIndexedBonds(i), webread(url));
+    if i == 1
+        NonIndexedPortfolio = portfolio(tempBond)
+    else
+        NonIndexedPortfolio = IndexedPortfolio.addToPortfolio(tempBond)
+    end
+end
