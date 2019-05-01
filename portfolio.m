@@ -88,17 +88,17 @@ classdef portfolio
         end
         
         % Í CURVES þARF AÐ LAGA XLIM MAX
-        function obj = zeroCurve(obj)
+        function zeroCurve(obj)
            % TODO: Fjalla um
            % https://se.mathworks.com/help/finance/zbtprice.html í skýrslu
            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)]
            Prices = obj.price;
            Settle = today();
            [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle)
-           plot(curveDates, zeroRates)
+           plot(curveDates, zeroRates*100,'b')
            % x-axis date, y-axis percentage
            datetick('x','dd/mm/yyyy')
-           ytickformat('percentage')
+           ytickformat('%.2f%%')
            xlim([min(curveDates) max(curveDates)]);
            obj.curveDates = curveDates';
            obj.zeroRates = zeroRates';
@@ -110,9 +110,9 @@ classdef portfolio
             Settle = today();
             [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
             [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
-            plot(curveDates,forwardRates)
+            plot(curveDates,forwardRates*100)
             % x-axis date, y-axis percentage
-            ytickformat('percentage')
+            ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(curveDates) max(curveDates)]);
             obj.curveDates = curveDates';
@@ -127,16 +127,36 @@ classdef portfolio
             [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
             [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
             [discRates, curveDates] = zero2disc(zeroRates, curveDates, Settle);
-            plot(curveDates,discRates)
+            plot(curveDates,discRates*100)
             % x-axis date, y-axis percentage
-            ytickformat('percentage')
+            ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(curveDates) max(curveDates)]);
             obj.curveDates = curveDates';
             obj.zeroRates = zeroRates';
             obj.forwardRates = forwardRates';
             obj.discountRates = discRates';
-        end        
+        end
+        
+        function obj = fitMethod(curve, method)
+            % Slá inn hvaða curve og síðan hvaða method
+            % Curves = {"yield", "zero", "forward", "discount"}
+            % Hafa nokkur methods í boði? 
+            dates = obj.curveDates;
+            if curve == "yield"
+                rates = obj.yield;
+            elseif curve == "zero"
+                rates = obj.zeroRates;
+            elseif curve == "forward"
+                rates = obj.forwardRates;
+            elseif curve == "discount"
+                rates = obj.discountRates;
+            end
+            
+            % TODO: Klára methods, finna öll föll og blablabla
+            
+            
+        end
     end
 end
 
