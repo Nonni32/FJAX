@@ -18,8 +18,7 @@ classdef bond
     
     methods
         function obj = bond(overview, attributes)
-            % ASSIGNING VALUES TO THE BOND 
-            %   (SOURCE OF INFORMATION: WWW.BONDS.IS)
+            % Assigning values to bond (from www.bonds.is)
             obj.ticker = overview.shortName;
             obj.issue = attributes.attributes(4).value;
             obj.maturity = attributes.attributes(5).value;

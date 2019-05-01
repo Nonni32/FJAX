@@ -1,6 +1,7 @@
 classdef portfolio
     % PORTFOLIO
     properties
+        % PORTFOLIO PROPERTIES
         ticker = [];
         issue = [];
         maturity = [];
@@ -22,6 +23,7 @@ classdef portfolio
     
     methods
         function obj = portfolio(bond)
+            % INITIALISING THE PORTFOLIO BY ADDING A SINGLE BOND
             obj.ticker = string(bond.ticker);
             obj.duration = double(bond.duration);
             obj.issue = string(bond.issue);
@@ -33,6 +35,9 @@ classdef portfolio
             obj.lastYield = bond.lastYield;
             obj.yield = bond.yield;
             obj.coupon = string(bond.coupon);
+            
+            % MOST BONDS ARE CONVENTIONAL COUPONS OR BULLET BONDS
+            %   IN SOME CASES THE COUPON PAYMENT IS SEMIN-ANNUAL
             if(string(bond.coupon) == "Semiannual")
                 obj.frequency = 2;
             else
@@ -43,6 +48,7 @@ classdef portfolio
         end
        
         function obj = addToPortfolio(obj, bond)
+            % ADDING A BOND TO AN EXISTING PORTFOLIO
             obj.ticker = horzcat(obj.ticker, string(bond.ticker));
             obj.duration = horzcat(obj.duration, bond.duration);
             obj.issue = horzcat(obj.issue, string(bond.issue));
@@ -54,6 +60,9 @@ classdef portfolio
             obj.lastYield = horzcat(obj.lastYield, bond.lastYield);
             obj.yield = horzcat(obj.yield, bond.yield);
             obj.coupon = horzcat(obj.coupon, string(bond.coupon));
+            
+            % MOST BONDS ARE CONVENTIONAL COUPONS OR BULLET BONDS
+            %   IN SOME CASES THE COUPON PAYMENT IS SEMIN-ANNUAL
             if(string(bond.coupon) == "Semiannual")
                 obj.frequency = horzcat(obj.frequency, 2);
             else
@@ -62,22 +71,9 @@ classdef portfolio
             obj.interest = horzcat(obj.interest, bond.interest);
         end
         
-        function yieldCurve(obj)   
+        function yieldCurve(obj)  
             % TODO: LAGA ÞETTA - TEIKNA BARA BOND SEM BYRJA Á "RIK"
-            
-%             x = []; y = [];
-%             p = 1;
-%             for i = 1:length(obj.ticker)
-%                 if(obj.ticker{i}(1:3) == 'RIK')
-%                     x(i) = datenum(obj.maturity(i),'dd/mm/yyyy')
-%                     y(i) = obj.yield(i)
-%                     p = p + 1;
-%                     % Þarf að sorta eða kanna afhverju 3 stak er með lengra
-%                     % maturity en það 4 og afhverju 4 er með það styðsta
-%                 end
-%             end
-%             plot(x,y)
-
+            % PLOTTING THE YIELD CURVE AS IT APPEARS ON WWW.BONDS.IS
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'b');
             hold on
             plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'bo');
@@ -87,61 +83,68 @@ classdef portfolio
             ytickformat('percentage')
         end
         
-        % Í CURVES þARF AÐ LAGA XLIM MAX
-        function zeroCurve(obj)
+        function obj = zeroCurve(obj)
+           % CALCULATING AND PLOTTING THE ZERO RATE CURVE FROM THE PORTFOLIO
            % TODO: Fjalla um
            % https://se.mathworks.com/help/finance/zbtprice.html í skýrslu
-           Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
-           Prices = obj.price;
-           Settle = today();
-           [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
-           plot(curveDates, zeroRates*100,'b')
+           obj = obj.calculateCurves;
+           plot(obj.curveDates, obj.zeroRates*100,'b')
            % x-axis date, y-axis percentage
            datetick('x','dd/mm/yyyy')
            ytickformat('%.2f%%')
-           xlim([min(curveDates) max(curveDates)]);
-           obj.curveDates = curveDates';
-           obj.zeroRates = zeroRates';
+           xlim([min(obj.curveDates) max(obj.curveDates)]);
         end        
         
-        function forwardCurve(obj)
-            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
-            Prices = obj.price;
-            Settle = today();
-            [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
-            [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
-            plot(curveDates,forwardRates*100)
+        function obj = forwardCurve(obj)
+           % CALCULATING AND PLOTTING THE FORWARD RATE CURVE FROM THE PORTFOLIO
+            obj = obj.calculateCurves;
+            plot(obj.curveDates,obj.forwardRates*100)
             % x-axis date, y-axis percentage
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([min(curveDates) max(curveDates)]);
-            obj.curveDates = curveDates';
-            obj.zeroRates = zeroRates';
-            obj.forwardRates = zeroRates';
+            xlim([min(obj.curveDates) max(obj.curveDates)]);
         end        
         
-        function discountCurve(obj)
+        function obj = discountCurve(obj)
+           % CALCULATING AND PLOTTING THE DISCOUNT RATE CURVE FROM THE PORTFOLIO
+            obj = obj.calculateCurves;
+            plot(obj.curveDates,obj.discountRates*100)
+            % x-axis date, y-axis percentage
+            ytickformat('%.2f%%')
+            datetick('x','dd/mm/yyyy')
+            xlim([min(obj.curveDates) max(obj.curveDates)]);
+        end
+        
+        % function obj = swapCurve(obj)
+        %   TODO: SWAP CURVE!
+        % end
+        
+        function obj = calculateCurves(obj)
+           % CALCULATING THE RATE CURVES FROM THE PORTFOLIO 
+           % (ZERO, FORWARD, DISCOUNT)
             Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
             Prices = obj.price;
             Settle = today();
             [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
             [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
             [discRates, curveDates] = zero2disc(zeroRates, curveDates, Settle);
-            plot(curveDates,discRates*100)
-            % x-axis date, y-axis percentage
-            ytickformat('%.2f%%')
-            datetick('x','dd/mm/yyyy')
-            xlim([min(curveDates) max(curveDates)]);
             obj.curveDates = curveDates';
             obj.zeroRates = zeroRates';
             obj.forwardRates = forwardRates';
             obj.discountRates = discRates';
         end
         
-        function fitMethod(curve, method)
-            % Slá inn hvaða curve og síðan hvaða method
-            % Curves = {"yield", "zero", "forward", "discount"}
-            % Hafa nokkur methods í boði? 
+        function fitMethod(obj, curve, method)
+            % USING A FITTING METHOD TO A CURVE
+            %   BOTH THE METHOD AND THE CURVE ARE EXPECTED AS STRING INPUTS
+            %   CURVES AVAILABLE: 
+            %       "yield", "zero", "forward", "discount", "swap"
+            %   METHODS AVAILABLE:
+            %       "bootstrapping", "nelson-siegel", "polynomial",
+            %       "spline", "cubic spline", "constrained cubic spline"
+            %   HUGSANLEGA BÆTA VIÐ
+            
+            obj = obj.calculateCurves;
             dates = obj.curveDates;
             if curve == "yield"
                 rates = obj.yield;
@@ -153,8 +156,15 @@ classdef portfolio
                 rates = obj.discountRates;
             end
             
-            % TODO: Klára methods, finna öll föll og blablabla
-            0
+            % TODO: METHODS
+            %   - Bootstrapping
+            %       - Bootstrapping er í raun það sem ...Curve föllin gera
+            %   - Nelson-Siegel
+            %   - Polynomials
+            %       - Biðja um input veldi
+            %   - Cubic spline
+            %   - Constrained cubic smoothing spline
+            %       - Biðja um input smoothing factor [0,1]
             
         end
     end

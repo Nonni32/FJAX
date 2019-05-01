@@ -4,6 +4,7 @@ NonIndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=t
 IndexedBonds = webread(IndexedUrl);
 NonIndexedBonds = webread(NonIndexedUrl);
 
+% CREATING A PORTFOLIO OF INDEXED BONDS
 for i = 1:length(IndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", IndexedBonds(i).orderbookId);
     tempBond = bond(IndexedBonds(i), webread(url));
@@ -14,6 +15,7 @@ for i = 1:length(IndexedBonds)
     end
 end
 
+% CREATING A PORTFOLIO OF NONINDEXED BONDS
 for i = 1:length(NonIndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", NonIndexedBonds(i).orderbookId);
     tempBond = bond(NonIndexedBonds(i), webread(url));
@@ -24,11 +26,3 @@ for i = 1:length(NonIndexedBonds)
     end
 end
 
-%% 
-NonIndexedPortfolio.yieldCurve
-%%
-NonIndexedPortfolio.zeroCurve
-%% 
-NonIndexedPortfolio.forwardCurve
-%% 
-NonIndexedPortfolio.discountCurve
