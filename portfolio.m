@@ -91,10 +91,10 @@ classdef portfolio
         function zeroCurve(obj)
            % TODO: Fjalla um
            % https://se.mathworks.com/help/finance/zbtprice.html í skýrslu
-           Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)]
+           Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
            Prices = obj.price;
            Settle = today();
-           [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle)
+           [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
            plot(curveDates, zeroRates*100,'b')
            % x-axis date, y-axis percentage
            datetick('x','dd/mm/yyyy')
@@ -104,8 +104,8 @@ classdef portfolio
            obj.zeroRates = zeroRates';
         end        
         
-        function obj = forwardCurve(obj)
-            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)]
+        function forwardCurve(obj)
+            Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
             Prices = obj.price;
             Settle = today();
             [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
@@ -120,7 +120,7 @@ classdef portfolio
             obj.forwardRates = zeroRates';
         end        
         
-        function obj = discountCurve(obj)
+        function discountCurve(obj)
             Bonds = [datenum(obj.maturity) obj.interest' 100*ones(length(obj.ticker),1) obj.frequency' 8*ones(length(obj.ticker),1)];
             Prices = obj.price;
             Settle = today();
@@ -138,7 +138,7 @@ classdef portfolio
             obj.discountRates = discRates';
         end
         
-        function obj = fitMethod(curve, method)
+        function fitMethod(curve, method)
             % Slá inn hvaða curve og síðan hvaða method
             % Curves = {"yield", "zero", "forward", "discount"}
             % Hafa nokkur methods í boði? 
@@ -154,7 +154,7 @@ classdef portfolio
             end
             
             % TODO: Klára methods, finna öll föll og blablabla
-            
+            0
             
         end
     end
