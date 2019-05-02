@@ -117,24 +117,31 @@ classdef portfolio
             xlim([min(obj.curveDates) max(obj.curveDates)]);
         end
         
-%         function obj = swapCurve(obj)
-%         %   TODO: Laga SWAP CURVE!
-%         
-%             %Alpha er tímabilið vantar
-%             obj.calculateCurves;
-
-%             if obj.frequency == 2
-%                 obj.alpha = ones(length(obj.discountRates))*0.5;
-%             else
-%                 obj.alpha = ones(length(obj.discountRates));
-%             end
-%                     
-%             %Bua til alpha vector med tima vectorunum
-%                 
-%             obj.swapRate = sum(obj.alpha.*(obj.discountRates*100).*(obj.forwardRates*100))/sum(obj.alpha.*(obj.discountRates*100))
-%             plot(obj.curveDates, obj.swapRate)
-%         
-%         end
+        function obj = swapCurve(obj)
+        %   TODO: Fact checka Swap Curve - Lookar fyrir að vera í lagi
+        
+            obj = obj.calculateCurves;
+            
+            for i = 1:length(obj.discountRates)
+                %Find what coupon frequency is per bond
+                if obj.frequency(i) == 2
+                    alpha(i) = 0.5; % Alpha is the time period between coupons per bond
+                else
+                    alpha(i) = 1;
+                end
+                
+                frwRate(i) = obj.forwardRates(i)*100; %Forward rate vector for i time periods
+                dcRate(i) = obj.discountRates(i)*100;
+                obj.swapRates(i) = (sum(alpha.*dcRate.*frwRate)/sum(alpha.*dcRate))/100; %Calculation of the Swap rate for i time periods
+            end
+            
+            plot(obj.curveDates, obj.swapRates*100)
+            %Ploting format
+            grid on
+            ytickformat('%.2f%%')
+            datetick('x','dd/mm/yyyy')
+            xlim([min(obj.curveDates) max(obj.curveDates)]);
+        end
         
         
         function obj = calculateCurves(obj)
