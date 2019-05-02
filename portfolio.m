@@ -117,9 +117,25 @@ classdef portfolio
             xlim([min(obj.curveDates) max(obj.curveDates)]);
         end
         
-        % function obj = swapCurve(obj)
-        %   TODO: SWAP CURVE!
-        % end
+%         function obj = swapCurve(obj)
+%         %   TODO: Laga SWAP CURVE!
+%         
+%             %Alpha er tímabilið vantar
+%             obj.calculateCurves;
+
+%             if obj.frequency == 2
+%                 obj.alpha = ones(length(obj.discountRates))*0.5;
+%             else
+%                 obj.alpha = ones(length(obj.discountRates));
+%             end
+%                     
+%             %Bua til alpha vector med tima vectorunum
+%                 
+%             obj.swapRate = sum(obj.alpha.*(obj.discountRates*100).*(obj.forwardRates*100))/sum(obj.alpha.*(obj.discountRates*100))
+%             plot(obj.curveDates, obj.swapRate)
+%         
+%         end
+        
         
         function obj = calculateCurves(obj)
            % CALCULATING THE RATE CURVES FROM THE PORTFOLIO 
