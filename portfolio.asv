@@ -253,10 +253,11 @@ classdef portfolio
             y = rates; 
             x_max = max(x);
             x_min = min(x);
-            x_scaled = 10* (x - x_min) / (x_max - x_min);
+            %x_scaled = 10* (x - x_min) / (x_max - x_min);
+            x_scaled = (x - x_min) / (x_max - x_min) + 1;
             xsp = linspace(0,10,5000);
             cs = csaps(x_scaled,y,smoothingFactor);
-            plot(xsp * (x_max - x_min) / 10 + x_min, ppval(cs,xsp)*100,'--');
+            plot(xsp * (x_max - x_min) / 10 + x_min, ppval(cs,xsp)*100);
             ytickformat('%.2f%%')   
             datetick('x','dd/mm/yyyy')
             xlim([min(dates) max(dates)])

@@ -52,6 +52,8 @@ function bondGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to bondGUI (see VARARGIN)
 
 createPortfolio;
+NonIndexedPortfolio.calculateCurves;
+IndexedPortfolio.calculateCurves;
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
 
@@ -174,8 +176,6 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
 popup_sel_index = get(handles.popupmenu1, 'Value');
-% createPortfolio;
-
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
@@ -236,15 +236,13 @@ if(ind == 0)
 else
     portfolio = handles.IndexedPortfolio;
 end
-% portfolio = portfolio.calculateCurves;
+portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
+dates = datenum(portfolio.maturity,'dd/mm/yyyy');
 switch curve
     case "Yield"
         rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     case "Zero rates"
         rates = portfolio.zeroRates;
     case "Forward rates"
@@ -252,7 +250,6 @@ switch curve
     case "Discount rates"
         rates = portfolio.discountRates;
 end
-
 plot(dates, rates*100,'b--')
 ytickformat('%.2f%%')
 datetick('x','dd/mm/yyyy')
@@ -328,43 +325,17 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 hold on
-% createPortfolio;
 ind = get(handles.radiobutton1,'Value');
 degree = round(get(handles.slider3,'Value'));
-
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
 else
     portfolio = handles.IndexedPortfolio;
 end
-% portfolio = portfolio.calculateCurves;
+portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-ws = warning('off','all');  % Turn off warning
-p = polyfit(dates', rates, degree);
-warning(ws)  % Turn it back on.
-px = linspace(min(dates),max(dates),max(dates)-min(dates));
-py = polyval(p, px);
-
-plot(px, py*100,'r--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
-
+curve = contents{get(handles.popupmenu1,'Value')};
+portfolio.fitMethod(curve, "Polynomial", degree, 0);
 
 % --- Executes on button press in checkbox4.
 function checkbox4_Callback(hObject, eventdata, handles)
@@ -374,37 +345,16 @@ function checkbox4_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
 hold on
-createPortfolio;
 ind = get(handles.radiobutton1,'Value');
-
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
 else
     portfolio = handles.IndexedPortfolio;
 end
-% portfolio = portfolio.calculateCurves;
+portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-sp = spline(dates,rates);
-plot(xsp,ppval(sp,xsp)*100,'--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
+curve = contents{get(handles.popupmenu1,'Value')};
+portfolio.fitMethod(curve, "Spline", 0, 0);
 
 
 % --- Executes on slider movement.
@@ -437,39 +387,17 @@ function checkbox5_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
 hold on
-createPortfolio;
 ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'))
-
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
 else
     portfolio = handles.IndexedPortfolio;
 end
-% portfolio = portfolio.calculateCurves;
+portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-cs = csaps(dates,rates);
-xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-plot(xsp,ppval(cs,xsp)*100,'--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
-
+%dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+portfolio.fitMethod(curve, "Cubic spline", 0, 0);
 
 % --- Executes on button press in checkbox6.
 function checkbox6_Callback(hObject, eventdata, handles)
@@ -479,39 +407,18 @@ function checkbox6_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox6
 hold on
-createPortfolio;
 ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'))
-
+smoothingFactor = double(get(handles.slider1,'Value')
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
 else
     portfolio = handles.IndexedPortfolio;
 end
-% portfolio = portfolio.calculateCurves;
+portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-smoothingFactor = get(handles.slider1,'Value');
-
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-cs = csaps(dates,rates,smoothingFactor);
-xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-plot(xsp,ppval(cs,xsp)*100,'--')
-ytickformat('%.2f%%')   
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
+%dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+portfolio.fitMethod(curve, "Constrained cubic spline", 0, smoothingFactor);
 
 % --- Executes on slider movement.
 function slider3_Callback(hObject, eventdata, handles)

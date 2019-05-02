@@ -1,3 +1,6 @@
+% TODO: Skoða þetta fyrir polynomial og constrained 
+% https://uk.mathworks.com/help/control/ug/build-app-with-interactive-plot-updates.html
+
 function varargout = bondGUI(varargin)
 % BONDGUI MATLAB code for bondGUI.fig
 %      BONDGUI, by itself, creates a new BONDGUI or raises the existing
@@ -22,7 +25,7 @@ function varargout = bondGUI(varargin)
 
 % Edit the above text to modify the response to help bondGUI
 
-% Last Modified by GUIDE v2.5 01-May-2019 23:38:32
+% Last Modified by GUIDE v2.5 02-May-2019 21:42:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,7 +77,6 @@ if strcmp(get(hObject,'Visible'),'off')
     end
     portfolio.yieldCurve;
 end
-
 
 % UIWAIT makes bondGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -176,8 +178,6 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
 popup_sel_index = get(handles.popupmenu1, 'Value');
-% createPortfolio;
-
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
@@ -231,31 +231,33 @@ function checkbox1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hold on
-% createPortfolio;
-ind = get(handles.radiobutton1,'Value');
-if(ind == 0)
-    portfolio = handles.NonIndexedPortfolio;
-else
-    portfolio = handles.IndexedPortfolio;
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')}; 
+    dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+    switch curve
+        case "Yield"
+            rates = portfolio.yield;
+        case "Zero rates"
+            rates = portfolio.zeroRates;
+        case "Forward rates"
+            rates = portfolio.forwardRates;
+        case "Discount rates"
+            rates = portfolio.discountRates;
+    end
+    plot(dates, rates*100,'b--')
+    ytickformat('%.2f%%')
+    datetick('x','dd/mm/yyyy')
+    xlim([min(dates) max(dates)])
 end
-portfolio = portfolio.calculateCurves;
-contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-plot(dates, rates*100,'b--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
+    
 
 % GILDI ÚR POP UP MENU
 %contents = get(handles.popupmenu1,'String'); 
@@ -327,40 +329,19 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 hold on
-% createPortfolio;
-ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'));
-
-if(ind == 0)
-    portfolio = handles.NonIndexedPortfolio;
-else
-    portfolio = handles.IndexedPortfolio;
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    degree = round(get(handles.slider3,'Value'));
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')};
+    portfolio.fitMethod(curve, "Polynomial", degree, 0);
 end
-portfolio = portfolio.calculateCurves;
-contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-ws = warning('off','all');  % Turn off warning
-p = polyfit(dates', rates, degree);
-warning(ws)  % Turn it back on.
-px = linspace(min(dates),max(dates),max(dates)-min(dates));
-py = polyval(p, px);
-
-plot(px, py*100,'r--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
-
 
 % --- Executes on button press in checkbox4.
 function checkbox4_Callback(hObject, eventdata, handles)
@@ -370,36 +351,18 @@ function checkbox4_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
 hold on
-%createPortfolio;
-ind = get(handles.radiobutton1,'Value');
-
-if(ind == 0)
-    portfolio = handles.NonIndexedPortfolio;
-else
-    portfolio = handles.IndexedPortfolio;
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')};
+    portfolio.fitMethod(curve, "Spline", 0, 0);
 end
-portfolio = portfolio.calculateCurves;
-contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-sp = spline(dates,rates);
-plot(xsp,ppval(sp,xsp)*100,'--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
-
 
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
@@ -409,7 +372,11 @@ function slider1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+numSteps = 100;
+set(hObject, 'Min', 0.0);
+set(hObject, 'Max', 1.0);
+set(hObject, 'Value', 1);
+set(hObject, 'SliderStep', [1/(numSteps-1) , 1/(numSteps-1) ]);
 
 % --- Executes during object creation, after setting all properties.
 function slider1_CreateFcn(hObject, eventdata, handles)
@@ -431,37 +398,18 @@ function checkbox5_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
 hold on
-createPortfolio;
-ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'));
-
-if(ind == 0)
-    portfolio = handles.NonIndexedPortfolio;
-else
-    portfolio = handles.IndexedPortfolio;
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')}; 
+    portfolio.fitMethod(curve, "Cubic spline", 0, 0);
 end
-portfolio = portfolio.calculateCurves;
-contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-cs = csaps(dates,rates);
-xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-plot(xsp,ppval(cs,xsp)*100,'--')
-ytickformat('%.2f%%')
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
-
 
 % --- Executes on button press in checkbox6.
 function checkbox6_Callback(hObject, eventdata, handles)
@@ -471,37 +419,19 @@ function checkbox6_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox6
 hold on
-createPortfolio;
-ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'))
-
-if(ind == 0)
-    portfolio = handles.NonIndexedPortfolio;
-else
-    portfolio = handles.IndexedPortfolio;
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    smoothingFactor = get(handles.slider5,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')};
+    portfolio.fitMethod(curve, "Constrained cubic spline", 0, smoothingFactor);
 end
-portfolio = portfolio.calculateCurves;
-contents = get(handles.popupmenu1,'String'); 
-curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-smoothingFactor = get(handles.slider1,'Value');
-switch curve
-    case "Yield"
-        rates = portfolio.yield;
-    case "Zero rates"
-        rates = portfolio.zeroRates;
-    case "Forward rates"
-        rates = portfolio.forwardRates;
-    case "Discount rates"
-        rates = portfolio.discountRates;
-end
-
-cs = csaps(dates,rates,smoothingFactor);
-xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-plot(xsp,ppval(cs,xsp)*100,'--')
-ytickformat('%.2f%%')   
-datetick('x','dd/mm/yyyy')
-xlim([min(dates) max(dates)])
 
 % --- Executes on slider movement.
 function slider3_Callback(hObject, eventdata, handles)
@@ -518,7 +448,7 @@ function slider3_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-numSteps = 6;
+numSteps = 4;
 set(hObject, 'Min', 1);
 set(hObject, 'Max', numSteps);
 set(hObject, 'Value', 1);
@@ -536,3 +466,25 @@ end
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton1
+
+
+% --- Executes on slider movement.
+function slider5_Callback(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
