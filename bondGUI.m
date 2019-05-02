@@ -234,7 +234,54 @@ function checkbox2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox2
-
+% % TODO: NELSON SIEGEL
+% hold on
+% createPortfolio;
+% ind = get(handles.radiobutton1,'Value');
+% degree = round(get(handles.slider3,'Value'))
+% 
+% if(ind == 0)
+%     portfolio = NonIndexedPortfolio;
+% else
+%     portfolio = NonIndexedPortfolio;
+% end
+% portfolio = portfolio.calculateCurves;
+% contents = get(handles.popupmenu1,'String'); 
+% curve = contents{get(handles.popupmenu1,'Value')}; 
+% dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+% 
+% switch curve
+%     case "Yield"
+%         rates = portfolio.yield;
+%     case "Zero rates"
+%         rates = portfolio.zeroRates;
+%     case "Forward rates"
+%         rates = portfolio.forwardRates;
+%     case "Discount rates"
+%         rates = portfolio.discountRates;
+% end
+% ws = warning('off','all');  % Turn off warning
+% Settle = repmat(today,[length(portfolio.maturity) 1])
+% Maturity = dates
+% CleanPrice = portfolio.price'
+% CouponRate = portfolio.interest'
+% Frequency = portfolio.frequency'
+% Basis = zeros(length(portfolio.maturity),1);
+% Instruments = [Settle Maturity CleanPrice CouponRate Frequency Basis];
+% PlottingPoints = linspace(min(dates),max(dates),max(dates)-min(dates));
+% Yield = bndyield(CleanPrice,CouponRate,Settle,Maturity);
+% 
+% NSModel = IRFunctionCurve.fitNelsonSiegel('Zero', today, Instruments);
+% 
+% % create the plot
+% plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100,'---')
+% warning(ws)  % Turn it back on.
+% ytickformat('%.2f%%')
+% datetick('x','dd/mm/yyyy')
+% xlim([min(dates) max(dates)])
+% hold on
+% scatter(Maturity,Yield*100,'black')
+% datetick('x')
 
 % --- Executes on button press in checkbox3.
 function checkbox3_Callback(hObject, eventdata, handles)
@@ -270,8 +317,9 @@ switch curve
         rates = portfolio.discountRates;
 end
 
- 
+ws = warning('off','all');  % Turn off warning
 p = polyfit(dates', rates, degree);
+warning(ws)  % Turn it back on.
 px = linspace(min(dates),max(dates),max(dates)-min(dates));
 py = polyval(p, px);
 
@@ -288,6 +336,39 @@ function checkbox4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
+hold on
+createPortfolio;
+ind = get(handles.radiobutton1,'Value');
+degree = round(get(handles.slider3,'Value'))
+
+if(ind == 0)
+    portfolio = NonIndexedPortfolio;
+else
+    portfolio = NonIndexedPortfolio;
+end
+portfolio = portfolio.calculateCurves;
+contents = get(handles.popupmenu1,'String'); 
+curve = contents{get(handles.popupmenu1,'Value')}; 
+dates = portfolio.curveDates;
+
+switch curve
+    case "Yield"
+        rates = portfolio.yield;
+        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+    case "Zero rates"
+        rates = portfolio.zeroRates;
+    case "Forward rates"
+        rates = portfolio.forwardRates;
+    case "Discount rates"
+        rates = portfolio.discountRates;
+end
+
+xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
+sp = spline(dates,rates);
+plot(xsp,ppval(sp,xsp)*100,'--')
+ytickformat('%.2f%%')
+datetick('x','dd/mm/yyyy')
+xlim([min(dates) max(dates)])
 
 
 % --- Executes on slider movement.
@@ -319,6 +400,39 @@ function checkbox5_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
+hold on
+createPortfolio;
+ind = get(handles.radiobutton1,'Value');
+degree = round(get(handles.slider3,'Value'))
+
+if(ind == 0)
+    portfolio = NonIndexedPortfolio;
+else
+    portfolio = NonIndexedPortfolio;
+end
+portfolio = portfolio.calculateCurves;
+contents = get(handles.popupmenu1,'String'); 
+curve = contents{get(handles.popupmenu1,'Value')}; 
+dates = portfolio.curveDates;
+
+switch curve
+    case "Yield"
+        rates = portfolio.yield;
+        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+    case "Zero rates"
+        rates = portfolio.zeroRates;
+    case "Forward rates"
+        rates = portfolio.forwardRates;
+    case "Discount rates"
+        rates = portfolio.discountRates;
+end
+
+cs = csaps(dates,rates);
+xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
+plot(xsp,ppval(cs,xsp)*100,'--')
+ytickformat('%.2f%%')
+datetick('x','dd/mm/yyyy')
+xlim([min(dates) max(dates)])
 
 
 % --- Executes on button press in checkbox6.
@@ -328,7 +442,40 @@ function checkbox6_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox6
+hold on
+createPortfolio;
+ind = get(handles.radiobutton1,'Value');
+degree = round(get(handles.slider3,'Value'))
 
+if(ind == 0)
+    portfolio = NonIndexedPortfolio;
+else
+    portfolio = NonIndexedPortfolio;
+end
+portfolio = portfolio.calculateCurves;
+contents = get(handles.popupmenu1,'String'); 
+curve = contents{get(handles.popupmenu1,'Value')}; 
+dates = portfolio.curveDates;
+smoothingFactor = get(handles.slider1,'Value');
+
+switch curve
+    case "Yield"
+        rates = portfolio.yield;
+        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
+    case "Zero rates"
+        rates = portfolio.zeroRates;
+    case "Forward rates"
+        rates = portfolio.forwardRates;
+    case "Discount rates"
+        rates = portfolio.discountRates;
+end
+
+cs = csaps(dates,rates,smoothingFactor);
+xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
+plot(xsp,ppval(cs,xsp)*100,'--')
+ytickformat('%.2f%%')   
+datetick('x','dd/mm/yyyy')
+xlim([min(dates) max(dates)])
 
 % --- Executes on slider movement.
 function slider3_Callback(hObject, eventdata, handles)

@@ -6,8 +6,9 @@ NonIndexedBonds = webread(NonIndexedUrl);
 
 % CREATING A PORTFOLIO OF INDEXED BONDS
 for i = 1:length(IndexedBonds)
+    options = weboptions('Timeout', 15);
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", IndexedBonds(i).orderbookId);
-    tempBond = bond(IndexedBonds(i), webread(url));
+    tempBond = bond(IndexedBonds(i), webread(url,options));
     if i == 1
         IndexedPortfolio = portfolio(tempBond);
     else
@@ -18,7 +19,8 @@ end
 % CREATING A PORTFOLIO OF NONINDEXED BONDS
 for i = 1:length(NonIndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", NonIndexedBonds(i).orderbookId);
-    tempBond = bond(NonIndexedBonds(i), webread(url));
+    options = weboptions('Timeout', 15);
+    tempBond = bond(NonIndexedBonds(i), webread(url,options));
     if i == 1
         NonIndexedPortfolio = portfolio(tempBond);
     else

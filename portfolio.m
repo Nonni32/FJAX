@@ -74,7 +74,7 @@ classdef portfolio
         function yieldCurve(obj)  
             % TODO: LAGA ÞETTA - TEIKNA BARA BOND SEM BYRJA Á "RIK"
             % PLOTTING THE YIELD CURVE AS IT APPEARS ON WWW.BONDS.IS
-            plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield*100,'bo');
+            scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield*100,'k','filled');
             % x-axis date, y-axis percentage
             grid on
             datetick('x','dd/mm/yyyy')
