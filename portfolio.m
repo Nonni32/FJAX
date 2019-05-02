@@ -74,10 +74,9 @@ classdef portfolio
         function yieldCurve(obj)  
             % TODO: LAGA ÞETTA - TEIKNA BARA BOND SEM BYRJA Á "RIK"
             % PLOTTING THE YIELD CURVE AS IT APPEARS ON WWW.BONDS.IS
-            plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'b');
-            hold on
-            plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield,'bo');
+            plot(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield*100,'bo');
             % x-axis date, y-axis percentage
+            grid on
             datetick('x','dd/mm/yyyy')
             xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
             ytickformat('percentage')
@@ -88,8 +87,9 @@ classdef portfolio
            % TODO: Fjalla um
            % https://se.mathworks.com/help/finance/zbtprice.html í skýrslu
            obj = obj.calculateCurves;
-           plot(obj.curveDates, obj.zeroRates*100,'b')
+           plot(obj.curveDates, obj.zeroRates*100,'bo')
            % x-axis date, y-axis percentage
+           grid on
            datetick('x','dd/mm/yyyy')
            ytickformat('%.2f%%')
            xlim([min(obj.curveDates) max(obj.curveDates)]);
@@ -98,8 +98,9 @@ classdef portfolio
         function obj = forwardCurve(obj)
            % CALCULATING AND PLOTTING THE FORWARD RATE CURVE FROM THE PORTFOLIO
             obj = obj.calculateCurves;
-            plot(obj.curveDates,obj.forwardRates*100)
+            plot(obj.curveDates,obj.forwardRates*100,'bo')
             % x-axis date, y-axis percentage
+            grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(obj.curveDates) max(obj.curveDates)]);
@@ -108,8 +109,9 @@ classdef portfolio
         function obj = discountCurve(obj)
            % CALCULATING AND PLOTTING THE DISCOUNT RATE CURVE FROM THE PORTFOLIO
             obj = obj.calculateCurves;
-            plot(obj.curveDates,obj.discountRates*100)
+            plot(obj.curveDates,obj.discountRates*100,'--bo')
             % x-axis date, y-axis percentage
+            grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(obj.curveDates) max(obj.curveDates)]);
@@ -161,11 +163,48 @@ classdef portfolio
             %       - Bootstrapping er í raun það sem ...Curve föllin gera
             %   - Nelson-Siegel
             %   - Polynomials
+            %   - Spline
             %       - Biðja um input veldi
             %   - Cubic spline
             %   - Constrained cubic smoothing spline
             %       - Biðja um input smoothing factor [0,1]
             
+        end
+        
+        % KANNSKI BEILA Á ÞETTA - LJÓTUR KÓÐI
+        function curve = polynomialFit(obj, x, y, m)
+            % POLYNOMIAL FITTING 
+            %   Dæmi um notkun
+            %   x = 0:10;
+            %   y = @(x) 3*x.^2+2*x+19;
+            %   a = polyleastsquarefitting(x,y(x),2)
+            %   f = @(x) a(1)+a(2).*x+a(3)*x.^2;
+            %   plot(x,y(x))
+            %   hold on
+            %   plot(x,f(x))
+            n = size(x,1);
+            if n == 1
+                n = size(x,2);
+            end
+            b = zeros(m+1,1);
+            for i = 1:n
+               for j = 1:m+1
+                  b(j) = b(j) + y(i)*x(i)^(j-1);
+               end
+            end
+            p = zeros(2*m+1,1);
+            for i = 1:n
+               for j = 1:2*m+1
+                  p(j) = p(j) + x(i)^(j-1);
+               end
+            end
+            A = zeros(m+1,m+1);
+            for i = 1:m+1
+               for j = 1:m+1
+                  A(i,j) = p(i+j-1);
+               end
+            end
+            curve = A\b;
         end
     end
 end
