@@ -87,7 +87,7 @@ classdef portfolio
            % TODO: Fjalla um
            % https://se.mathworks.com/help/finance/zbtprice.html í skýrslu
            obj = obj.calculateCurves;
-           plot(obj.curveDates, obj.zeroRates*100,'bo')
+           scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.zeroRates*100,'k','filled');
            % x-axis date, y-axis percentage
            grid on
            datetick('x','dd/mm/yyyy')
@@ -98,7 +98,7 @@ classdef portfolio
         function obj = forwardCurve(obj)
            % CALCULATING AND PLOTTING THE FORWARD RATE CURVE FROM THE PORTFOLIO
             obj = obj.calculateCurves;
-            plot(obj.curveDates,obj.forwardRates*100,'bo')
+           scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.forwardRates*100,'k','filled');
             % x-axis date, y-axis percentage
             grid on
             ytickformat('%.2f%%')
@@ -109,7 +109,7 @@ classdef portfolio
         function obj = discountCurve(obj)
            % CALCULATING AND PLOTTING THE DISCOUNT RATE CURVE FROM THE PORTFOLIO
             obj = obj.calculateCurves;
-            plot(obj.curveDates,obj.discountRates*100,'--bo')
+           scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.discountRates*100,'k','filled');
             % x-axis date, y-axis percentage
             grid on
             ytickformat('%.2f%%')

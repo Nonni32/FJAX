@@ -51,6 +51,12 @@ function bondGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to bondGUI (see VARARGIN)
 
+createPortfolio;
+NonIndexedPortfolio.calculateCurves;
+IndexedPortfolio.calculateCurves;
+handles.NonIndexedPortfolio = NonIndexedPortfolio;
+handles.IndexedPortfolio = IndexedPortfolio;
+
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
@@ -60,15 +66,15 @@ guidata(hObject, handles);
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using bondGUI.
 if strcmp(get(hObject,'Visible'),'off')
-    createPortfolio;
     ind = get(handles.radiobutton1,'Value');
     if(ind == 0)
         portfolio = NonIndexedPortfolio;
     else
-        portfolio = NonIndexedPortfolio;
+        portfolio = IndexedPortfolio;
     end
     portfolio.yieldCurve;
 end
+
 
 % UIWAIT makes bondGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -93,21 +99,35 @@ axes(handles.axes1);
 cla;
 
 popup_sel_index = get(handles.popupmenu1, 'Value');
-createPortfolio;
+% createPortfolio;
+
+ind = get(handles.radiobutton1,'Value');
+if(ind == 0)
+    portfolio = handles.NonIndexedPortfolio;
+else
+    portfolio = handles.IndexedPortfolio;
+end
 
 switch popup_sel_index
     case 1
-        NonIndexedPortfolio.yieldCurve;
+        portfolio.yieldCurve;
     case 2
-        NonIndexedPortfolio.zeroCurve;
+        portfolio.zeroCurve;
     case 3
-        NonIndexedPortfolio.forwardCurve;
+        portfolio.forwardCurve;
     case 4
-        NonIndexedPortfolio.discountCurve;
+        portfolio.discountCurve;
     % TODO: SWAP RATES 
     % case 5
     %    NonIndexedPortfolio.yieldCurve;
 end
+set(handles.checkbox1,'Value',0);
+set(handles.checkbox2,'Value',0);
+set(handles.checkbox3,'Value',0);
+set(handles.checkbox4,'Value',0);
+set(handles.checkbox5,'Value',0);
+set(handles.checkbox6,'Value',0);
+
 % --------------------------------------------------------------------
 function FileMenu_Callback(hObject, eventdata, handles)
 % hObject    handle to FileMenu (see GCBO)
@@ -155,7 +175,26 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
+popup_sel_index = get(handles.popupmenu1, 'Value');
+% createPortfolio;
 
+ind = get(handles.radiobutton1,'Value');
+if(ind == 0)
+    portfolio = handles.NonIndexedPortfolio;
+else
+    portfolio = handles.IndexedPortfolio;
+end
+
+switch popup_sel_index
+    case 1
+        portfolio.yieldCurve;
+    case 2
+        portfolio.zeroCurve;
+    case 3
+        portfolio.forwardCurve;
+    case 4
+        portfolio.discountCurve;
+end
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu1_CreateFcn(hObject, eventdata, handles)
@@ -192,22 +231,20 @@ function checkbox1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hold on
-createPortfolio;
+% createPortfolio;
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.NonIndexedPortfolio;
 else
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.IndexedPortfolio;
 end
 portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
+dates = datenum(portfolio.maturity,'dd/mm/yyyy');
 switch curve
     case "Yield"
         rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     case "Zero rates"
         rates = portfolio.zeroRates;
     case "Forward rates"
@@ -215,7 +252,6 @@ switch curve
     case "Discount rates"
         rates = portfolio.discountRates;
 end
-
 plot(dates, rates*100,'b--')
 ytickformat('%.2f%%')
 datetick('x','dd/mm/yyyy')
@@ -243,7 +279,7 @@ function checkbox2_Callback(hObject, eventdata, handles)
 % if(ind == 0)
 %     portfolio = NonIndexedPortfolio;
 % else
-%     portfolio = NonIndexedPortfolio;
+%     portfolio = IndexedPortfolio;
 % end
 % portfolio = portfolio.calculateCurves;
 % contents = get(handles.popupmenu1,'String'); 
@@ -291,24 +327,22 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 hold on
-createPortfolio;
+% createPortfolio;
 ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'))
+degree = round(get(handles.slider3,'Value'));
 
 if(ind == 0)
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.NonIndexedPortfolio;
 else
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.IndexedPortfolio;
 end
 portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
+dates = datenum(portfolio.maturity,'dd/mm/yyyy');
 switch curve
     case "Yield"
         rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     case "Zero rates"
         rates = portfolio.zeroRates;
     case "Forward rates"
@@ -316,7 +350,6 @@ switch curve
     case "Discount rates"
         rates = portfolio.discountRates;
 end
-
 ws = warning('off','all');  % Turn off warning
 p = polyfit(dates', rates, degree);
 warning(ws)  % Turn it back on.
@@ -337,24 +370,21 @@ function checkbox4_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
 hold on
-createPortfolio;
+%createPortfolio;
 ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'))
 
 if(ind == 0)
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.NonIndexedPortfolio;
 else
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.IndexedPortfolio;
 end
 portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
+dates = datenum(portfolio.maturity,'dd/mm/yyyy');
 switch curve
     case "Yield"
         rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     case "Zero rates"
         rates = portfolio.zeroRates;
     case "Forward rates"
@@ -403,22 +433,20 @@ function checkbox5_Callback(hObject, eventdata, handles)
 hold on
 createPortfolio;
 ind = get(handles.radiobutton1,'Value');
-degree = round(get(handles.slider3,'Value'))
+degree = round(get(handles.slider3,'Value'));
 
 if(ind == 0)
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.NonIndexedPortfolio;
 else
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.IndexedPortfolio;
 end
 portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
-
+dates = datenum(portfolio.maturity,'dd/mm/yyyy');
 switch curve
     case "Yield"
         rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     case "Zero rates"
         rates = portfolio.zeroRates;
     case "Forward rates"
@@ -448,20 +476,18 @@ ind = get(handles.radiobutton1,'Value');
 degree = round(get(handles.slider3,'Value'))
 
 if(ind == 0)
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.NonIndexedPortfolio;
 else
-    portfolio = NonIndexedPortfolio;
+    portfolio = handles.IndexedPortfolio;
 end
 portfolio = portfolio.calculateCurves;
 contents = get(handles.popupmenu1,'String'); 
 curve = contents{get(handles.popupmenu1,'Value')}; 
-dates = portfolio.curveDates;
+dates = datenum(portfolio.maturity,'dd/mm/yyyy');
 smoothingFactor = get(handles.slider1,'Value');
-
 switch curve
     case "Yield"
         rates = portfolio.yield;
-        dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     case "Zero rates"
         rates = portfolio.zeroRates;
     case "Forward rates"
