@@ -80,8 +80,8 @@ classdef portfolio
             % x-axis date, y-axis percentage
             grid on
             datetick('x','dd/mm/yyyy')
+            ytickformat('%.2f%%')
             xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
-            ytickformat('percentage')
         end
         
         function obj = zeroCurve(obj)
@@ -94,7 +94,7 @@ classdef portfolio
            grid on
            datetick('x','dd/mm/yyyy')
            ytickformat('%.2f%%')
-           xlim([min(obj.curveDates) max(obj.curveDates)]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end        
         
         function obj = forwardCurve(obj)
@@ -105,7 +105,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([min(obj.curveDates) max(obj.curveDates)]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end        
         
         function obj = discountCurve(obj)
@@ -116,7 +116,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([min(obj.curveDates) max(obj.curveDates)]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end
         
         function obj = swapCurve(obj)
@@ -141,7 +141,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([min(obj.curveDates) max(obj.curveDates)]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end
         
         
@@ -172,7 +172,7 @@ classdef portfolio
             obj.discountRates = discRates';
         end
         
-        function fitMethod(obj, curve, method, polyDegree, smoothingFactor)
+        function obj = fitMethod(obj, curve, method, polyDegree, smoothingFactor)
             % USING A FITTING METHOD TO A CURVE
             %   BOTH THE METHOD AND THE CURVE ARE EXPECTED AS STRING INPUTS
             %   CURVES AVAILABLE: 
