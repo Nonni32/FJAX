@@ -272,54 +272,19 @@ function checkbox2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox2
-% % TODO: NELSON SIEGEL
-% hold on
-% createPortfolio;
-% ind = get(handles.radiobutton1,'Value');
-% degree = round(get(handles.slider3,'Value'))
-% 
-% if(ind == 0)
-%     portfolio = NonIndexedPortfolio;
-% else
-%     portfolio = IndexedPortfolio;
-% end
-% portfolio = portfolio.calculateCurves;
-% contents = get(handles.popupmenu1,'String'); 
-% curve = contents{get(handles.popupmenu1,'Value')}; 
-% dates = datenum(portfolio.maturity,'dd/mm/yyyy');
-% 
-% switch curve
-%     case "Yield"
-%         rates = portfolio.yield;
-%     case "Zero rates"
-%         rates = portfolio.zeroRates;
-%     case "Forward rates"
-%         rates = portfolio.forwardRates;
-%     case "Discount rates"
-%         rates = portfolio.discountRates;
-% end
-% ws = warning('off','all');  % Turn off warning
-% Settle = repmat(today,[length(portfolio.maturity) 1])
-% Maturity = dates
-% CleanPrice = portfolio.price'
-% CouponRate = portfolio.interest'
-% Frequency = portfolio.frequency'
-% Basis = zeros(length(portfolio.maturity),1);
-% Instruments = [Settle Maturity CleanPrice CouponRate Frequency Basis];
-% PlottingPoints = linspace(min(dates),max(dates),max(dates)-min(dates));
-% Yield = bndyield(CleanPrice,CouponRate,Settle,Maturity);
-% 
-% NSModel = IRFunctionCurve.fitNelsonSiegel('Zero', today, Instruments);
-% 
-% % create the plot
-% plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100,'---')
-% warning(ws)  % Turn it back on.
-% ytickformat('%.2f%%')
-% datetick('x','dd/mm/yyyy')
-% xlim([min(dates) max(dates)])
-% hold on
-% scatter(Maturity,Yield*100,'black')
-% datetick('x')
+hold on
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')};
+    portfolio.fitMethod(curve, "Nelson-Siegel", 0, 0);
+end
 
 % --- Executes on button press in checkbox3.
 function checkbox3_Callback(hObject, eventdata, handles)
