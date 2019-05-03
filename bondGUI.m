@@ -25,7 +25,7 @@ function varargout = bondGUI(varargin)
 
 % Edit the above text to modify the response to help bondGUI
 
-% Last Modified by GUIDE v2.5 02-May-2019 21:42:31
+% Last Modified by GUIDE v2.5 03-May-2019 13:23:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -452,4 +452,26 @@ function slider5_CreateFcn(hObject, eventdata, handles)
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on button press in checkbox7.
+function checkbox7_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox7
+hold on
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    curve = contents{get(handles.popupmenu1,'Value')};
+    portfolio.fitMethod(curve, "Lagrange interpolation", 0, 0);
 end

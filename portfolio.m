@@ -20,6 +20,7 @@ classdef portfolio
         forwardRates
         discountRates
         swapRates
+        currentCurve = [];
     end
     
     methods
@@ -74,7 +75,6 @@ classdef portfolio
         end
         
         function yieldCurve(obj)  
-            % TODO: LAGA ÞETTA - TEIKNA BARA BOND SEM BYRJA Á "RIK"
             % PLOTTING THE YIELD CURVE AS IT APPEARS ON WWW.BONDS.IS
             scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.yield*100,'k','filled');
             % x-axis date, y-axis percentage
@@ -199,82 +199,19 @@ classdef portfolio
                 hold on
                 plot(dates, rates,'--')
             elseif method == "Nelson-Siegel"
-                obj.nelsonSiegelFit(dates,rates);
+                obj = obj.nelsonSiegelFit(dates,rates);
             elseif method == "Polynomial"
-                obj.polynomialFit(dates, rates, polyDegree);
+                obj = obj.polynomialFit(dates, rates, polyDegree);
+            elseif method == "Lagrange interpolation"
+                obj = obj.lagrangeFit(dates,rates);
             elseif method == "Spline"
-                obj.splineFit(dates, rates);
+                obj = obj.splineFit(dates, rates);
             elseif method == "Cubic spline"
-                obj.cubicSplineFit(dates, rates);
+                obj = obj.cubicSplineFit(dates, rates);
             elseif method == "Constrained cubic spline"
-                obj.constrainedCubicSplineFit(dates, rates, smoothingFactor);
+                obj = obj.constrainedCubicSplineFit(dates, rates, smoothingFactor);
             end
         end    
-        
-        % Nelson-Siegel fit by Dimitri Shvorob
-        function obj = nelsonSiegelFit(obj, x, y)
-            % By Dimitri Shvorob 
-            % https://uk.mathworks.com/matlabcentral/fileexchange/18160-evaluate-nelson-siegel-function
-            % NELSONFIT Fit Nelson-Siegel function 
-            % Inputs    x,y - n*1 or 1*n vectors
-            % Outputs   par - structure with fields 'beta' (3*1 vector), 'tau' (scalar)
-            % Notes     No non-negativity constraints are imposed on betas; taus are
-            %           searched over by FMINBND within range (0,10).
-            % Example   x = [.125 .25  .5   1    2    3    5    7    10   20   30]
-            %           y = [2.57 3.18 3.45 3.34 3.12 3.13 3.52 3.77 4.11 4.56 4.51]
-            %           par = nelsonfit(x,y)
-            % Author    Dimitri Shvorob, dimitri.shvorob@vanderbilt.edu, 12/30/07
-            par.tau  = fminbnd(@(tau) nelsonsse(tau),0,10);
-            par.beta = lsbetas(par.tau);
-           
-            NS = nelsonfun(x,par);
-            hold on
-            plot(x,NS*100,'--')
-            
-            function[f] = nelsonsse(tau)
-                [b,f] = lsbetas(tau);                        
-            end
-            function[b,varargout] = lsbetas(tau)
-                i = x(:)/tau;
-                j = 1-exp(-i);
-                n = length(x);
-                z = [ones(n,1) j./i (j./i)+j-1];
-                b = (z'*z)\(z'*y(:)); 
-                e = y(:) - z*b;
-                varargout(1) = {e'*e};
-            end
-            
-            function[y] = nelsonfun(x,par)
-            % NELSONFUN Evaluate Nelson-Siegel function 
-            % Inputs    x   - n*1 or 1*n vector
-            %           par - structure with fields 'beta' (3*1 or 1*3 vector), 'tau' (scalar)
-            % Outputs   y   - n*1 vector
-            % Example   par.beta = [.05 .1 .5]
-            %           par.tau  = 1
-            %           x = [.125 .25 .5 1 2 3 5 7 10 20 30]
-            %           y = nelsonfun(x,par)
-            % Author    Dimitri Shvorob, dimitri.shvorob@vanderbilt.edu, 12/30/07
-            checkfield('beta',3)
-            checkfield('tau' ,1)
-            i = x(:)/par.tau;
-            j = 1-exp(-i);
-            y = par.beta(1) + par.beta(2)*j./i + par.beta(3)*((j./i)+j-1);
-            end
-            
-            function checkfield(name,n)
-                if ~isfield(par,name)
-                   error('Field "%s" not found in parameter structure',name) 
-                else
-                   if ~isvector(par.(name)) || numel(par.(name)) ~= n
-                      error('Field "%s" must have %d elements',name,n) 
-                   end   
-                end
-            end
-        end
-        
-        
-        
-
         
         function obj = polynomialFit(obj,dates,rates,n)
             hold on
@@ -285,6 +222,19 @@ classdef portfolio
             px = linspace(min(dates),max(dates),max(dates)-min(dates));
             py = polyval(p, px);
             plot(px, py*100,'r--')
+            obj.currentCurve = py*100;
+            grid on
+            ytickformat('%.2f%%')
+            datetick('x','dd/mm/yyyy')
+            xlim([min(dates) max(dates)])
+        end
+        
+        function obj = lagrangeFit(obj, dates, rates)
+            xx = linspace(min(dates),max(dates),max(dates)-min(dates));
+            P = lagrangepoly(dates,rates);
+            plot(xx,polyval(P,xx)*100,'--');
+            obj.currentCurve = polyval(P,xx)*100
+            grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(dates) max(dates)])
@@ -295,6 +245,7 @@ classdef portfolio
             xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
             sp = spline(dates,rates);
             plot(xsp,ppval(sp,xsp)*100,'--')
+            obj.currentCurve = ppval(sp,xsp)*100;
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(dates) max(dates)])
@@ -305,6 +256,8 @@ classdef portfolio
             cs = csaps(dates,rates);
             xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
             plot(xsp,ppval(cs,xsp)*100,'--')
+            obj.currentCurve = ppval(cs,xsp)*100;
+            grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(dates) max(dates)])
@@ -317,14 +270,108 @@ classdef portfolio
             x_max = max(x);
             x_min = min(x);
             x_scaled = 10* (x - x_min) / (x_max - x_min);
-            xsp = linspace(0,10,5000);
+            xsp = linspace(0,10,max(dates)-min(dates));
             cs = csaps(x_scaled,y,smoothingFactor);
             plot(xsp * (x_max - x_min) / 10 + x_min, ppval(cs,xsp)*100,'--');
+            obj.currentCurve = ppval(cs,xsp)*100;
+            grid on
             ytickformat('%.2f%%')   
             datetick('x','dd/mm/yyyy')
             xlim([min(dates) max(dates)])
-            hold on
         end
     end
 end
 
+
+
+
+
+
+
+
+
+
+
+function [P,R,S] = lagrangepoly(X,Y,XX)
+    %LAGRANGEPOLY  Lagrange interpolation polynomial fitting a set of points
+    %   [P,R,S] = LAGRANGEPOLY(X,Y)  where X and Y are row vectors
+    %   defining a set of N points uses Lagrange's method to find 
+    %   the N-1th order polynomial in X that passes through these 
+    %   points.  P returns the N coefficients defining the polynomial, 
+    %   in the same order as used by POLY and POLYVAL (highest order first).
+    %   Then, polyval(P,X) = Y.  R returns the x-coordinates of the N-1
+    %   extrema of the resulting polynomial (roots of its derivative),
+    %   and S returns the y-values  at those extrema.
+    %
+    %   YY = LAGRANGEPOLY(X,Y,XX) returns the values of the polynomial
+    %   sampled at the points specified in XX -- the same as
+    %   YY = POLYVAL(LAGRANGEPOLY(X,Y)). 
+    %
+    %   Example:
+    %   To find the 4th-degree polynomial that oscillates between 
+    %   1 and 0 across 5 points around zero, then plot the interpolation
+    %   on a denser grid inbetween:
+    %     X = -2:2;  Y = [1 0 1 0 1];
+    %     P = lagrangepoly(X,Y);
+    %     xx = -2.5:.01:2.5;
+    %     plot(xx,polyval(P,xx),X,Y,'or');
+    %     grid;
+    %   Or simply:
+    %     plot(xx,lagrangepoly(X,Y,xx));
+    %
+    %   Note: if you are just looking for a smooth curve passing through 
+    %   a set of points, you can get a better fit with SPLINE, which 
+    %   fits piecewise polynomials rather than a single polynomial.
+    %
+    %   See also: POLY, POLYVAL, SPLINE
+
+    % 2006-11-20 Dan Ellis dpwe@ee.columbia.edu
+    % $Header: $
+
+    %  For more info on Lagrange interpolation, see Mathworld: 
+    %  http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html
+
+    % Make sure that X and Y are row vectors
+    if size(X,1) > 1;  X = X'; end
+    if size(Y,1) > 1;  Y = Y'; end
+    if size(X,1) > 1 || size(Y,1) > 1 || size(X,2) ~= size(Y,2)
+      error('both inputs must be equal-length vectors')
+    end
+
+    N = length(X);
+
+    pvals = zeros(N,N);
+
+    % Calculate the polynomial weights for each order
+    for i = 1:N
+      % the polynomial whose roots are all the values of X except this one
+      pp = poly(X( (1:N) ~= i));
+      % scale so its value is exactly 1 at this X point (and zero
+      % at others, of course)
+      pvals(i,:) = pp ./ polyval(pp, X(i));
+    end
+
+    % Each row gives the polynomial that is 1 at the corresponding X 
+    % point and zero everywhere else, so weighting each row by the 
+    % desired row and summing (in this case the polycoeffs) gives 
+    % the final polynomial
+    P = Y*pvals;
+
+    if nargin==3
+      % output is YY corresponding to input XX
+      YY = polyval(P,XX);
+      % assign to output
+      P = YY;
+    end
+
+    if nargout > 1
+      % Extra return arguments are values where dy/dx is zero
+      % Solve for x s.t. dy/dx is zero i.e. roots of derivative polynomial
+      % derivative of polynomial P scales each power by its power, downshifts
+      R = roots( ((N-1):-1:1) .* P(1:(N-1)) );
+      if nargout > 2
+        % calculate the actual values at the points of zero derivative
+        S = polyval(P,R);
+      end
+    end
+end
