@@ -129,7 +129,7 @@ set(handles.checkbox3,'Value',0);
 set(handles.checkbox4,'Value',0);
 set(handles.checkbox5,'Value',0);
 set(handles.checkbox6,'Value',0);
-
+set(handles.checkbox7,'Value',0);
 % --------------------------------------------------------------------
 function FileMenu_Callback(hObject, eventdata, handles)
 % hObject    handle to FileMenu (see GCBO)
