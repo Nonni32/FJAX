@@ -106,33 +106,41 @@ classdef interestRate
             xlim([min(obj.dates) max(obj.dates)]);
         end
         
-        function [meanTheta, meanKappa, meanSigma] = estimateParameters(obj)
+        function estimateParameters(obj)
             if obj.model == "Vasicek"
-                theta = obj.longTermMeanLevel;
                 kappa = obj.speedOfReversion;
+                theta = obj.longTermMeanLevel;
                 sigma = obj.volatility;
+                
                 for i = 1:obj.nrOfSimulations
                     [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,:),obj.stepSize);
                 end
-                meanTheta = mean(est_theta);
-                meanKappa = mean(est_kappa);
-                meanSigma = mean(est_sigma);
-%                 fprintf('Theta: %.4f vs %.4f\n',theta, meanTheta);
-%                 fprintf('Kappa: %.4f vs %.4f\n',kappa, meanKappa);
-%                 fprintf('Sigma: %.4f vs %.4f\n',sigma, meanSigma);
+                
+                fprintf('Theta: %.4f vs %.4f\n',theta, mean(est_theta))
+                fprintf('Kappa: %.4f vs %.4f\n',kappa, mean(est_kappa))
+                fprintf('Sigma: %.4f vs %.4f\n',sigma, mean(real(est_sigma)))
             end 
         end
         
-        function [meanTheta, meanKappa, meanSigma] = estimateParametersIterative(obj, N)
+        function iterativeParameters(obj)
             if obj.model == "Vasicek"
-                for i = 1:obj.nrOfSimulations
-                    [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,2:N),obj.stepSize);
+                kappa = obj.speedOfReversion;
+                theta = obj.longTermMeanLevel;
+                sigma = obj.volatility;
+                N = obj.maturity/obj.stepSize;
+                
+                for j = 1:N
+                    for i = 1:obj.nrOfSimulations
+                        [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,1:j),obj.stepSize);
+                    end
+                    iter
+                    fprintf('Theta: %.4f vs %.4f\n',theta, mean(est_theta))
+                    fprintf('Kappa: %.4f vs %.4f\n',kappa, mean(est_kappa))
+                    fprintf('Sigma: %.4f vs %.4f\n',sigma, mean(real(est_sigma)))
                 end
-                meanTheta = mean(est_theta);
-                meanKappa = mean(est_kappa);
-                meanSigma = mean(est_sigma);
             end 
         end
+        
     end
 end
 
