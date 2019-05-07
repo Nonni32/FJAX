@@ -5,7 +5,6 @@ classdef interestRate
         initialRate
         stepSize
         volatility
-        alpha
         speedOfReversion
         longTermMeanLevel
         optionMaturity
@@ -18,13 +17,12 @@ classdef interestRate
     end
     
     methods
-        function obj = interestRate(model, initialRate, stepSize, volatility, alpha, speedOfReversion, longTermMeanLevel, maturity, nrOfSimulations)
+        function obj = interestRate(model, initialRate, stepSize, volatility, speedOfReversion, longTermMeanLevel, maturity, nrOfSimulations)
             % Initialise interest rate model
             obj.model = model;
             obj.initialRate = initialRate;
             obj.stepSize = stepSize;
             obj.volatility = volatility;
-            obj.alpha = alpha;
             obj.speedOfReversion = speedOfReversion;
             obj.longTermMeanLevel = longTermMeanLevel;
             obj.maturity = maturity;
@@ -33,10 +31,7 @@ classdef interestRate
             obj.nbins = 100;
             obj.data = zeros(obj.nrOfSimulations, N);
             obj.rateAtMaturity = zeros(1, obj.nrOfSimulations);
-            obj.dates = zeros(N,1);
-            for i = 1:N
-                obj.dates(i) = today+i-1;
-            end
+            obj.dates = linspace(today(), today()+maturity*365, N);
             obj = obj.simulateModel;
         end
         
@@ -56,7 +51,7 @@ classdef interestRate
                         obj.rateAtMaturity(i) = obj.data(i,N);
                     end
                 case "Brownian"
-                    a = obj.alpha;
+                    a = obj.longTermMeanLevel;
                     for i = 1:L
                         obj.data(i,1) = obj.initialRate;
                         for j = 2:N
@@ -95,57 +90,50 @@ classdef interestRate
         
         function plotSimulations(obj)
             N = obj.maturity/obj.stepSize;
-            grid on
             for i = 1:obj.nrOfSimulations
                 plot(obj.dates,obj.data(i,:)*100) 
                 hold on
             end
-            plot([min(obj.dates) max(obj.dates)],[0 0],'k')
+            plot([min(obj.dates) max(obj.dates)],[0 0],'k','HandleVisibility','off')
+
             datetick('x','dd/mm/yyyy')
             ytickformat('%.2f%%')
             xlim([min(obj.dates) max(obj.dates)]);
+            grid on
         end
         
-        function estimateParameters(obj)
+        function [meanTheta, meanKappa, meanSigma] = estimateParameters(obj)
             if obj.model == "Vasicek"
-                kappa = obj.speedOfReversion;
                 theta = obj.longTermMeanLevel;
+                kappa = obj.speedOfReversion;
                 sigma = obj.volatility;
-                
                 for i = 1:obj.nrOfSimulations
                     [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,:),obj.stepSize);
                 end
-                
-                fprintf('Theta: %.4f vs %.4f\n',theta, mean(est_theta))
-                fprintf('Kappa: %.4f vs %.4f\n',kappa, mean(est_kappa))
-                fprintf('Sigma: %.4f vs %.4f\n',sigma, mean(real(est_sigma)))
+                meanTheta = mean(est_theta);
+                meanKappa = mean(est_kappa);
+                meanSigma = mean(est_sigma);
+                fprintf('Theta: %.4f vs %.4f\n',theta, meanTheta);
+                fprintf('Kappa: %.4f vs %.4f\n',kappa, meanKappa);
+                fprintf('Sigma: %.4f vs %.4f\n',sigma, meanSigma);
             end 
         end
         
-        function iterativeParameters(obj)
+        function [meanTheta, meanKappa, meanSigma] = estimateParametersIterative(obj, N)
             if obj.model == "Vasicek"
-                kappa = obj.speedOfReversion;
-                theta = obj.longTermMeanLevel;
-                sigma = obj.volatility;
-                N = obj.maturity/obj.stepSize;
-                
-                for j = 1:N
-                    for i = 1:obj.nrOfSimulations
-                        [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,1:j),obj.stepSize);
-                    end
-                    iter
-                    fprintf('Theta: %.4f vs %.4f\n',theta, mean(est_theta))
-                    fprintf('Kappa: %.4f vs %.4f\n',kappa, mean(est_kappa))
-                    fprintf('Sigma: %.4f vs %.4f\n',sigma, mean(real(est_sigma)))
+                for i = 1:obj.nrOfSimulations
+                    [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,2:N),obj.stepSize);
                 end
+                meanTheta = mean(est_theta);
+                meanKappa = mean(est_kappa);
+                meanSigma = mean(est_sigma);
             end 
         end
-        
     end
 end
 
 
-function [y] = OrnsteinUhlenbeckSDE(x0,la,mu,sigma,dt,NoOfIt)
+function [y] = OrnsteinUhlenbeckSDE(x0,la,mu,sigma,dt,N)
 
     %Sverrir Olafsson, 01-March-2019
 
@@ -153,24 +141,24 @@ function [y] = OrnsteinUhlenbeckSDE(x0,la,mu,sigma,dt,NoOfIt)
     %iterations
 
     x  = x0;  %initialisation
-    r  = randn(1,NoOfIt);
-     for i = 1:NoOfIt                                 %Number of iterations      
+    r  = randn(1,N);
+     for i = 1:N                                 %Number of iterations      
          dx = la*(mu - x)*dt + sigma*sqrt(dt)*r(i);   %increment in Ornstein-Uhlenbeck process
          x = x + dx;                                  %Ornstein-Uhlenbeck process
          y(i)= x;                                     %Ornstein-Uhlenbeck process  
      end                                              %Number of iterations
 
-    T   = 1:1:NoOfIt;
+    T   = 1:1:N;
     ry  = [x0 y];
     rr  = [0 r];
-    rT  = 0:1:NoOfIt;
+    rT  = 0:1:N;
 
     rOP = [rT' (rT*dt)' ry' rr'];  
 
     %Sx  = sum(ry(1:NoOfIt));
     %Sy  = sum(ry(2:NoOfIt+1));
 
-    for i=1:NoOfIt
+    for i=1:N
         TSx(i)  = ry(i);
         TSy(i)  = ry(i+1);
         TSxx(i) = ry(i)^2;
@@ -182,10 +170,10 @@ function [y] = OrnsteinUhlenbeckSDE(x0,la,mu,sigma,dt,NoOfIt)
     Sxx = sum(TSxx);
     Sxy = sum(TSxy);
     Syy = sum(TSyy);
-    est_mu = (Sy*Sxx - Sx*Sxy)/( NoOfIt*(Sxx - Sxy) - (Sx.^2 - Sx*Sy) );
-    est_la = -(1/dt)*log(    ( Sxy - est_mu*Sx - est_mu*Sy + NoOfIt*est_mu^2 )/(  Sxx - 2*est_mu*Sx + NoOfIt*est_mu^2 )  );
+    est_mu = (Sy*Sxx - Sx*Sxy)/( N*(Sxx - Sxy) - (Sx.^2 - Sx*Sy) );
+    est_la = -(1/dt)*log(    ( Sxy - est_mu*Sx - est_mu*Sy + N*est_mu^2 )/(  Sxx - 2*est_mu*Sx + N*est_mu^2 )  );
     al = exp(-est_la*dt);
-    sig_sq = (1/NoOfIt)*( Syy - 2*al*Sxy + al^2*Sxx - 2*est_mu*(1 - al)*(Sy - al*Sx) + NoOfIt*est_mu^2*(1 - al)^2);
+    sig_sq = (1/N)*( Syy - 2*al*Sxy + al^2*Sxx - 2*est_mu*(1 - al)*(Sy - al*Sx) + N*est_mu^2*(1 - al)^2);
     %est_sigma_sq = sig_sq*(2*est_la/(1 - al^2));
     est_sigma = sqrt(sig_sq*2*est_la/(1 - al^2));
     est_la;

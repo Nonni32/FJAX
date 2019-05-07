@@ -103,7 +103,6 @@ cla;
 
 popup_sel_index = get(handles.popupmenu1, 'Value');
 % createPortfolio;
-clear handles.legends;
 handles.legends = {"Data points"};
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
@@ -133,8 +132,6 @@ set(handles.checkbox5,'Value',0);
 set(handles.checkbox6,'Value',0);
 set(handles.checkbox7,'Value',0);
 legend(handles.legends)
-guidata(hObject, handles);
-
 % --------------------------------------------------------------------
 
 function FileMenu_Callback(hObject, eventdata, handles)
@@ -444,8 +441,15 @@ function slider3_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
+ind = get(handles.radiobutton1,'Value');
 
-numSteps = 5;
+if(ind == 0)
+    portfolio = handles.NonIndexedPortfolio;
+else
+    portfolio = handles.IndexedPortfolio;
+end
+    
+numSteps = length(portfolio.yield)-1;
 set(hObject, 'Min', 1);
 set(hObject, 'Max', numSteps);
 set(hObject, 'Value', 1);

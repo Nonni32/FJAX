@@ -197,7 +197,7 @@ classdef portfolio
             
             if method == "Bootstrapping"
                 hold on
-                plot(dates, rates,'--')
+                plot(dates, rates)
             elseif method == "Nelson-Siegel"
                 obj = obj.nelsonSiegelFit(dates,rates);
             elseif method == "Polynomial"
@@ -221,7 +221,7 @@ classdef portfolio
             warning(ws)  % Turn it back on.
             px = linspace(min(dates),max(dates),max(dates)-min(dates));
             py = polyval(p, px);
-            plot(px, py*100,'r--')
+            plot(px, py*100,'r-')
             obj.currentCurve = py*100;
             grid on
             ytickformat('%.2f%%')
@@ -232,19 +232,19 @@ classdef portfolio
         function obj = lagrangeFit(obj, dates, rates)
             xx = linspace(min(dates),max(dates),max(dates)-min(dates));
             P = lagrangepoly(dates,rates);
-            plot(xx,polyval(P,xx)*100,'--');
-            obj.currentCurve = polyval(P,xx)*100
+            plot(xx,polyval(P,xx)*100,'-');
+            obj.currentCurve = polyval(P,xx)*100;
             grid on
-            ytickformat('%.2f%%')
-            datetick('x','dd/mm/yyyy')
-            xlim([min(dates) max(dates)])
+            ytickformat('%.2f%%');
+            datetick('x','dd/mm/yyyy');
+            xlim([min(dates) max(dates)]);
         end
         
         function obj = splineFit(obj, dates, rates)
             hold on
             xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
             sp = spline(dates,rates);
-            plot(xsp,ppval(sp,xsp)*100,'--')
+            plot(xsp,ppval(sp,xsp)*100,'-')
             obj.currentCurve = ppval(sp,xsp)*100;
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
@@ -255,7 +255,7 @@ classdef portfolio
             hold on
             cs = csaps(dates,rates);
             xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-            plot(xsp,ppval(cs,xsp)*100,'--')
+            plot(xsp,ppval(cs,xsp)*100,'-')
             obj.currentCurve = ppval(cs,xsp)*100;
             grid on
             ytickformat('%.2f%%')
@@ -272,7 +272,7 @@ classdef portfolio
             x_scaled = 10* (x - x_min) / (x_max - x_min);
             xsp = linspace(0,10,max(dates)-min(dates));
             cs = csaps(x_scaled,y,smoothingFactor);
-            plot(xsp * (x_max - x_min) / 10 + x_min, ppval(cs,xsp)*100,'--');
+            plot(xsp * (x_max - x_min) / 10 + x_min, ppval(cs,xsp)*100,'-');
             obj.currentCurve = ppval(cs,xsp)*100;
             grid on
             ytickformat('%.2f%%')   
