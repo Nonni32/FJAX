@@ -59,7 +59,7 @@ NonIndexedPortfolio.calculateCurves;
 IndexedPortfolio.calculateCurves;
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
-
+handles.legends = {"Data points"};
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
@@ -76,6 +76,7 @@ if strcmp(get(hObject,'Visible'),'off')
         portfolio = IndexedPortfolio;
     end
     portfolio.yieldCurve;
+    legend(handles.legends)
 end
 
 % UIWAIT makes bondGUI wait for user response (see UIRESUME)
@@ -102,7 +103,8 @@ cla;
 
 popup_sel_index = get(handles.popupmenu1, 'Value');
 % createPortfolio;
-
+clear handles.legends;
+handles.legends = {"Data points"};
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;
@@ -129,8 +131,12 @@ set(handles.checkbox3,'Value',0);
 set(handles.checkbox4,'Value',0);
 set(handles.checkbox5,'Value',0);
 set(handles.checkbox6,'Value',0);
+set(handles.checkbox7,'Value',0);
+legend(handles.legends)
+guidata(hObject, handles);
 
 % --------------------------------------------------------------------
+
 function FileMenu_Callback(hObject, eventdata, handles)
 % hObject    handle to FileMenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -241,6 +247,8 @@ if get(hObject,'Value')~= 0
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
     curve = contents{get(handles.popupmenu1,'Value')}; 
+    fittingTechnique = get(handles.checkbox1,'String');
+    handles.legends{end+1} = fittingTechnique;
     dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     switch curve
         case "Yield"
@@ -256,6 +264,8 @@ if get(hObject,'Value')~= 0
     ytickformat('%.2f%%')
     datetick('x','dd/mm/yyyy')
     xlim([min(dates) max(dates)])
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
     
 
@@ -282,8 +292,12 @@ if get(hObject,'Value')~= 0
     end
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox2,'String');
+    handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Nelson-Siegel", 0, 0);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
 
 % --- Executes on button press in checkbox3.
@@ -304,8 +318,12 @@ if get(hObject,'Value')~= 0
     end
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox3,'String');
+    handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Polynomial", degree, 0);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
 
 % --- Executes on button press in checkbox4.
@@ -317,6 +335,7 @@ function checkbox4_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
 hold on
 if get(hObject,'Value')~= 0
+    disp("1")
     ind = get(handles.radiobutton1,'Value');
     if(ind == 0)
         portfolio = handles.NonIndexedPortfolio;
@@ -325,8 +344,12 @@ if get(hObject,'Value')~= 0
     end
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox4,'String');
+    handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Spline", 0, 0);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
 
 % --- Executes on slider movement.
@@ -372,8 +395,12 @@ if get(hObject,'Value')~= 0
     end
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox5,'String');
+    handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')}; 
     portfolio.fitMethod(curve, "Cubic spline", 0, 0);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
 
 % --- Executes on button press in checkbox6.
@@ -394,8 +421,12 @@ if get(hObject,'Value')~= 0
     end
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox6,'String');
+    handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Constrained cubic spline", 0, smoothingFactor);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
 
 % --- Executes on slider movement.
@@ -413,7 +444,8 @@ function slider3_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-numSteps = 4;
+
+numSteps = 5;
 set(hObject, 'Min', 1);
 set(hObject, 'Max', numSteps);
 set(hObject, 'Value', 1);
@@ -472,6 +504,10 @@ if get(hObject,'Value')~= 0
     end
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox7,'String');
+    handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Lagrange interpolation", 0, 0);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
 end
