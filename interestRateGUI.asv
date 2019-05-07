@@ -75,7 +75,6 @@ brownian = interestRate("Brownian", handles.initialRate, handles.stepSize, handl
 handles.brownian = brownian;
 vasicek = interestRate("Vasicek", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.vasicek = vasicek;
-handles.vasicek
 guidata(hObject, handles);
 maturityDate = today + handles.maturity*365;
 
@@ -148,10 +147,7 @@ if get(handles.checkbox3, 'Value') == 1
     set(handles.text22, 'String', ""+ kappa_est*100);
     set(handles.text23, 'String', ""+ theta_est*100);
     set(handles.text25, 'String', ""+ errorValue);
-
-    legend(handles.axes1,handles.legend)
     guidata(hObject, handles);
-    
 end
 legend(handles.axes1, handles.legend)
 
@@ -238,14 +234,30 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 handles.vasicek.plotSimulations;
-[theta_est kappa_est sigma_est errorValue] = handles.vasicek.estimateParameters;
+
+IR = interestRate("Vasicek",handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 50);
+[theta_est, kappa_est, sigma_est, errorValue] = IR.estimateParameters;
+[theta_OLS, kappa_OLS, sigma_OLS, errorValue_OLS] = IR.ordinaryLeastSquares;
+
+[theta_est, kappa_est, sigma_est, errorValue] = IR.estimateParameters;
 
 set(handles.text21, 'String', ""+ sigma_est*100);
 set(handles.text22, 'String', ""+ kappa_est*100);
 set(handles.text23, 'String', ""+ theta_est*100);
 set(handles.text25, 'String', ""+ errorValue);
 
-handles.legend{end+1} = "Vasicek";
+set(handles.text27, 'String', ""+ sigma_OLS*100);
+set(handles.text28, 'String', ""+ kappa_OLS*100);
+set(handles.text29, 'String', ""+ theta_OLS*100);
+set(handles.text30, 'String', ""+ errorValue_OLS);
+
+exists = false;
+for i = 1:length(handles.legend)
+    if(handles.legend{i} == "Vasicek"
+        exists = true;
+    end
+end
+if e
 legend(handles.axes1,handles.legend)
 guidata(hObject, handles);
 
