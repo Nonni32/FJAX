@@ -105,6 +105,7 @@ popup_sel_index = get(handles.popupmenu1, 'Value');
 % createPortfolio;
 clear handles.legends;
 handles.legends = {"Data points"};
+
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
     portfolio = handles.NonIndexedPortfolio;

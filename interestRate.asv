@@ -90,9 +90,24 @@ classdef interestRate
         
         function plotSimulations(obj)
             N = obj.maturity/obj.stepSize;
-            for i = 1:obj.nrOfSimulations
-                plot(obj.dates,obj.data(i,:)*100) 
-                hold on
+            
+            if obj.nrOfSimulations == 1
+                switch obj.model
+                    case "Simple"
+                        plot(obj.dates,obj.data(1,:)*100,'r-') 
+                        hold on
+                    case "Brownian"
+                        plot(obj.dates,obj.data(1,:)*100) 
+                        hold on
+                    case "Vasicek"
+                        plot(obj.dates,obj.data(1,:)*100,'b-') 
+                        hold on
+                end
+            else
+                for i = 1:obj.nrOfSimulations
+                    plot(obj.dates,obj.data(i,:)*100) 
+                    hold on
+                end
             end
             plot([min(obj.dates) max(obj.dates)],[0 0],'k','HandleVisibility','off')
 
@@ -102,7 +117,7 @@ classdef interestRate
             grid on
         end
         
-        function [meanTheta, meanKappa, meanSigma] = estimateParameters(obj)
+        function [meanTheta, meanKappa, meanSigma, errorValue] = estimateParameters(obj)
             if obj.model == "Vasicek"
                 theta = obj.longTermMeanLevel;
                 kappa = obj.speedOfReversion;
@@ -113,20 +128,114 @@ classdef interestRate
                 meanTheta = mean(est_theta);
                 meanKappa = mean(est_kappa);
                 meanSigma = mean(est_sigma);
-                fprintf('Theta: %.4f vs %.4f\n',theta, meanTheta);
-                fprintf('Kappa: %.4f vs %.4f\n',kappa, meanKappa);
-                fprintf('Sigma: %.4f vs %.4f\n',sigma, meanSigma);
+                errorValue = (theta-meanTheta)^2+(kappa-meanKappa)^2+(sigma-meanSigma)^2;
             end 
         end
         
-        function [meanTheta, meanKappa, meanSigma] = estimateParametersIterative(obj, N)
+        function [meanTheta, meanKappa, meanSigma, errorValue] = estimateParametersIterative(obj, N)
             if obj.model == "Vasicek"
-                for i = 1:obj.nrOfSimulations
-                    [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(i,2:N),obj.stepSize);
+                theta = obj.longTermMeanLevel;
+                kappa = obj.speedOfReversion;
+                sigma = obj.volatility;
+                for i = 1:10
+                    [est_theta(i), est_kappa(i), est_sigma(i)] = MLE_OU(obj.data(randi(obj.nrOfSimulations),2:N),obj.stepSize);
                 end
                 meanTheta = mean(est_theta);
                 meanKappa = mean(est_kappa);
                 meanSigma = mean(est_sigma);
+                errorValue = (theta-meanTheta)^2+(kappa-meanKappa)^2+(sigma-meanSigma)^2;
+            end 
+        end
+        
+        function obj = estimationImprovement(obj)
+            N = obj.maturity*250;
+            trueTheta = obj.longTermMeanLevel;
+            trueKappa = obj.speedOfReversion;
+            trueSigma = obj.volatility;
+            c = 0;
+            for i = 10:100:N
+                c = c+1;
+                [theta(c) kappa(c) sigma(c) error(c)] = obj.estimateParametersIterative(i);
+            end
+            
+            x = 10:100:N;
+            figure
+            plot(x,kappa,'LineWidth',1.5)
+            hold on
+            plot(x,theta,'LineWidth',1.5)
+            plot(x,sigma,'LineWidth',1.5)
+            plot([min(x) max(x)],[trueKappa trueKappa],'k--') 
+            plot([min(x) max(x)],[trueTheta trueTheta],'k--') 
+            plot([min(x) max(x)],[trueSigma trueSigma],'k--')
+            legend('Kappa','Theta','Sigma')
+            ylim([0 2])
+            xlim([min(x) max(x)])
+            title('Parameter estimation - Maximum likelihood estimation')
+            hold off            
+        end
+        
+        function obj = estimationImprovementOLS(obj)
+            N = obj.maturity*250;
+            trueTheta = obj.longTermMeanLevel;
+            trueKappa = obj.speedOfReversion;
+            trueSigma = obj.volatility;
+            c = 0;
+            for i = 10:100:N
+                c = c+1;
+                [theta(c) kappa(c) sigma(c) error(c)] = obj.ordinaryLeastSquaresIterative(i);
+            end
+            
+            x = 10:100:N;
+            figure
+            plot(x,kappa,'LineWidth',1.5)
+            hold on
+            plot(x,theta,'LineWidth',1.5)
+            plot(x,sigma,'LineWidth',1.5)
+            plot([min(x) max(x)],[trueKappa trueKappa],'k--') 
+            plot([min(x) max(x)],[trueTheta trueTheta],'k--') 
+            plot([min(x) max(x)],[trueSigma trueSigma],'k--')
+            legend({'Kappa','Theta','Sigma'},'FontSize',12)
+            ylim([0 2])
+            xlim([min(x) max(x)])
+            title('Parameter estimation - Ordinary least square','FontSize',14)
+            hold off            
+        end
+        
+        function [meanTheta, meanKappa, meanSigma, errorValue] = ordinaryLeastSquares(obj)
+            if obj.model == "Vasicek"
+                
+                obj.data;
+                trueTheta = obj.longTermMeanLevel;
+                trueKappa = obj.speedOfReversion;
+                trueSigma = obj.volatility;
+                
+                for i = 1:10
+                    [theta(i), kappa(i), sigma(i)] = OLS_OU(obj.data(randi(obj.nrOfSimulations),:),obj.stepSize);
+                end
+                
+                meanTheta = mean(theta);
+                meanKappa = mean(kappa);
+                meanSigma = mean(real(sigma));
+                errorValue = (trueTheta-meanTheta)^2+(trueKappa-meanKappa)^2+(trueSigma-meanSigma)^2;
+            end 
+        end
+        
+        function [meanTheta, meanKappa, meanSigma, errorValue] = ordinaryLeastSquaresIterative(obj, N)
+            if obj.model == "Vasicek"
+                
+                obj.data;
+                trueTheta = obj.longTermMeanLevel;
+                trueKappa = obj.speedOfReversion;
+                trueSigma = obj.volatility;
+                
+                for i = 1:10
+                    [theta(i), kappa(i), sigma(i)] = OLS_OU(obj.data(randi(obj.nrOfSimulations),2:N),obj.stepSize);
+                end
+                
+                meanTheta = mean(theta);
+                meanKappa = mean(kappa);
+                meanSigma = mean(real(sigma));
+                errorValue = (trueTheta-meanTheta)^2+(trueKappa-meanKappa)^2+(trueSigma-meanSigma)^2;
             end 
         end
     end
@@ -203,4 +312,36 @@ function [est_theta, est_kappa, est_sigma] = MLE_OU(ds, dt)
     al = exp(-est_kappa*dt);
     sig_sq = (1/NoOfIt)*( Syy - 2*al*Sxy + al^2*Sxx - 2*est_theta*(1 - al)*(Sy - al*Sx) + NoOfIt*est_theta^2*(1 - al)^2);
     est_sigma = sqrt(sig_sq*2*est_kappa/(1 - al^2));
+end
+
+function [theta, kappa, sigma] = OLS_OU(y,dt)
+    % Ordinary Least Square for Ornstein-Uhlenbeck
+
+    N = length(y);
+    for i=1:N-1
+        TSx(i)  = y(i);
+        TSy(i)  = y(i+1);
+        TSxx(i) = y(i)^2;
+        TSxy(i) = y(i)*y(i+1);
+        TSyy(i) = y(i+1)^2;
+    end
+    
+    Sx  = sum(TSx);
+    Sy  = sum(TSy);
+    Sxx = sum(TSxx);
+    Sxy = sum(TSxy);
+    Syy = sum(TSyy);
+    
+    m_est = (N*Sxy - Sx*Sy)/(N*Sxx-Sx^2);
+    c_est = (Sy-m_est*Sx)/N;
+
+    sqrtSum = 0;
+    for i = 2:N
+        sqrtSum = sqrtSum + (y(i)-m_est*y(i-1)-c_est^2);
+    end
+    sigma_est = sqrt(sqrtSum/(N-2));
+    
+    kappa = -log(m_est)/dt;
+    theta = c_est/(1-m_est);
+    sigma = sigma_est*sqrt((2*kappa)/(1-exp(-2*kappa*dt)));
 end
