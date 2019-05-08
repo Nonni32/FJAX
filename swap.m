@@ -53,6 +53,11 @@ swap_rate = sum(PV_flt) / sum(a.*d.*Q)
 frw_swap_rate  = (d(1)-d(length(a)))/sum(a.*d)
 spot_swap_rate = (1-d(length(a)))   /sum(a.*d)
 
+for i=2:length(a)
+    r(i-1) = obj.zeroRates(i)-obj.zeroRates(i-1);
+end
+
+s_swap = sum(a.*d.*r)/sum(a.*d)
 
 
 %Skoða swapbyzero
