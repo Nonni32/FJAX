@@ -66,7 +66,6 @@ handles.volatility = str2double(get(handles.edit3,'String'))/100;
 handles.maturity = str2double(get(handles.edit1,'String'));
 handles.speedOfReversion = str2double(get(handles.edit9,'String'))/100;
 handles.longTermMeanLevel = str2double(get(handles.edit10,'String'))/100;
-
 handles.legend = {};
 
 simple = interestRate("Simple", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
@@ -125,6 +124,8 @@ brownian = interestRate("Brownian", handles.initialRate, handles.stepSize, handl
 handles.brownian = brownian;
 vasicek = interestRate("Vasicek", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.vasicek = vasicek;
+
+handles.vasicek
 
 handles.legend = {};
 
@@ -257,6 +258,16 @@ function checkbox3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
+
+handles.initialRate = str2double(get(handles.edit2,'String'))/100;
+handles.stepSize = 1/250;
+handles.volatility = str2double(get(handles.edit3,'String'))/100;
+handles.maturity = str2double(get(handles.edit1,'String'));
+handles.speedOfReversion = str2double(get(handles.edit9,'String'))/100;
+handles.longTermMeanLevel = str2double(get(handles.edit10,'String'))/100;
+
+vasicek = interestRate("Vasicek", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+handles.vasicek = vasicek;
 handles.vasicek.plotSimulations;
 
 IR = interestRate("Vasicek",handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 50);
