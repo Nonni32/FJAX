@@ -1,46 +1,64 @@
 %% Price of an interest rate swap
 clc
 
+obj = NonIndexedPortfolio; 
+rates = obj.zeroRates';
+
+%breyta obj.maturity í cell array
+enddates = {};
+for i = 1:length(obj.maturity)
+      enddates(end+1) = {datestr(obj.maturity(i),'dd-mmm-yyyy')};
+end
+
 Settle = today;
-zerorates = [.005 .0075 .01 .014 .02 .025 .03]';
-enddates = {'08-Dec-2010','08-Jun-2011','08-Jun-2012','08-Jun-2013','08-Jun-2015','08-Jun-2017','08-Jun-2020'}';
-coupon_rate = 0.04; % NaN til að fá swap rate
-Spread = 50;
-LegRate = [coupon_rate Spread]; % [CouponRate Spread] 
+RateSpec = intenvset('Rates', rates,'StartDates',Settle, 'EndDates',enddates');
+Maturity = datenum('15-Sep-2030');
+coupon_rate = .025;
+spread = 20;
+
+LegRate = [coupon_rate spread];
 LegType = [1 0]; % fixed/floating
-Maturity = datenum('15-Sep-2020');
-LatestFloatingRate = .04;
-
-RateSpec = intenvset('Rates',zerorates ,'StartDates',Settle, 'EndDates',enddates);
-
-%AI = Accrued interest 
-
+LatestFloatingRate = .005;
+ 
 [Price, SwapRate, AI, RecCF, RecCFDates, PayCF,PayCFDates] = ...
 swapbyzero(RateSpec, LegRate, Settle, Maturity,'LegType',LegType,...
 'LatestFloatingRate',LatestFloatingRate,'AdjustCashFlowsBasis',true,...
 'BusinessDayConvention','modifiedfollow')
 
 
-%% Forward swap  
+%% Pricing Forward swap  
+clc
+
+%Price a forward swap using the StartDate input 
+%argument to define the future starting date of 
+%the swap. 
 
 Rates = 0.0325;
-ValuationDate = '1-Jan-2012';
+ValuationDate = datestr(today);
 StartDates = ValuationDate;
-EndDates = '1-Jan-2018';
+
+%Innsetning á custom ending date
+EndDates = '1-Jan-2023';
 Compounding = 1;
 
 %Create Rate Spec
 RateSpec = intenvset('ValuationDate', ValuationDate,'StartDates', StartDates,...
 'EndDates', EndDates,'Rates', Rates, 'Compounding', Compounding)
 
-Settle ='1-Jan-2012';
-StartDate = '1-Jan-2013';
-Maturity = '1-Jan-2016';
+%Compute the price of a forward swap that starts in a year 
+%(today+1year) and matures in 2 years with a forward swap rate of 4.27%. 
+
+Settle = datestr(today);
+StartDate = datestr(today+365);
+Maturity = '1-Jan-2021';
 LegRate = [0.0427 10];
+
 
 Price = swapbyzero(RateSpec, LegRate, Settle, Maturity, 'StartDate' , StartDate)
 
-%find swap rate
+%% Find swap rate
+
 LegRate = [NaN 10];
 [Price, SwapRate] = swapbyzero(RateSpec, LegRate, Settle, Maturity,...
 'StartDate' , StartDate)
+
