@@ -167,9 +167,10 @@ classdef interestRate
             plot([min(x) max(x)],[trueKappa trueKappa],'k--') 
             plot([min(x) max(x)],[trueTheta trueTheta],'k--') 
             plot([min(x) max(x)],[trueSigma trueSigma],'k--')
-            legend('Kappa','Theta','Sigma')
+            legend({'Kappa','Theta','Sigma'},'FontSize',12)
             ylim([0 2])
             xlim([min(x) max(x)])
+            title('Parameter estimation - Maximum likelihood estimation','FontSize',14)
             hold off            
         end
         
@@ -193,9 +194,10 @@ classdef interestRate
             plot([min(x) max(x)],[trueKappa trueKappa],'k--') 
             plot([min(x) max(x)],[trueTheta trueTheta],'k--') 
             plot([min(x) max(x)],[trueSigma trueSigma],'k--')
-            legend('Kappa','Theta','Sigma')
+            legend({'Kappa','Theta','Sigma'},'FontSize',12)
             ylim([0 2])
             xlim([min(x) max(x)])
+            title('Parameter estimation - Ordinary least square','FontSize',14)
             hold off            
         end
         

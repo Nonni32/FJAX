@@ -170,10 +170,11 @@ classdef interestRate
             legend('Kappa','Theta','Sigma')
             ylim([0 2])
             xlim([min(x) max(x)])
+            title('Parameter estimation - Maximum likelihood estimation')
             hold off            
         end
         
-          function obj = estimationImprovementOLS(obj)
+        function obj = estimationImprovementOLS(obj)
             N = obj.maturity*250;
             trueTheta = obj.longTermMeanLevel;
             trueKappa = obj.speedOfReversion;
@@ -181,7 +182,7 @@ classdef interestRate
             c = 0;
             for i = 10:100:N
                 c = c+1;
-                [theta(c) kappa(c) sigma(c) error(c)] = obj.ordinaryLeastSquareIterative(i);
+                [theta(c) kappa(c) sigma(c) error(c)] = obj.ordinaryLeastSquaresIterative(i);
             end
             
             x = 10:100:N;
@@ -193,9 +194,10 @@ classdef interestRate
             plot([min(x) max(x)],[trueKappa trueKappa],'k--') 
             plot([min(x) max(x)],[trueTheta trueTheta],'k--') 
             plot([min(x) max(x)],[trueSigma trueSigma],'k--')
-            legend('Kappa','Theta','Sigma')
+            legend({'Kappa','Theta','Sigma'},'FontSize',12)
             ylim([0 2])
             xlim([min(x) max(x)])
+            title('Parameter estimation - Ordinary least square','FontSize',14)
             hold off            
         end
         
@@ -209,6 +211,25 @@ classdef interestRate
                 
                 for i = 1:10
                     [theta(i), kappa(i), sigma(i)] = OLS_OU(obj.data(randi(obj.nrOfSimulations),:),obj.stepSize);
+                end
+                
+                meanTheta = mean(theta);
+                meanKappa = mean(kappa);
+                meanSigma = mean(real(sigma));
+                errorValue = (trueTheta-meanTheta)^2+(trueKappa-meanKappa)^2+(trueSigma-meanSigma)^2;
+            end 
+        end
+        
+        function [meanTheta, meanKappa, meanSigma, errorValue] = ordinaryLeastSquaresIterative(obj, N)
+            if obj.model == "Vasicek"
+                
+                obj.data;
+                trueTheta = obj.longTermMeanLevel;
+                trueKappa = obj.speedOfReversion;
+                trueSigma = obj.volatility;
+                
+                for i = 1:10
+                    [theta(i), kappa(i), sigma(i)] = OLS_OU(obj.data(randi(obj.nrOfSimulations),2:N),obj.stepSize);
                 end
                 
                 meanTheta = mean(theta);
