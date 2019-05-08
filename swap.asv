@@ -39,7 +39,7 @@ f = frwRate/100;
 
 PV_flt = a.*d.*Q.*f
 PV_fix = a.*d.*Q.*(obj.swapRates)
-w_k = 
+w_k = (a.*d)/sum(a.*d)
 
 %Vera í boði Mismunandi tími 
 %Haka við receive eða ekki
@@ -53,7 +53,10 @@ swap_rate = sum(PV_flt) / sum(a.*d.*Q)
 frw_swap_rate  = (d(1)-d(length(a)))/sum(a.*d)
 spot_swap_rate = (1-d(length(a)))   /sum(a.*d)
 
-for i = 
+for i=1:length(a)
+    r = obj.zeroRates(1+
+end
+
 
 
 %Skoða swapbyzero
