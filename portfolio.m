@@ -261,6 +261,7 @@ classdef portfolio
             datetick('x','dd/mm/yyyy')
             ytickformat('%.2f%%')
             xlim([min(Maturity) max(Maturity)])
+            obj.currentCurve = getParYields(NSModel, PlottingPoints);
         end
         
         function obj = lagrangeFit(obj, dates, rates)
