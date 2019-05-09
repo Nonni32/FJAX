@@ -212,6 +212,7 @@ classdef portfolio
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
                 end
                 plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100)
+                obj.currentCurve = getParYields(NSModel, PlottingPoints)*100;
                 datetick('x','dd/mm/yyyy')
                 ytickformat('%.2f%%')
                 xlim([min(dates) max(dates)])
@@ -242,26 +243,6 @@ classdef portfolio
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
             xlim([min(dates) max(dates)])
-        end
-        
-        function obj = nelsonSiegelFit(obj, type, dates, rates)
-            Settle = repmat(today,[length(obj.maturity) 1])
-            Maturity = datenum(obj.maturity)
-            CleanPrice = obj.price'
-            CouponRate = obj.interest'
-            Instruments = [Settle Maturity CleanPrice CouponRate];
-            PlottingPoints = min(obj.curveDates):1:max(Maturity);
-            % Type is either "Forward" or "Zero"
-            if type == "Zero rates" || type == "Yield"
-                NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
-            elseif type == "Forward rates"
-                NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
-            end
-            plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100)
-            datetick('x','dd/mm/yyyy')
-            ytickformat('%.2f%%')
-            xlim([min(Maturity) max(Maturity)])
-            obj.currentCurve = getParYields(NSModel, PlottingPoints);
         end
         
         function obj = lagrangeFit(obj, dates, rates)
