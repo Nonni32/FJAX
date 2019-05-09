@@ -212,9 +212,10 @@ classdef portfolio
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
                 end
                 plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100)
+                obj.currentCurve = getParYields(NSModel, PlottingPoints)*100;
                 datetick('x','dd/mm/yyyy')
                 ytickformat('%.2f%%')
-                xlim([min(dates) max(dates)])
+                %xlim([min(dates) max(dates)])
             elseif method == "Polynomial"
                 obj = obj.polynomialFit(dates, rates, polyDegree);
             elseif method == "Lagrange interpolation"
@@ -236,7 +237,7 @@ classdef portfolio
             warning(ws)  % Turn it back on.
             px = linspace(min(dates),max(dates),max(dates)-min(dates));
             py = polyval(p, px);
-            plot(px, py*100,'r-')
+            plot(px, py*100)
             obj.currentCurve = py*100;
             grid on
             ytickformat('%.2f%%')
@@ -244,29 +245,10 @@ classdef portfolio
             xlim([min(dates) max(dates)])
         end
         
-        function obj = nelsonSiegelFit(obj, type, dates, rates)
-            Settle = repmat(today,[length(obj.maturity) 1])
-            Maturity = datenum(obj.maturity)
-            CleanPrice = obj.price'
-            CouponRate = obj.interest'
-            Instruments = [Settle Maturity CleanPrice CouponRate];
-            PlottingPoints = min(obj.curveDates):1:max(Maturity);
-            % Type is either "Forward" or "Zero"
-            if type == "Zero rates" || type == "Yield"
-                NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
-            elseif type == "Forward rates"
-                NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
-            end
-            plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100)
-            datetick('x','dd/mm/yyyy')
-            ytickformat('%.2f%%')
-            xlim([min(Maturity) max(Maturity)])
-        end
-        
         function obj = lagrangeFit(obj, dates, rates)
             xx = linspace(min(dates),max(dates),max(dates)-min(dates));
             P = lagrangepoly(dates,rates);
-            plot(xx,polyval(P,xx)*100,'-');
+            plot(xx,polyval(P,xx)*100);
             obj.currentCurve = polyval(P,xx)*100;
             grid on
             ytickformat('%.2f%%');
@@ -278,7 +260,7 @@ classdef portfolio
             hold on
             xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
             sp = spline(dates,rates);
-            plot(xsp,ppval(sp,xsp)*100,'-')
+            plot(xsp,ppval(sp,xsp)*100)
             obj.currentCurve = ppval(sp,xsp)*100;
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
@@ -289,7 +271,7 @@ classdef portfolio
             hold on
             cs = csaps(dates,rates);
             xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
-            plot(xsp,ppval(cs,xsp)*100,'-')
+            plot(xsp,ppval(cs,xsp)*100)
             obj.currentCurve = ppval(cs,xsp)*100;
             grid on
             ytickformat('%.2f%%')

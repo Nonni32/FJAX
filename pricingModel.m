@@ -77,8 +77,8 @@ classdef pricingModel
             K = obj.strikePrice;
             T = obj.optionMaturity;
             N = T/obj.interestRateModel.stepSize; 
-            callPayoff = max(obj.simulatedBonds(end,1:N)-K,1);
-            putPayoff = max(K-obj.simulatedBonds(end,1:N),0);
+            callPayoff = max(obj.simulatedBonds(:,N)-K,0);
+            putPayoff = max(K-obj.simulatedBonds(:,N),0);
             
             r0 = obj.interestRateModel.initialRate;
             callPrice = mean(exp(-r0*T)*callPayoff); 
@@ -90,6 +90,7 @@ classdef pricingModel
             % TODO: LAGA ÞETTA
             T = obj.optionMaturity;
             R = obj.interestRateModel.data;
+            r = R(1,1);
             K = obj.strikePrice;
             dt = obj.interestRateModel.stepSize;
             
@@ -97,10 +98,9 @@ classdef pricingModel
             callPricePath = zeros(1,length(R));
             putPricePath = zeros(1,length(R));
             
-            for i = 1:T/dt;
+            for i = 1:T/dt
                 callPayoff = max(obj.simulatedBonds(:,i)-K,0);
                 putPayoff = max(K-obj.simulatedBonds(:,i),0);
-                r = mean(R(:,i));
                 callPricePath(i) = exp(-r*(T-i*dt))*mean(callPayoff);
                 putPricePath(i) = exp(-r*(T-i*dt))*mean(putPayoff);
             end
@@ -122,11 +122,12 @@ classdef pricingModel
             N = obj.interestRateModel.nrOfSimulations;
             dates = linspace(today(),today()+365*obj.maturity, length(obj.interestRateModel.data));
             for i = 1:N
-                plot(dates,obj.simulatedBonds(i,:),'HandleVisibility','off')
+                plot(dates,obj.simulatedBonds(i,:),'HandleVisibility','off')%,'Color',[0.5 0.5 0.5])
                 hold on
             end
             K = obj.strikePrice;
             plot([min(dates) max(dates)],[K K],'k-','LineWidth',1.5)
+            plot(today+365*obj.optionMaturity,K,'k+','LineWidth',5)
             datetick('x','dd/mm/yyyy')
             legend('Strike price')
             grid on

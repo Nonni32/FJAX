@@ -9,6 +9,12 @@ enddates = {};
 for i = 1:length(obj.maturity)
       enddates(end+1) = {datestr(obj.maturity(i),'dd-mmm-yyyy')};
 end
+% RATES = 250, Settle 6 Enddates 6
+Settle = today;
+RateSpec = intenvset('Rates', rates,'StartDates',Settle, 'EndDates',enddates');
+Maturity = datenum('15-Sep-2030'); %INPUT
+coupon_rate = .025; 
+spread = 20;
 
 Settle = today;         %Input
 RateSpec = intenvset('Rates', rates,'StartDates',Settle, 'EndDates',enddates');
