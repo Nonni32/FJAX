@@ -77,12 +77,12 @@ classdef pricingModel
             K = obj.strikePrice;
             T = obj.optionMaturity;
             N = T/obj.interestRateModel.stepSize; 
-            callPayoff = max(obj.simulatedBonds(end,1:N)-K,0);
+            callPayoff = max(obj.simulatedBonds(end,1:N)-K,1);
             putPayoff = max(K-obj.simulatedBonds(end,1:N),0);
             
             r0 = obj.interestRateModel.initialRate;
-            callPrice = exp(-r0*T)*sum(callPayoff)/length(callPayoff);
-            putPrice = exp(-r0*T)*sum(putPayoff)/length(putPayoff);
+            callPrice = mean(exp(-r0*T)*callPayoff); 
+            putPrice = mean(exp(-r0*T)*putPayoff); % HALLO
         end
         
         
@@ -97,13 +97,13 @@ classdef pricingModel
             putPricePath = zeros(1,length(R));
             
             for i = 1:length(R)
-                callPayoff = max(obj.simulatedBonds(end,:)-K,0);
-                putPayoff = max(K-obj.simulatedBonds(end,:),0);
+                callPayoff = max(obj.simulatedBonds(:,i)-K,0);
+                putPayoff = max(K-obj.simulatedBonds(:,i),0);
                 r = mean(R(:,i));
-                callPricePath(i) = exp(-r*(T-i*dt))*sum(callPayoff)/length(callPayoff);
-                putPricePath(i) = exp(-r*(T-i*dt))*sum(putPayoff)/length(putPayoff);
+                callPricePath(i) = exp(-r*(T-i*dt))*mean(callPayoff);
+                putPricePath(i) = exp(-r*(T-i*dt))*mean(putPayoff);
             end
-            plot(dates, callPricePath,'r-')
+            plot(dates, callPricePath,)
             hold on
             plot(dates, putPricePath,'b-')
             datetick('x','dd/mm/yyyy')
@@ -115,15 +115,23 @@ classdef pricingModel
         
         function plotBonds(obj)
             N = obj.interestRateModel.nrOfSimulations;
+            dates = linspace(today(),today()+365*obj.maturity, length(obj.interestRateModel.data));
             for i = 1:N
-                plot(obj.simulatedBonds(i,:))
+                plot(dates,obj.simulatedBonds(i,:),'HandleVisibility','off')
                 hold on
             end
+            K = obj.strikePrice;
+            plot([min(dates) max(dates)],[K K],'k-','LineWidth',1.5)
+            datetick('x','dd/mm/yyyy')
+            legend('Strike price')
+            grid on
+            xlim([min(dates) max(dates)])
         end
         
         function [C, P] = blackScholesPricer(obj)    
-            model = obj.interestRateModel.model;
+            model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
+            sigma = obj.interestRateModel.volatility;
             S = obj.maturity; % S > T
             T = obj.optionMaturity;
             B = obj.simulatedBonds(1,1);
@@ -133,19 +141,21 @@ classdef pricingModel
             rS = mean(R(:,S));
 
             % Call
-            switch model
+            switch model.model
                 case "Simple"
-                    d1 = (log(B/K) + (r + 0.5*sigma^2)*S)/(sigma*sqrt(S));
+                    d1 = (log(B/K) + (R(1,1) + 0.5*sigma^2)*S)/(sigma*sqrt(S));
                     d2 = d1 - sigma*sqrt(S);
-
                     N1 = 0.5*(1+erf(d1/sqrt(2)));
                     N2 = 0.5*(1+erf(d2/sqrt(2)));
                     C = B*N1-K*exp(-R(1,1)*S)*N2;
                     % Put
                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
-                    P = K*exp(-r*S)*N2 - B*N1;
+                    P = K*exp(-R(1,1)*S)*N2 - B*N1;
                 case "Brownian"
+                    % TODO: LAGA VILLUNA HÉR 
+                    % PUT - CALL PARITY STENST EKKI
+                    alpha = model.longTermMeanLevel;
                     PtT = exp(-rT*T-(1/2)*alpha*T^2+(1/6)*sigma^2*T^3);
                     PtS = exp(-rT*S-(1/2)*alpha*S^2+(1/6)*sigma^2*S^3);
                     d1 = (log(PtS/(K*PtT))+(1/2)*sigma^2*((S-T)^2)*T)/(sigma*(S-T)*sqrt(T));
@@ -153,11 +163,11 @@ classdef pricingModel
 
                     N1 = 0.5*(1+erf(d1/sqrt(2)));
                     N2 = 0.5*(1+erf(d2/sqrt(2)));
-                    C = B*N1-X*exp(-r*S)*N2;
+                    C = B*N1-K*exp(-R(1,1)*S)*N2;
                     % Put
                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
-                    P = X*exp(-r*S)*N2 - B*N1;
+                    P = K*exp(-R(1,1)*S)*N2 - B*N1;
                 case "Vasicek"
                     Q = 1; % Principal of the bond
                     kappa = model.speedOfReversion;
@@ -180,36 +190,8 @@ classdef pricingModel
                     C = Q*PtS*N(d)-K*PtT*N(d-sigmaP);
                     P = K*PtT*N(-d+sigmaP)-Q*PtS*N(-d);            
             end
-
-            N1 = 0.5*(1+erf(d1/sqrt(2)));
-            N2 = 0.5*(1+erf(d2/sqrt(2)));
-            C = B*N1-X*exp(-r*S)*N2;
-            % Put
-            N1 = 0.5*(1+erf(-d1/sqrt(2)));
-            N2 = 0.5*(1+erf(-d2/sqrt(2)));
-            P = X*exp(-r*S)*N2 - B*N1;
         end
 
     end
 end
 
-
-
-
-function [C, P, B] = optionSimulation(r0, dt, sigma, T, K, N)
-    % CALL AND PUT OPTION SIMULATION
-    [B, bT] = zero_coupon_bond_simulation(r0, dt, sigma, T, N);
-    c_payoff = max(bT(1,:)-K,0);
-    p_payoff = max(K-bT(1,:),0);
-    
-    C = exp(-r0*T)*sum(c_payoff)/N;
-    P = exp(-r0*T)*sum(p_payoff)/N;
-end
-
-function P = put_option_simulation(r0, dt, sigma, T, K, N)
-    % PUT OPTION SIMULATION
-    p0 = zeros(1,N);
-    [B, bT] = zero_coupon_bond_simulation(r0, dt, sigma, T, N);
-    payoff = max(K-bT(1,:),0);
-    P = exp(-r0*T)*sum(payoff)/N;
-end

@@ -87,6 +87,7 @@ classdef pricingModel
         
         
         function obj = optionPathSimulation(obj)
+            % TODO: LAGA ÞETTA
             T = obj.optionMaturity;
             R = obj.interestRateModel.data;
             K = obj.strikePrice;
@@ -96,16 +97,20 @@ classdef pricingModel
             callPricePath = zeros(1,length(R));
             putPricePath = zeros(1,length(R));
             
-            for i = 1:length(R)
-                callPayoff = max(obj.simulatedBonds(end,:)-K,0);
-                putPayoff = max(K-obj.simulatedBonds(end,:),0);
+            for i = 1:T/dt;
+                callPayoff = max(obj.simulatedBonds(:,i)-K,0);
+                putPayoff = max(K-obj.simulatedBonds(:,i),0);
                 r = mean(R(:,i));
-                callPricePath(i) = exp(-r*(T-i*dt))*sum(callPayoff)/length(callPayoff);
-                putPricePath(i) = exp(-r*(T-i*dt))*sum(putPayoff)/length(putPayoff);
+                callPricePath(i) = exp(-r*(T-i*dt))*mean(callPayoff);
+                putPricePath(i) = exp(-r*(T-i*dt))*mean(putPayoff);
             end
-            plot(dates, callPricePath,'r-')
+            plot(dates, callPricePath)
             hold on
-            plot(dates, putPricePath,'b-')
+            plot(dates, putPricePath)
+            hold on
+            plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
+            hold on
+            plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
             datetick('x','dd/mm/yyyy')
             grid on
             xlim([today() today()+365*T])
@@ -127,7 +132,7 @@ classdef pricingModel
             grid on
             xlim([min(dates) max(dates)])
         end
-        
+
         function [C, P] = blackScholesPricer(obj)    
             model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
@@ -153,6 +158,8 @@ classdef pricingModel
                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
                 case "Brownian"
+                    % TODO: LAGA VILLUNA HÉR 
+                    % PUT - CALL PARITY STENST EKKI
                     alpha = model.longTermMeanLevel;
                     PtT = exp(-rT*T-(1/2)*alpha*T^2+(1/6)*sigma^2*T^3);
                     PtS = exp(-rT*S-(1/2)*alpha*S^2+(1/6)*sigma^2*S^3);
@@ -189,27 +196,11 @@ classdef pricingModel
                     P = K*PtT*N(-d+sigmaP)-Q*PtS*N(-d);            
             end
         end
-
+        
+        function capsAndFloor(obj)
+            % TODO: Þetta
+        end
+            
     end
 end
 
-
-
-
-function [C, P, B] = optionSimulation(r0, dt, sigma, T, K, N)
-    % CALL AND PUT OPTION SIMULATION
-    [B, bT] = zero_coupon_bond_simulation(r0, dt, sigma, T, N);
-    c_payoff = max(bT(1,:)-K,0);
-    p_payoff = max(K-bT(1,:),0);
-    
-    C = exp(-r0*T)*sum(c_payoff)/N;
-    P = exp(-r0*T)*sum(p_payoff)/N;
-end
-
-function P = put_option_simulation(r0, dt, sigma, T, K, N)
-    % PUT OPTION SIMULATION
-    p0 = zeros(1,N);
-    [B, bT] = zero_coupon_bond_simulation(r0, dt, sigma, T, N);
-    payoff = max(K-bT(1,:),0);
-    P = exp(-r0*T)*sum(payoff)/N;
-end
