@@ -229,6 +229,10 @@ classdef portfolio
             xlim([min(dates) max(dates)])
         end
         
+        function obj = nelsonSiegelFit(obj)
+            % TODO: ÞETTA FALL
+        end
+        
         function obj = lagrangeFit(obj, dates, rates)
             xx = linspace(min(dates),max(dates),max(dates)-min(dates));
             P = lagrangepoly(dates,rates);
