@@ -320,7 +320,7 @@ if get(hObject,'Value')~= 0
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
     fittingTechnique = get(handles.checkbox3,'String');
-    handles.legends{end+1} = fittingTechnique;
+    handles.legends{end+1} = fittingTechnique + " (n = " + degree + ")";
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Polynomial", degree, 0);
     legend(handles.axes1,handles.legends);
@@ -423,7 +423,7 @@ if get(hObject,'Value')~= 0
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
     fittingTechnique = get(handles.checkbox6,'String');
-    handles.legends{end+1} = fittingTechnique;
+    handles.legends{end+1} = fittingTechnique + " (p = " + smoothingFactor + ")";
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Constrained cubic spline", 0, smoothingFactor);
     legend(handles.axes1,handles.legends);
