@@ -316,16 +316,6 @@ classdef portfolio
     end
 end
 
-
-
-
-
-
-
-
-
-
-
 function [P,R,S] = lagrangepoly(X,Y,XX)
     %LAGRANGEPOLY  Lagrange interpolation polynomial fitting a set of points
     %   [P,R,S] = LAGRANGEPOLY(X,Y)  where X and Y are row vectors
