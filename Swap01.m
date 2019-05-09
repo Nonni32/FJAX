@@ -9,21 +9,18 @@ enddates = {};
 for i = 1:length(obj.maturity)
       enddates(end+1) = {datestr(obj.maturity(i),'dd-mmm-yyyy')};
 end
-<<<<<<< HEAD
 % RATES = 250, Settle 6 Enddates 6
 Settle = today;
 RateSpec = intenvset('Rates', rates,'StartDates',Settle, 'EndDates',enddates');
 Maturity = datenum('15-Sep-2030'); %INPUT
 coupon_rate = .025; 
 spread = 20;
-=======
 
 Settle = today;         %Input
 RateSpec = intenvset('Rates', rates,'StartDates',Settle, 'EndDates',enddates');
 Maturity = datenum('15-Sep-2030'); %Input
 coupon_rate = .05;     %Ef NaN þá finnur fuctionið Swap rate - annars ákveðum við föstu greiðslunar
 spread = 20;            %Input
->>>>>>> 693ac5416e16c847123462eb864c4a8d4a6e89a4
 
 LegRate = [coupon_rate spread];
 LegType = [1 0];            %Velja milli fixed-floating, floating-fixed ... þetta er fixed/floating
