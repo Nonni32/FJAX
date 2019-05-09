@@ -199,22 +199,9 @@ classdef portfolio
                 hold on
                 plot(dates, rates)
             elseif method == "Nelson-Siegel"
-                Settle = repmat(today,[length(obj.maturity) 1]);
-                Maturity = datenum(obj.maturity);
-                CleanPrice = obj.price';
-                CouponRate = obj.interest';
-                Instruments = [Settle Maturity CleanPrice CouponRate];
-                PlottingPoints = min(dates):1:max(dates);
-                % Type is either "Forward" or "Zero"
-                if curve == "Zero rates" || curve == "Yield"
-                    NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
-                elseif curve == "Forward rates"
-                    NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
-                end
-                plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100)
-                datetick('x','dd/mm/yyyy')
-                ytickformat('%.2f%%')
-                xlim([min(dates) max(dates)])
+                if (curve == "Yield " || curve == "Zero rates" || curve == "Forward rates")
+                    obj = obj.nelsonSiegelFit(curve, dates, rates);
+                 end
             elseif method == "Polynomial"
                 obj = obj.polynomialFit(dates, rates, polyDegree);
             elseif method == "Lagrange interpolation"
@@ -250,7 +237,7 @@ classdef portfolio
             CleanPrice = obj.price'
             CouponRate = obj.interest'
             Instruments = [Settle Maturity CleanPrice CouponRate];
-            PlottingPoints = min(obj.curveDates):1:max(Maturity);
+            PlottingPoints = today:1:max(Maturity);
             % Type is either "Forward" or "Zero"
             if type == "Zero rates" || type == "Yield"
                 NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
