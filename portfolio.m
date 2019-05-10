@@ -204,7 +204,7 @@ classdef portfolio
                 CleanPrice = obj.price';
                 CouponRate = obj.interest';
                 Instruments = [Settle Maturity CleanPrice CouponRate];
-                PlottingPoints = min(dates):1:max(dates);
+                PlottingPoints = linspace(min(dates),max(dates),max(dates)-min(dates));
                 % Type is either "Forward" or "Zero"
                 if curve == "Zero rates" || curve == "Yield"
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);

@@ -94,13 +94,13 @@ classdef interestRate
             if obj.nrOfSimulations == 1
                 switch obj.model
                     case "Simple"
-                        plot(obj.dates,obj.data(1,:)*100,'r-') 
+                        plot(obj.dates,obj.data(1,:)*100) 
                         hold on
                     case "Brownian"
                         plot(obj.dates,obj.data(1,:)*100) 
                         hold on
                     case "Vasicek"
-                        plot(obj.dates,obj.data(1,:)*100,'b-') 
+                        plot(obj.dates,obj.data(1,:)*100) 
                         hold on
                 end
             else

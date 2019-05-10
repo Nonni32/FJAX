@@ -55,8 +55,8 @@ createPortfolio;
 NonIndexedPortfolio.calculateCurves;
 IndexedPortfolio.calculateCurves;
 
-NonIndexedPortfolio = NonIndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0);
-IndexedPortfolio = IndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0);
+NonIndexedPortfolio = NonIndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0)
+IndexedPortfolio = IndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0)
 
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
@@ -73,35 +73,17 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-dates = datenum(NonIndexedPortfolio.maturity,'dd/mm/yyyy');
-
-x = linspace(min(dates),max(dates),max(dates)-min(dates));
 y = NonIndexedPortfolio.currentCurve;
-points = NonIndexedPortfolio.yield;
+data = NonIndexedPortfolio.
 
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using swapGUI.
 if strcmp(get(hObject,'Visible'),'off')
-%     plot(handles.axes3,dates,points*100,'ko')
-%     hold on
-    plot(handles.axes3,x,y,'r')
-    hold on
-    plot(handles.axes3,dates,points*100,'ko')
-    hold off
+    plot(handles.axes2,plot(y));
+    plot(handles.axes3,plot(y));
+    xlim([today() max(datenum(handles.NonIndexedPortfolio.maturity))])
     datetick('x','dd/mm/yyyy')
-    ytickformat(handles.axes3,'%.2f%%')
-    xlim([min(dates) max(dates)])
-    
-%     plot(handles.axes2,dates,points*100,'ko')
-%     hold on
-    plot(handles.axes2,x, y,'r')
-    hold on
-    plot(handles.axes2,dates,points*100,'ko')
-    hold off
-    datetick(handles.axes2, 'x','dd/mm/yyyy')
-    ytickformat(handles.axes2,'%.2f%%')
-    xlim([min(dates) max(dates)])
-    
+
     set(handles.axes1,'visible','off')
 end
 
