@@ -16,11 +16,6 @@ classdef swap
         payCurve
         receiveCurve
         basisPoints % 1x2 array
-        
-        % BÆTA VIÐ PROPERTIES FYRIR 
-        % [Price, SwapRate, AI, RecCF, RecCFDates, PayCF,PayCFDates] = ...
-        % + ÞAÐ SEM ÞARF Í ÖÐRUM FÖLLUM 
-            
     end
     
     methods
@@ -40,13 +35,7 @@ classdef swap
             obj.receiveCurve = receiveCurve;
             obj.basisPoints = basisPoints;
             
-            % SPLITTA Í NOKKUR FUNCTION 
-            
-            if(datenum(startDate) == datenum(settleDate))
-                obj = obj.valueSpotSwap;
-            else
-                obj = obj.valueForwardSwap;
-            end
+            obj = obj.valueSwap;
         end
         
         function obj = valueSwap(obj)
@@ -72,15 +61,16 @@ classdef swap
             
             LegRate = [obj.couponRate spread];
             LegType = [obj.pay obj.receive];
-            
+ 
             [Price, SwapRate, AI, RecCF, RecCFDates, PayCF,PayCFDates] = ...
             swapbyzero(RateSpec, LegRate, Settle, Maturity,'LegType',LegType,...
             'AdjustCashFlowsBasis',true,...
             'BusinessDayConvention','modifiedfollow')       %'LatestFloatingRate',LatestFloatingRate,
-        end
-        
-        function obj = valueForwardSwap(obj)
-            % TODO: Evaluate swap
+
+            
+            
+            
+            
         end
     end
 end

@@ -105,7 +105,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([today max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end        
         
         function obj = discountCurve(obj)
@@ -116,7 +116,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([today max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end
         
         function obj = swapCurve(obj)
@@ -141,7 +141,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([today max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+            xlim([min(datenum(obj.maturity,'dd/mm/yyyy')) max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end
         
         
@@ -204,7 +204,7 @@ classdef portfolio
                 CleanPrice = obj.price';
                 CouponRate = obj.interest';
                 Instruments = [Settle Maturity CleanPrice CouponRate];
-                PlottingPoints = linspace(today,max(dates),max(dates)-today);
+                PlottingPoints = linspace(min(dates),max(dates),max(dates)-min(dates));
                 % Type is either "Forward" or "Zero"
                 if curve == "Zero rates" || curve == "Yield"
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
@@ -215,7 +215,7 @@ classdef portfolio
                 obj.currentCurve = getParYields(NSModel, PlottingPoints)*100;
                 datetick('x','dd/mm/yyyy')
                 ytickformat('%.2f%%')
-                xlim([today max(dates)])
+                xlim([min(dates) max(dates)])
             elseif method == "Polynomial"
                 obj = obj.polynomialFit(dates, rates, polyDegree);
             elseif method == "Lagrange interpolation"
@@ -235,48 +235,48 @@ classdef portfolio
             ws = warning('off','all');  % Turn off warning
             p = polyfit(dates', rates, degree);
             warning(ws)  % Turn it back on.
-            px = linspace(today,max(dates),max(dates)-today);
+            px = linspace(min(dates),max(dates),max(dates)-min(dates));
             py = polyval(p, px);
             plot(px, py*100)
             obj.currentCurve = py*100;
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([today max(dates)])
+            xlim([min(dates) max(dates)])
         end
         
         function obj = lagrangeFit(obj, dates, rates)
-            xx = linspace(today,max(dates),max(dates)-today);
+            xx = linspace(min(dates),max(dates),max(dates)-min(dates));
             P = lagrangepoly(dates,rates);
             plot(xx,polyval(P,xx)*100);
             obj.currentCurve = polyval(P,xx)*100;
             grid on
             ytickformat('%.2f%%');
             datetick('x','dd/mm/yyyy');
-            xlim([today max(dates)]);
+            xlim([min(dates) max(dates)]);
         end
         
         function obj = splineFit(obj, dates, rates)
             hold on
-            xsp = linspace(today,max(dates),max(dates)-today);
+            xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
             sp = spline(dates,rates);
             plot(xsp,ppval(sp,xsp)*100)
             obj.currentCurve = ppval(sp,xsp)*100;
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([today max(dates)])
+            xlim([min(dates) max(dates)])
         end
         
         function obj = cubicSplineFit(obj, dates, rates)
             hold on
             cs = csaps(dates,rates);
-            xsp = linspace(today,max(dates),max(dates)-today);
+            xsp = linspace(min(dates),max(dates),max(dates)-min(dates));
             plot(xsp,ppval(cs,xsp)*100)
             obj.currentCurve = ppval(cs,xsp)*100;
             grid on
             ytickformat('%.2f%%')
             datetick('x','dd/mm/yyyy')
-            xlim([today max(dates)])
+            xlim([min(dates) max(dates)])
         end
         
         function obj = constrainedCubicSplineFit(obj, dates, rates, smoothingFactor)
@@ -284,7 +284,7 @@ classdef portfolio
             x = dates;
             y = rates; 
             x_max = max(x);
-            x_min = today;
+            x_min = min(x);
             x_scaled = 10* (x - x_min) / (x_max - x_min);
             xsp = linspace(0,10,max(dates)-min(dates));
             cs = csaps(x_scaled,y,smoothingFactor);
@@ -293,7 +293,7 @@ classdef portfolio
             grid on
             ytickformat('%.2f%%')   
             datetick('x','dd/mm/yyyy')
-            xlim([today max(dates)])
+            xlim([min(dates) max(dates)])
         end
     end
 end

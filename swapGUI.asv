@@ -54,9 +54,17 @@ function swapGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 createPortfolio;
 NonIndexedPortfolio.calculateCurves;
 IndexedPortfolio.calculateCurves;
+handles.NonIndexedPortfolio = NonIndexedPortfolio;
+handles.IndexedPortfolio = IndexedPortfolio;
 
-NonIndexedPortfolio = NonIndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0)
-IndexedPortfolio = IndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0)
+% Choose default command line output for bondGUI
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+NonIndexedPortfolio = NonIndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0);
+IndexedPortfolio = IndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0);
 
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
@@ -64,28 +72,44 @@ handles.legends = {"Data points"};
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
-% Update handles structure
-guidata(hObject, handles);
-
 % Choose default command line output for swapGUI
 handles.output = hObject;
 
+handles.dates = datenum(NonIndexedPortfolio.maturity,'dd/mm/yyyy');
+handles.x = linspace(today,max(handles.dates),max(handles.dates)-today);
+handles.currentCurve = NonIndexedPortfolio.currentCurve;
+handles.points = NonIndexedPortfolio.yield;
+
+%     plot(handles.axes3,dates,points*100,'ko')
+%     hold on
+plot(handles.axes3,handles.x,handles.currentCurve,'r')
+%     hold(handles.axes3,'on')
+grid(handles.axes3, 'on')
+%     scatter(dates,points*100,'k','Filled')
+datetick('x','dd/mm/yyyy')
+ytickformat(handles.axes3,'%.2f%%')
+xlim(handles.axes3,[today max(handles.dates)])
+
+if strcmp(get(hObject,'Visible'),'off')    
+    %     plot(handles.axes2,dates,points*100,'ko')
+    %     hold on
+    plot(handles.axes2,handles.x,handles.currentCurve,'r')
+    %     hold(handles.axes2,'on')
+    grid(handles.axes2, 'on')
+    datetick(handles.axes2, 'x','dd/mm/yyyy')
+    ytickformat(handles.axes2,'%.2f%%')
+    xlim(handles.axes2,[today max(handles.dates)])
+end
+set(handles.axes1,'visible','off')
+
+set(handles.edit5, 'String', "100");
+set(handles.edit6, 'String', "" + datestr(today,'dd/mm/yyyy'));
+set(handles.edit7, 'String', "" + datestr(today,'dd/mm/yyyy'));
+set(handles.edit18,'String', "" + datestr(max(handles.dates),'dd/mm/yyyy'));
+
+
 % Update handles structure
 guidata(hObject, handles);
-
-y = NonIndexedPortfolio.currentCurve;
-data = NonIndexedPortfolio.
-
-% This sets up the initial plot - only do when we are invisible
-% so window can get raised using swapGUI.
-if strcmp(get(hObject,'Visible'),'off')
-    plot(handles.axes2,plot(y));
-    plot(handles.axes3,plot(y));
-    xlim([today() max(datenum(handles.NonIndexedPortfolio.maturity))])
-    datetick('x','dd/mm/yyyy')
-
-    set(handles.axes1,'visible','off')
-end
 
 % UIWAIT makes swapGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -106,47 +130,108 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-axes(handles.axes1);
-cla;
 
-popup_sel_index = get(handles.popupmenu1, 'Value');
-switch popup_sel_index
-    case 1
-        plot(rand(5));
-    case 2
-        plot(sin(1:0.01:25.99));
-    case 3
-        bar(1:.5:10);
-    case 4
-        plot(membrane);
-    case 5
-        surf(peaks);
+createPortfolio;
+handles.NonIndexedPortfolio = NonIndexedPortfolio;
+handles.IndexedPortfolio = IndexedPortfolio;
+
+receiveIndexed = get(handles.radiobutton7,'Value');
+payIndexed = get(handles.radiobutton8,'Value');
+
+if receiveIndexed == 0
+    handles.receive = handles.NonIndexedPortfolio;
+else 
+    handles.receive = handles.IndexedPortfolio;
 end
 
-
-% --------------------------------------------------------------------
-function FileMenu_Callback(hObject, eventdata, handles)
-% hObject    handle to FileMenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function OpenMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to OpenMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-file = uigetfile('*.fig');
-if ~isequal(file, 0)
-    open(file);
+if payIndexed == 0
+    handles.pay = handles.NonIndexedPortfolio;
+else
+    handles.pay = handles.IndexedPortfolio;
 end
 
-% --------------------------------------------------------------------
-function PrintMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to PrintMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-printdlg(handles.figure1)
+% Contents
+contentsReceive = get(handles.popupmenu3,'String');
+contentsPay = get(handles.popupmenu1,'String');
+
+contentsReceiveFit = get(handles.popupmenu4,'String');
+contentsPayFit = get(handles.popupmenu2,'String');
+
+% Curve
+handles.receiveCurve = contentsReceive{get(handles.popupmenu3,'Value')};
+handles.payCurve = contentsPay{get(handles.popupmenu1,'Value')};
+
+% Fit
+handles.receiveFit = contentsReceiveFit{get(handles.popupmenu4,'Value')};
+handles.payFit = contentsPayFit{get(handles.popupmenu2,'Value')};
+
+% Polynomial degree
+handles.receivePoly = str2double(get(handles.edit3,'String'));
+handles.payPoly = str2double(get(handles.edit13,'String'));
+
+% Smoothing factor
+handles.receiveSF = str2double(get(handles.edit4,'String'));
+handles.paySF = str2double(get(handles.edit14,'String'));
+
+% Basis points
+handles.receiveBP = str2double(get(handles.edit8,'String'))*100;
+handles.payBP = str2double(get(handles.edit15,'String'))*100;
+
+% Choose default command line output for bondGUI
+handles.output = hObject;
+
+%handles.dates = datenum(NonIndexedPortfolio.maturity,'dd/mm/yyyy');
+%handles.x = linspace(min(handles.dates),max(handles.dates),max(handles.dates)-min(handles.dates));
+%handles.currentCurve = NonIndexedPortfolio.currentCurve;
+%handles.points = NonIndexedPortfolio.yield;
+
+% This sets up the initial plot - only do when we are invisible
+% so window can get raised using swapGUI.
+%if strcmp(get(hObject,'Visible'),'off')
+%     plot(handles.axes3,dates,points*100,'ko')
+%     hold on
+
+cla(handles.axes1);
+cla(handles.axes2);
+cla(handles.axes3);
+
+axes(handles.axes3)
+grid on
+handles.receive = handles.receive.fitMethod(handles.receiveCurve,handles.receiveFit,handles.receivePoly,handles.receiveSF);
+
+axes(handles.axes2)
+grid on
+handles.pay = handles.pay.fitMethod(handles.payCurve,handles.payFit,handles.payPoly,handles.paySF);
+
+% Current curve
+handles.receiveCC = handles.receive.currentCurve;
+handles.payCC = handles.pay.currentCurve;
+
+% HÉR ÞARF SWAP AÐ REIKNAST
+pay = get(handles.radiobutton2,'Value');
+receive = get(handles.radiobutton4,'Value');
+payments = [str2double(get(handles.edit16,'String')) str2double(get(handles.edit17,'String'))]; 
+
+5 6 7 18
+basisPoints = [receiveBP handles.payBP];
+
+
+% handles.swap =  swap(pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCurve, handles.receiveCurve, basisPoints)
+
+
+
+
+
+
+
+
+
+set(handles.axes1,'visible','off')
+
+
+
+
+guidata(hObject, handles);
 
 % --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles)
