@@ -74,7 +74,7 @@ LegRate = [0.0427 10];          %Input
 
 Price = swapbyzero(RateSpec, LegRate, Settle, Maturity, 'StartDate' , StartDate)
 
-%% Find swap rate
+% Find swap rate
 
 LegRate = [NaN 10]; % Input
 [Price, SwapRate] = swapbyzero(RateSpec, LegRate, Settle, Maturity,...
