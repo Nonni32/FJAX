@@ -27,7 +27,7 @@ for i = 1:length(IndexedBonds)
     % Adding the bond to the portfolio
     if i == 1
         IndexedPortfolio = portfolio(tempBond);
-        % THE INDEXED PORTFOLIO SHOULD ONLY CONSIST OF TREASURY BONDS
+        
     elseif tempBond.ticker([1:3])=="RIK" 
         IndexedPortfolio = IndexedPortfolio.addToPortfolio(tempBond);
     end
