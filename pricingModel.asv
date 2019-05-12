@@ -108,17 +108,18 @@ classdef pricingModel
             for i = dt:dt:T
                 tt = round(i/dt)
                 r = mean(R(:,tt))
-                callPricePath(tt) = exp(-r*(T-i))*callPayoff(tt);
-                putPricePath(tt) = exp(-r*(T-i))*putPayoff(tt);
+                callPricePath(tt) = callPayoff(tt); %exp(-r*(T-i)) Baeta vid nuvirdingu!!!!!!!!!!
+                putPricePath(tt) = putPayoff(tt);
             end
             
             plot(dates, callPricePath)
             hold on
             plot(dates, putPricePath)
-            hold on
-            plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
-            hold on
-            plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
+            %SKODA BLS PRICER ALLTOF H'ATT VERD
+             %hold on
+%             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
+%             hold on
+%             plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
             datetick('x','dd/mm/yyyy')
             grid on
             xlim([today() today()+365*T])

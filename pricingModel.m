@@ -95,7 +95,7 @@ classdef pricingModel
             R = obj.interestRateModel.data;
             r = R(1,1);
             %K = obj.strikePrice;
-            K = 0.1
+            K = 0.95
             dt = obj.interestRateModel.stepSize;
             
             dates = linspace(today(),today()+365*T, T/dt);
@@ -108,14 +108,15 @@ classdef pricingModel
             for i = dt:dt:T
                 tt = round(i/dt)
                 r = mean(R(:,tt))
-                callPricePath(tt) = callPayoff(tt); %exp(-r*(T-i))
+                callPricePath(tt) = callPayoff(tt); %exp(-r*(T-i)) Baeta vid nuvirdingu!!!!!!!!!!
                 putPricePath(tt) = putPayoff(tt);
             end
             
             plot(dates, callPricePath)
             hold on
             plot(dates, putPricePath)
-%             hold on
+            %SKODA BLS PRICER ALLTOF H'ATT VERD
+             %hold on
 %             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
 %             hold on
 %             plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
