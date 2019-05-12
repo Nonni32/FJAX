@@ -80,37 +80,45 @@ classdef pricingModel
             callPayoff = max(obj.simulatedBonds(:,N)-K,0);
             putPayoff = max(K-obj.simulatedBonds(:,N),0);
             
+            %Skoða þetta ... og eitthvað meira
             r0 = obj.interestRateModel.initialRate;
             callPrice = mean(exp(-r0*T)*callPayoff); 
             putPrice = mean(exp(-r0*T)*putPayoff); % HALLO
         end
         
         
+        %Skoða þetta . .skoða núvirðingu og price á Call og put
         function obj = optionPathSimulation(obj)
             % TODO: LAGA ÞETTA
+            [obj.calculatedCall, obj.calculatedPut] = obj.blackScholesPricer;
             T = obj.optionMaturity;
             R = obj.interestRateModel.data;
             r = R(1,1);
-            K = obj.strikePrice;
+            %K = obj.strikePrice;
+            K = 0.1
             dt = obj.interestRateModel.stepSize;
             
-            dates = linspace(today(),today()+365*T, length(R));
-            callPricePath = zeros(1,length(R));
-            putPricePath = zeros(1,length(R));
+            dates = linspace(today(),today()+365*T, T/dt);
+            callPricePath = zeros(1,T/dt);
+            putPricePath = zeros(1,T/dt);
             
-            for i = 1:T/dt
-                callPayoff = max(obj.simulatedBonds(:,i)-K,0);
-                putPayoff = max(K-obj.simulatedBonds(:,i),0);
-                callPricePath(i) = exp(-r*(T-i*dt))*mean(callPayoff);
-                putPricePath(i) = exp(-r*(T-i*dt))*mean(putPayoff);
+            callPayoff = max(mean(obj.simulatedBonds)-K,0);
+            putPayoff = max(mean(K-obj.simulatedBonds),0);
+            
+            for i = dt:dt:T
+                tt = round(i/dt)
+                r = mean(R(:,tt))
+                callPricePath(tt) = callPayoff(tt); %exp(-r*(T-i))
+                putPricePath(tt) = putPayoff(tt);
             end
+            
             plot(dates, callPricePath)
             hold on
             plot(dates, putPricePath)
-            hold on
-            plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
-            hold on
-            plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
+%             hold on
+%             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
+%             hold on
+%             plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
             datetick('x','dd/mm/yyyy')
             grid on
             xlim([today() today()+365*T])
@@ -129,11 +137,12 @@ classdef pricingModel
             plot([min(dates) max(dates)],[K K],'k-','LineWidth',1.5)
             plot(today+365*obj.optionMaturity,K,'k+','LineWidth',5)
             datetick('x','dd/mm/yyyy')
-            legend('Strike price')
+            legend('Strike price','Exercise date')
             grid on
             xlim([min(dates) max(dates)])
         end
 
+        %SKOÐDA ÞETTA - !!!!!!!!!!!!
         function [C, P] = blackScholesPricer(obj)    
             model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
@@ -160,7 +169,6 @@ classdef pricingModel
                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
                 case "Brownian"
                     % TODO: LAGA VILLUNA HÉR 
-                    % PUT - CALL PARITY STENST EKKI
                     alpha = model.longTermMeanLevel;
                     PtT = exp(-rT*T-(1/2)*alpha*T^2+(1/6)*sigma^2*T^3);
                     PtS = exp(-rT*S-(1/2)*alpha*S^2+(1/6)*sigma^2*S^3);

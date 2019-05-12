@@ -52,7 +52,7 @@ classdef swap
         function obj = valueSwap(obj)
             % TODO: Evaluate swap
             alpha = obj.payments.^(-1);
-            Settle = datenum(obj.settleDate);
+            Settle = datenum(obj.settleDate);Ni
             
             datesPay = datenum(payPortfolio.maturity,'dd/mm/yyyy');
             xPay = linspace(today,max(datesPay),max(datesPay)-today);
