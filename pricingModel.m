@@ -77,53 +77,53 @@ classdef pricingModel
             K = obj.strikePrice;
             T = obj.optionMaturity;
             N = T/obj.interestRateModel.stepSize; 
-            callPayoff = max(obj.simulatedBonds(:,N)-K,0);
-            putPayoff = max(K-obj.simulatedBonds(:,N),0);
+            callPayoff = mean(max(obj.simulatedBonds(:,N)-K,0));
+            putPayoff = mean(max(K-obj.simulatedBonds(:,N),0));
             
             %Skoða þetta ... og eitthvað meira
             r0 = obj.interestRateModel.initialRate;
-            callPrice = mean(exp(-r0*T)*callPayoff); 
-            putPrice = mean(exp(-r0*T)*putPayoff); % HALLO
+            callPrice = exp(-r0*T)*callPayoff; %Eitthvað skrítið
+            putPrice = exp(-r0*T)*putPayoff; % HALLO
         end
         
         
         %Skoða þetta . .skoða núvirðingu og price á Call og put
         function obj = optionPathSimulation(obj)
+            % Sleppa?
             % TODO: LAGA ÞETTA
             [obj.calculatedCall, obj.calculatedPut] = obj.blackScholesPricer;
             T = obj.optionMaturity;
             R = obj.interestRateModel.data;
             r = R(1,1);
-            %K = obj.strikePrice;
-            K = 0.95
+            K = obj.strikePrice; %0.95
             dt = obj.interestRateModel.stepSize;
             
             dates = linspace(today(),today()+365*T, T/dt);
             callPricePath = zeros(1,T/dt);
             putPricePath = zeros(1,T/dt);
             
-            callPayoff = max(mean(obj.simulatedBonds)-K,0);
-            putPayoff = max(mean(K-obj.simulatedBonds),0);
+            callPayoff = mean(max(obj.simulatedBonds(:,T/dt)-K,0));
+            putPayoff = mean(max(K-obj.simulatedBonds(:,T/dt),0));
             
             for i = dt:dt:T
-                tt = round(i/dt)
-                r = mean(R(:,tt))
-                callPricePath(tt) = callPayoff(tt); %exp(-r*(T-i)) Baeta vid nuvirdingu!!!!!!!!!!
-                putPricePath(tt) = putPayoff(tt);
+                tt = round(i/dt);
+                r = mean(R(:,tt));
+                callPricePath(tt) = callPayoff*exp(-r*(T-i)); %exp(-r*(T-i)) 
+                putPricePath(tt) = putPayoff*exp(-r*(T-i));
             end
             
             plot(dates, callPricePath)
             hold on
             plot(dates, putPricePath)
             %SKODA BLS PRICER ALLTOF H'ATT VERD
-             %hold on
-%             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
-%             hold on
-%             plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
+            hold on
+            plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
+            hold on
+            plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'r-')
             datetick('x','dd/mm/yyyy')
             grid on
             xlim([today() today()+365*T])
-            legend('Call option','Put option')
+            legend('Call option','Put option','Calculated Call','Calculated Put')
         end
         
         
@@ -150,24 +150,26 @@ classdef pricingModel
             sigma = obj.interestRateModel.volatility;
             S = obj.maturity; % S > T
             T = obj.optionMaturity;
-            B = obj.simulatedBonds(1,1);
+            B = obj.simulatedBonds(1,1); %starting price
             R = obj.interestRateModel.data;
             K = obj.strikePrice;
-            rT = mean(R(:,T));
-            rS = mean(R(:,S));
+            rT = mean(R(:,T/dt));
+            rS = mean(R(:,S/dt));
 
             % Call
             switch model.model
                 case "Simple"
-                    d1 = (log(B/K) + (R(1,1) + 0.5*sigma^2)*S)/(sigma*sqrt(S));
-                    d2 = d1 - sigma*sqrt(S);
-                    N1 = 0.5*(1+erf(d1/sqrt(2)));
-                    N2 = 0.5*(1+erf(d2/sqrt(2)));
-                    C = B*N1-K*exp(-R(1,1)*S)*N2;
-                    % Put
-                    N1 = 0.5*(1+erf(-d1/sqrt(2)));
-                    N2 = 0.5*(1+erf(-d2/sqrt(2)));
-                    P = K*exp(-R(1,1)*S)*N2 - B*N1;
+%                     d1 = (log(B/K) + (R(1,1) + 0.5*sigma^2)*T)/(sigma*sqrt(T));
+%                     d2 = d1 - sigma*sqrt(T); %Breytti úr S í T líka fyrir ofan
+%                     N1 = 0.5*(1+erf(d1/sqrt(2)));
+%                     N2 = 0.5*(1+erf(d2/sqrt(2)));
+%                     C = B*N1-K*exp(-R(1,1)*T)*N2; %Breytti úr S í T
+%                     % Put
+%                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
+%                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
+%                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
+                    [C, P] = blsprice(B,K,R(1,1),T,sigma);
+                    
                 case "Brownian"
                     % TODO: LAGA VILLUNA HÉR 
                     alpha = model.longTermMeanLevel;
@@ -183,6 +185,7 @@ classdef pricingModel
                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
+                    
                 case "Vasicek"
                     Q = 1; % Principal of the bond
                     kappa = model.speedOfReversion;
