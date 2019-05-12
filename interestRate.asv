@@ -17,7 +17,8 @@ classdef interestRate
     % model, initial rate, step size, volatility, speed of reversion, long
     % term mean level, maturity, number of simulations, nbins (histogram),
     % data (simulated interest rates), rates at maturity and dates.
-  
+    
+
     properties
         model
         initialRate
@@ -37,7 +38,6 @@ classdef interestRate
     methods
         function obj = interestRate(model, initialRate, stepSize, volatility, speedOfReversion, longTermMeanLevel, maturity, nrOfSimulations)
             % INITIALISING THE INTEREST RATE MODEL 
-            
             obj.model = model;
             obj.initialRate = initialRate;
             obj.stepSize = stepSize;
@@ -57,7 +57,6 @@ classdef interestRate
         
         function obj = simulateModel(obj)
             % SIMULATING THE INTEREST RATE MODEL
-            
             L = obj.nrOfSimulations;
             N = obj.maturity/obj.stepSize;
             W = randn(L,N)*sqrt(obj.stepSize);
@@ -267,7 +266,6 @@ classdef interestRate
             % error value.
             % 
             % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2  
-            
             if obj.model == "Vasicek"
                 obj.data;
                 trueTheta = obj.longTermMeanLevel;

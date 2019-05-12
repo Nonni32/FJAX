@@ -1,13 +1,12 @@
 classdef bond
-    % About 
+    %% About 
     % Bond object, only used to sort and clean up the data for future use.
     % Inputs consist of structs read from www.bonds.is
-    % 
     % Properties accessible: 
     % ticker, issue, maturity, coupon, duration, ask, bid, price, last price, 
     % last yield, yield, interest (coupon rate)
-    
     properties
+        % BOND PROPERTIES
         ticker
         issue
         maturity
@@ -23,8 +22,8 @@ classdef bond
     end
     
     methods
+        % INITIALISING THE BOND
         function obj = bond(overview, attributes)
-            % INITIALISING THE BOND
             % Assigning values from www.bonds.is tables. Changing strings
             % to double values.
             obj.ticker = overview.shortName;

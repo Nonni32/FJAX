@@ -1,4 +1,4 @@
-% About
+%% About
 % This code reads the data from www.bonds.is and sorts all the necessary 
 % information about treasury bonds into either an indexed or a non-indexed 
 % portfolio object (see portfolio.m) which is used later on. 
@@ -25,10 +25,10 @@ for i = 1:length(IndexedBonds)
     tempBond = bond(IndexedBonds(i), webread(url,options));
     
     % Adding the bond to the portfolio
-    if i == 1 
+    if i == 1
         IndexedPortfolio = portfolio(tempBond);
-        % THE INDEXED PORTFOLIO SHOULD ONLY CONSIST OF TREASURY BONDS
-    elseif tempBond.ticker([1:3]) == "RIK" 
+        
+    elseif tempBond.ticker([1:3])=="RIK" 
         IndexedPortfolio = IndexedPortfolio.addToPortfolio(tempBond);
     end
 end
