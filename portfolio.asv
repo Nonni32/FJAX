@@ -1,15 +1,14 @@
 classdef portfolio
-    %% About 
+    % About
     % Portfolio object, consists of multiple bond objects
     % 
     % Properties accessible: 
     % tickers, issue dates, maturity dates, coupon type, durations, 
     % ask prices, bid prices, prices, last prices, last yields, yields, 
     % interests (coupon rate), curve dates, zero rates, forward rates,
-    % discount rates, swap rates and the current curve
+    % discount rates, swap rates and the current curve.
     
     properties
-        % PORTFOLIO PROPERTIES
         ticker = [];
         issue = [];
         maturity = [];
@@ -54,6 +53,7 @@ classdef portfolio
                 obj.frequency = 1;
             end
             obj.interest = bond.interest;
+            
         end
        
         function obj = addToPortfolio(obj, bond)
@@ -70,8 +70,8 @@ classdef portfolio
             obj.yield = horzcat(obj.yield, bond.yield);
             obj.coupon = horzcat(obj.coupon, string(bond.coupon));
             
-            % MOST BONDS ARE CONVENTIONAL COUPONS OR BULLET BONDS
-            %   IN SOME CASES THE COUPON PAYMENT IS SEMIN-ANNUAL
+            % Most bonds are conventional coupons or bullet bonds but in
+            % some cases the coupon payment is semi-annual
             if(string(bond.coupon) == "Semiannual")
                 obj.frequency = horzcat(obj.frequency, 2);
             else
@@ -91,18 +91,16 @@ classdef portfolio
         end
         
         function obj = zeroCurve(obj)
-           % CALCULATING AND PLOTTING THE ZERO RATE CURVE FROM THE PORTFOLIO
-           obj = obj.calculateCurves;
+           % PLOTTING THE ZERO RATE CURVE FROM THE PORTFOLIO
            scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.zeroRates*100,'k','filled');
            grid on
            datetick('x','dd/mm/yyyy')
            ytickformat('%.2f%%')
-            xlim([today max(datenum(obj.maturity,'dd/mm/yyyy'))]);
+           xlim([today max(datenum(obj.maturity,'dd/mm/yyyy'))]);
         end        
         
         function obj = forwardCurve(obj)
-           % CALCULATING AND PLOTTING THE FORWARD RATE CURVE FROM THE PORTFOLIO
-            obj = obj.calculateCurves;
+            % PLOTTING THE FORWARD RATE CURVE FROM THE PORTFOLIO
             scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.forwardRates*100,'k','filled');
             grid on
             ytickformat('%.2f%%')
@@ -111,8 +109,7 @@ classdef portfolio
         end        
         
         function obj = discountCurve(obj)
-           % CALCULATING AND PLOTTING THE DISCOUNT RATE CURVE FROM THE PORTFOLIO
-            obj = obj.calculateCurves;
+            % PLOTTING THE DISCOUNT RATE CURVE FROM THE PORTFOLIO
             scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.discountRates*100,'k','filled');
             grid on
             ytickformat('%.2f%%')
@@ -121,8 +118,7 @@ classdef portfolio
         end
         
         function obj = swapCurve(obj)
-            % CALCULATING AND PLOTTING THE SWAP RATE CURVE FROM THE PORTFOLIO
-            obj = obj.calculateCurves;
+            % CALCULATING AND PLOTTING THE SWAP RATE CURVE FROM THE PORTFOLIO        
             scatter(datenum(obj.maturity,'dd/mm/yyyy'),obj.swapRates*100,'k','filled');
             grid on
             ytickformat('%.2f%%')
@@ -139,24 +135,20 @@ classdef portfolio
             [zeroRates, curveDates] = zbtprice(Bonds, Prices, Settle);
             [forwardRates, curveDates] = zero2fwd(zeroRates, curveDates, Settle);
             [discRates, curveDates] = zero2disc(zeroRates, curveDates, Settle);
-            
-            % CALCULATING THE SWAP RATE CURVE FROM THE PORTFOLIO
-            obj = obj.calculateCurves;
-
             for i = 1:length(obj.discountRates)
-                %Find what coupon frequency is per bond to calculate the
-                %alpha (time period between coupons)
+                % Finding the bond's coupon frequency 
+                %   Alpha is the time period between coupons per bond
                 if obj.frequency(i) == 2
                     alpha(i) = 0.5; 
                 else
                     alpha(i) = 1;
                 end
                 
-                % Forward and discount rate vector for i time periods
+                %Forward rate vector for i time periods
                 frwRate(i) = obj.forwardRates(i)*100; 
                 dcRate(i) = obj.discountRates(i)*100;
-                % Calculation of the Swap rate for i time periods
-                obj.swapRates(i) = (sum(alpha.*dcRate.*frwRate)/sum(alpha.*dcRate))/100;
+                %Calculation of the Swap rate for i time periods
+                obj.swapRates(i) = (sum(alpha.*dcRate.*frwRate)/sum(alpha.*dcRate))/100; 
             end
             obj.curveDates = curveDates';
             obj.zeroRates = zeroRates';
@@ -178,10 +170,9 @@ classdef portfolio
             %   POLYNOMIAL DEGREE: 1 <= X <= NUMBER OF BONDS IN PORTFOLIO
             %   SMOOTHING FACTOR: 0 <= X <= 1
             
+            % Choosing the curve
             obj = obj.calculateCurves;
             dates = datenum(obj.maturity,'dd/mm/yyyy');
-            
-            % Choosing the curve
             if curve == "Yield"
                 rates = obj.yield;
             elseif curve == "Zero rates"
@@ -199,6 +190,8 @@ classdef portfolio
                 hold on
                 plot(dates, rates)
             elseif method == "Nelson-Siegel"
+                % SPECIAL CASE 
+                % REQUIRES FINANCIAL INSTRUMENTS TOOLBOX FOR IRFunctionCurve 
                 Settle = repmat(today,[length(obj.maturity) 1]);
                 Maturity = datenum(obj.maturity);
                 CleanPrice = obj.price';
@@ -230,17 +223,17 @@ classdef portfolio
         end    
         
         function obj = polynomialFit(obj,dates,rates,n)
+            
             % APPLYING A N-TH DEGREE POLYNOMIAL FIT TO A SET OF DATA
             % INPUT 1: DATES (X VALUES)
             % INPUT 2: RATES (Y VALUES)
             % INOUT 3: N (POLYNOMIAL DEGREE)
-            
+
             hold on
             degree = n;
-            % Turning off warning about possible bad fit 
-            ws = warning('off','all');  
+            ws = warning('off','all');  % Turn off warning
             p = polyfit(dates', rates, degree);
-            warning(ws)  % Turning the warnings back on.
+            warning(ws)  % Turn it back on.
             px = linspace(today,max(dates),max(dates)-today);
             py = polyval(p, px);
             plot(px, py*100)
@@ -252,10 +245,6 @@ classdef portfolio
         end
         
         function obj = lagrangeFit(obj, dates, rates)
-            % APPLYING LAGRANGE INTERPOLATION FIT TO A SET OF DATA
-            % INPUT 1: DATES (X VALUES)
-            % INPUT 2: RATES (Y VALUES)
-            
             xx = linspace(today,max(dates),max(dates)-today);
             P = lagrangepoly(dates,rates);
             plot(xx,polyval(P,xx)*100);
@@ -266,11 +255,7 @@ classdef portfolio
             xlim([today max(dates)]);
         end
         
-        function obj = splineFit(obj, dates, rates) 
-            % APPLYING SPLINE FIT TO A SET OF DATA
-            % INPUT 1: DATES (X VALUES)
-            % INPUT 2: RATES (Y VALUES)
-            
+        function obj = splineFit(obj, dates, rates)
             hold on
             xsp = linspace(today,max(dates),max(dates)-today);
             sp = spline(dates,rates);
@@ -282,10 +267,6 @@ classdef portfolio
         end
         
         function obj = cubicSplineFit(obj, dates, rates)
-            % APPLYING CUBIC SPLINE FIT TO A SET OF DATA
-            % INPUT 1: DATES (X VALUES)
-            % INPUT 2: RATES (Y VALUES)
-            
             hold on
             cs = csaps(dates,rates);
             xsp = linspace(today,max(dates),max(dates)-today);
@@ -298,11 +279,6 @@ classdef portfolio
         end
         
         function obj = constrainedCubicSplineFit(obj, dates, rates, smoothingFactor)
-            % APPLYING CONSTRAINED CUBIC SPLINE FIT TO A SET OF DATA
-            % INPUT 1: DATES (X VALUES)
-            % INPUT 2: RATES (Y VALUES)
-            % INPUT 3: SMOOTHING FACTORS 
-            
             hold on
             x = dates;
             y = rates; 
