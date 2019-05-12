@@ -1,5 +1,5 @@
 classdef bond
-    %% About 
+    % About 
     % Bond object, only used to sort and clean up the data for future use.
     % Inputs consist of structs read from www.bonds.is
     % 

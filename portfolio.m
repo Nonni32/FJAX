@@ -1,5 +1,5 @@
 classdef portfolio
-    %% About 
+    % About
     % Portfolio object, consists of multiple bond objects
     % 
     % Properties accessible: 
@@ -143,8 +143,8 @@ classdef portfolio
             obj = obj.calculateCurves;
 
             for i = 1:length(obj.discountRates)
-                %Find what coupon frequency is per bond to calculate the
-                %alpha (time period between coupons)
+                % Find what coupon frequency is per bond to calculate the
+                % alpha (time period between coupons)
                 if obj.frequency(i) == 2
                     alpha(i) = 0.5; 
                 else
@@ -322,6 +322,8 @@ classdef portfolio
     end
 end
 
+
+% HELPER FUNCTIONS
 function [P,R,S] = lagrangepoly(X,Y,XX)
     %LAGRANGEPOLY  Lagrange interpolation polynomial fitting a set of points
     %   [P,R,S] = LAGRANGEPOLY(X,Y)  where X and Y are row vectors
