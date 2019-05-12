@@ -1,5 +1,5 @@
 classdef interestRate
-    %% About 
+    % About 
     % Interest rate object, used for simulations in interestRateGUI.m and
     % pricingModel.m. 
     % 

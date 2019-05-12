@@ -1,3 +1,14 @@
+% About
+% This code reads the data from www.bonds.is and sorts all the necessary 
+% information about treasury bonds into either an indexed or a non-indexed 
+% portfolio object (see portfolio.m) which is used later on. 
+%
+% This code might run into some errors which are related to internet
+% connection, e.g. "Could not access server. Host not found: www.bonds.is." or
+% the connection disconnecting if for some reason the web scraping takes
+% more than 30 seconds. Running the code again usually fixes these
+% problems.
+ 
 % WEB SCRAPING DATA FROM BONDS.IS
 IndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=false&nOrderbookId=-1";
 NonIndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=true&nOrderbookId=-1";
@@ -8,12 +19,15 @@ options = weboptions('Timeout', 30);
 % CREATING A PORTFOLIO OF INDEXED BONDS
 for i = 1:length(IndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", IndexedBonds(i).orderbookId);
+    % Creating a bond object (see bond.m) to sort relevant information from
+    % the market overview and attribute tables on
+    % www.bonds.is/market-overview
     tempBond = bond(IndexedBonds(i), webread(url,options));
     
     if i == 1
         IndexedPortfolio = portfolio(tempBond);
     elseif tempBond.ticker([1:3])=="RIK" 
-        % THE INDEXED PORTFOLIO SHOULD ONLY CONSIST OF TREASURY BONDS
+        % The indexed portfolio should only consist of treasury bonds
         IndexedPortfolio = IndexedPortfolio.addToPortfolio(tempBond);
     end
 end
@@ -21,6 +35,9 @@ end
 % CREATING A PORTFOLIO OF NONINDEXED BONDS
 for i = 1:length(NonIndexedBonds)
     url = sprintf("http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=%d&lang=en", NonIndexedBonds(i).orderbookId);
+    % Creating a bond object (see bond.m) to sort relevant information from
+    % the market overview and attribute tables on
+    % www.bonds.is/market-overview
     tempBond = bond(NonIndexedBonds(i), webread(url,options));
     if i == 1
         NonIndexedPortfolio = portfolio(tempBond);
