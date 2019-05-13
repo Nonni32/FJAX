@@ -115,7 +115,6 @@ classdef pricingModel
             plot(dates, callPricePath)
             hold on
             plot(dates, putPricePath)
-            %SKODA BLS PRICER ALLTOF H'ATT VERD
             hold on
             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
             hold on
