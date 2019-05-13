@@ -89,16 +89,13 @@ classdef pricingModel
         
         %Skoða þetta . .skoða núvirðingu og price á Call og put
         function obj = optionPathSimulation(obj)
+            % Sleppa?
             % TODO: LAGA ÞETTA
             [obj.calculatedCall, obj.calculatedPut] = obj.blackScholesPricer;
-            T = obj.optionMaturity-t;
+            T = obj.optionMaturity;
             R = obj.interestRateModel.data;
             r = R(1,1);
-<<<<<<< HEAD
-            K = obj.strikePrice;
-=======
             K = obj.strikePrice; %0.95
->>>>>>> 70703616f0f4a11b0ce417f8df28eade366c3c49
             dt = obj.interestRateModel.stepSize;
             
             dates = linspace(today(),today()+365*T, T/dt);
@@ -109,34 +106,19 @@ classdef pricingModel
             putPayoff = mean(max(K-obj.simulatedBonds(:,T/dt),0));
             
             for i = dt:dt:T
-<<<<<<< HEAD
-                tt = round(i/dt)
-                r = mean(R(:,tt))
-                callPricePath(tt) = callPayoff(tt); %exp(-r*(T-i))
-                putPricePath(tt) = putPayoff(tt);
-=======
                 tt = round(i/dt);
                 r = mean(R(:,tt));
                 callPricePath(tt) = callPayoff*exp(-r*(T-i)); %exp(-r*(T-i)) 
                 putPricePath(tt) = putPayoff*exp(-r*(T-i));
->>>>>>> 70703616f0f4a11b0ce417f8df28eade366c3c49
             end
             
             plot(dates, callPricePath)
             hold on
             plot(dates, putPricePath)
-<<<<<<< HEAD
-%             hold on
-%             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
-%             hold on
-%             plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'k-')
-=======
-            %SKODA BLS PRICER ALLTOF H'ATT VERD
             hold on
             plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
             hold on
             plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'r-')
->>>>>>> 70703616f0f4a11b0ce417f8df28eade366c3c49
             datetick('x','dd/mm/yyyy')
             grid on
             xlim([today() today()+365*T])
@@ -161,7 +143,7 @@ classdef pricingModel
         end
 
         %SKOÐDA ÞETTA - !!!!!!!!!!!!
-        function [C, P] = blackScholesPricer(obj, t)    
+        function [C, P] = blackScholesPricer(obj)    
             model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
             sigma = obj.interestRateModel.volatility;
@@ -176,15 +158,6 @@ classdef pricingModel
             % Call
             switch model.model
                 case "Simple"
-%                     d1 = (log(B/K) + (R(1,1) + 0.5*sigma^2)*T)/(sigma*sqrt(T));
-%                     d2 = d1 - sigma*sqrt(T); %Breytti úr S í T líka fyrir ofan
-%                     N1 = 0.5*(1+erf(d1/sqrt(2)));
-%                     N2 = 0.5*(1+erf(d2/sqrt(2)));
-%                     C = B*N1-K*exp(-R(1,1)*T)*N2; %Breytti úr S í T
-%                     % Put
-%                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
-%                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
-%                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
                     [C, P] = blsprice(B,K,R(1,1),T,sigma);
                     
                 case "Brownian"
