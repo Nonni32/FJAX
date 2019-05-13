@@ -131,7 +131,9 @@ classdef pricingModel
         
         function plotBonds(obj)
             N = obj.interestRateModel.nrOfSimulations;
-            dates = linspace(today(),today()+365*obj.maturity, length(obj.interestRateModel.data));
+            dates = linspace(today(),today()+365*obj.maturity, 250*obj.maturity);
+            size(dates)
+            size(obj.simulatedBonds)
             for i = 1:N
                 plot(dates,obj.simulatedBonds(i,:),'HandleVisibility','off')%,'Color',[0.5 0.5 0.5])
                 hold on
