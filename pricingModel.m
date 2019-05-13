@@ -161,6 +161,7 @@ classdef pricingModel
             R = obj.interestRateModel.data;
             K = obj.strikePrice;
             
+            rt = obj.interestRateModel.initialRate;
             rT = mean(R(:,T/dt));
             rS = mean(R(:,S/dt));
 
@@ -176,9 +177,9 @@ classdef pricingModel
 %                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
 %                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
 %                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
-                    %[C, P] = blkprice(B,K,rT,T,sigma);
-                    [C, P] = blsprice(B,K,rT,T,sigma);
-                    
+                    %[C, P] = blsprice(B,K,rT,T,sigma);                    
+                    [C, P] = blkprice(B,K,rT,T,sigma);
+
                 case "Brownian"
                     % TODO: LAGA VILLUNA HÉR 
                     alpha = model.longTermMeanLevel;
