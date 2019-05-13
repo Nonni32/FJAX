@@ -25,7 +25,7 @@ classdef pricingModel
             
             [obj.simulatedBonds, obj.simulatedBondPrices] = obj.zeroCouponBondSimulation;
             [obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
-            [obj.calculatedCall, obj.calculatedPut] = obj.blackScholesPricer;
+            [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer;
         end
         
         function [B, bT] = zeroCouponBondSimulation(obj)
@@ -36,7 +36,8 @@ classdef pricingModel
             sigma = interestRateModel.volatility;
             T = interestRateModel.maturity;
             N = interestRateModel.nrOfSimulations;
-
+            O = obj.optionMaturity;
+            
             L = T/dt;
             B = zeros(N,L); 
             bT = zeros(1,N);
@@ -48,7 +49,7 @@ classdef pricingModel
                         for j = 1:L
                             B(i,j) = exp(-R(i,j)*((L-(j-1))*dt)+(1/6)*sigma^2*((L-(j-1))*dt)^3);
                         end
-                        bT(1,i) = B(i,L);
+                        bT(1,i) = B(i,O/dt);
                     end 
                 case "Brownian"
                     alpha = interestRateModel.longTermMeanLevel;
@@ -56,7 +57,7 @@ classdef pricingModel
                         for j = 1:L
                             B(i,j) = exp(-R(i,j)*((L-(j-1))*dt)-(1/2)*alpha*((L-(j-1))*dt)^2+(1/6)*sigma^2*((L-(j-1))*dt)^3);
                         end
-                        bT(1,i) = B(i,L);
+                        bT(1,i) = B(i,O/dt);
                     end 
                 case "Vasicek"
                     kappa = interestRateModel.speedOfReversion;
@@ -68,11 +69,12 @@ classdef pricingModel
                             AtT = exp((theta-(sigma^2)/(2*kappa^2))*(BtT-(L-(j-1))*dt)-((sigma^2)/(4*kappa))*BtT);
                             B(i,j) = AtT*exp(-R(i,j)*BtT);
                         end
-                        bT(1,i) = B(i,L);
+                        bT(1,i) = B(i,O/dt);
                     end      
             end
         end
         
+        %Option Simulation
         function [callPrice, putPrice] = optionSimulation(obj)
             K = obj.strikePrice;
             T = obj.optionMaturity;
@@ -82,8 +84,8 @@ classdef pricingModel
             
             %Skoða þetta ... og eitthvað meira
             r0 = obj.interestRateModel.initialRate;
-            callPrice = exp(-r0*T)*callPayoff; %Eitthvað skrítið
-            putPrice = exp(-r0*T)*putPayoff; % HALLO
+            callPrice = exp(-r0*T)*callPayoff;
+            putPrice = exp(-r0*T)*putPayoff; 
         end
         
         
@@ -91,7 +93,8 @@ classdef pricingModel
         function obj = optionPathSimulation(obj)
             % Sleppa?
             % TODO: LAGA ÞETTA
-            [obj.calculatedCall, obj.calculatedPut] = obj.blackScholesPricer;
+            
+            [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer;
             T = obj.optionMaturity;
             R = obj.interestRateModel.data;
             r = R(1,1);
@@ -143,39 +146,65 @@ classdef pricingModel
         end
 
         %SKOÐDA ÞETTA - !!!!!!!!!!!!
-        function [C, P] = blackScholesPricer(obj)    
+        function [C, P] = optionPricer(obj)    
+            
             model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
             sigma = obj.interestRateModel.volatility;
+            
             S = obj.maturity; % S > T
             T = obj.optionMaturity;
+            
             B = obj.simulatedBonds(1,1); %starting price
             R = obj.interestRateModel.data;
             K = obj.strikePrice;
+            
             rT = mean(R(:,T/dt));
             rS = mean(R(:,S/dt));
 
             % Call
             switch model.model
                 case "Simple"
-                    [C, P] = blsprice(B,K,R(1,1),T,sigma);
+%                     d1 = (log(B/K) + (R(1,1) + 0.5*sigma^2)*T)/(sigma*sqrt(T));
+%                     d2 = d1 - sigma*sqrt(T); %Breytti úr S í T líka fyrir ofan
+%                     N1 = 0.5*(1+erf(d1/sqrt(2)));
+%                     N2 = 0.5*(1+erf(d2/sqrt(2)));
+%                     C = B*N1-K*exp(-R(1,1)*T)*N2; %Breytti úr S í T
+%                     % Put
+%                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
+%                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
+%                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
+                    %[C, P] = blkprice(B,K,rT,T,sigma);
+                    [C, P] = blsprice(B,K,rT,T,sigma);
                     
                 case "Brownian"
                     % TODO: LAGA VILLUNA HÉR 
                     alpha = model.longTermMeanLevel;
-                    PtT = exp(-rT*T-(1/2)*alpha*T^2+(1/6)*sigma^2*T^3);
-                    PtS = exp(-rT*S-(1/2)*alpha*S^2+(1/6)*sigma^2*S^3);
-                    d1 = (log(PtS/(K*PtT))+(1/2)*sigma^2*((S-T)^2)*T)/(sigma*(S-T)*sqrt(T));
-                    d2 = d1 - sigma*(S-T)*sqrt(T);            
-
-                    N1 = 0.5*(1+erf(d1/sqrt(2)));
-                    N2 = 0.5*(1+erf(d2/sqrt(2)));
-                    C = B*N1-K*exp(-R(1,1)*S)*N2;
-                    % Put
-                    N1 = 0.5*(1+erf(-d1/sqrt(2)));
-                    N2 = 0.5*(1+erf(-d2/sqrt(2)));
-                    P = K*exp(-R(1,1)*S)*N2 - B*N1;
+%                     PtT = exp(-rT*T-(1/2) * alpha * T^2 + (1/6) * sigma^2 * T^3);
+%                     PtS = exp(-rT*S-(1/2) * alpha * S^2 + (1/6) * sigma^2 * S^3);
                     
+%                     d1 = (log(PtS/(K*PtT))+(1/2)*sigma^2*((S-T)^2)*T)/(sigma*(S-T)*sqrt(T));
+%                     d2 = d1 - sigma*(S-T)*sqrt(T);
+                    
+                    PtT = exp( -rT * T - (1/2) * alpha * T^2 + (1/6) * sigma^2 * T^3);
+                    d1 = log(B/K + (sigma^2)*(T/2))/(sigma*sqrt(T));
+                    d2 = log(B/K - (sigma^2)*(T/2))/(sigma*sqrt(T));
+
+                    %N1 = 0.5*(1+erf(d1/sqrt(2)));
+                    N1 = normcdf(d1);
+                    %N2 = 0.5*(1+erf(d2/sqrt(2)));
+                    N2 = normcdf(d2);
+                    %C = B*N1 - K*exp(-R(1,1)*S)*N2;
+                    C = PtT*(BN1-KN2);
+                    % Put
+                    N1 = normcdf(-d1);
+                    N2 = normcdf(-d2);
+                    %N1 = 0.5*(1+erf(-d1/sqrt(2)));
+                    %N2 = 0.5*(1+erf(-d2/sqrt(2)));
+                    %P = K*exp(-R(1,1)*S)*N2 - B*N1;
+                    P = ;
+                    
+                    %Vasicek KOMID
                 case "Vasicek"
                     Q = 1; % Principal of the bond
                     kappa = model.speedOfReversion;
@@ -183,20 +212,21 @@ classdef pricingModel
 
                     BtT = (1/kappa)*(1-exp(-kappa*T));
                     BtS = (1/kappa)*(1-exp(-kappa*S));
-                    AtT = exp((theta-(sigma^2)/(2*kappa^2))*(BtT-T)-((sigma^2)/(4*kappa))*BtT);
-                    AtS = exp((theta-(sigma^2)/(2*kappa^2))*(BtS-S)-((sigma^2)/(4*kappa))*BtT);
+                    AtT = exp( (((kappa^2)*theta-(sigma^2)/2)/(kappa^2))*(BtT-T) - ((sigma^2)/(4*kappa))*(BtT^2));
+                    AtS = exp( (((kappa^2)*theta-(sigma^2)/2)/(kappa^2))*(BtS-S) - ((sigma^2)/(4*kappa))*(BtS^2));
                     rt = R(1,1);
 
-                    PtT = AtT*exp(-rt*BtT);
-                    PtS = AtS*exp(-rt*BtS);
+                    PtT = AtT *exp(-rt*BtT);
+                    PtS = AtS *exp(-rt*BtS);
 
-                    sigmaP = (sigma/kappa)*(1-exp(-kappa*(S-T)))*sqrt((1-exp(-2*kappa*T)/(2*kappa)));
-                    d = (1/sigmaP)*log((Q*PtS)/(K*PtT))+sigmaP/2;
+                    sigmaP = (sigma/kappa)*(1-exp( -kappa*(S-T)) ) * sqrt( (1-exp(-2*kappa*T)) /(2*kappa));
+                    d = (1/sigmaP)*log( (Q*PtS)/(K*PtT) ) + sigmaP/2;
 
-                    N = @(x) 0.5*(1+erf(-x/sqrt(2)));
+                    N = @(x) normcdf(x);
+                    
 
-                    C = Q*PtS*N(d)-K*PtT*N(d-sigmaP);
-                    P = K*PtT*N(-d+sigmaP)-Q*PtS*N(-d);            
+                    C = Q * PtS * N(d) - K * PtT * N(d-sigmaP);
+                    P = K * PtT * N(-d+sigmaP) - Q * PtS * N(-d);            
             end
         end
         
