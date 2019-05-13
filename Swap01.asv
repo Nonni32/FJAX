@@ -43,7 +43,10 @@ plot(curve)
 hold on 
 plot(dates,Rates,'ob')
 
-
+figure
+bar(RecCFDates, RecCF)
+hold on 
+bar(PayCFDates, PayCF*(-1)
 %% Pricing Forward swap  
 clc
 

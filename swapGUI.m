@@ -139,15 +139,15 @@ receiveIndexed = get(handles.radiobutton7,'Value');
 payIndexed = get(handles.radiobutton8,'Value');
 
 if receiveIndexed == 0
-    handles.receive = handles.NonIndexedPortfolio;
+    handles.receivePortfolio = handles.NonIndexedPortfolio;
 else 
-    handles.receive = handles.IndexedPortfolio;
+    handles.receivePortfolio = handles.IndexedPortfolio;
 end
 
 if payIndexed == 0
-    handles.pay = handles.NonIndexedPortfolio;
+    handles.payPortfolio = handles.NonIndexedPortfolio;
 else
-    handles.pay = handles.IndexedPortfolio;
+    handles.payPortfolio = handles.IndexedPortfolio;
 end
 
 % Contents
@@ -197,41 +197,35 @@ cla(handles.axes3);
 
 axes(handles.axes3)
 grid on
-handles.receive = handles.receive.fitMethod(handles.receiveCurve,handles.receiveFit,handles.receivePoly,handles.receiveSF);
+handles.receivePortfolio = handles.receivePortfolio.fitMethod(handles.receiveCurve,handles.receiveFit,handles.receivePoly,handles.receiveSF);
 
 axes(handles.axes2)
 grid on
-handles.pay = handles.pay.fitMethod(handles.payCurve,handles.payFit,handles.payPoly,handles.paySF);
+handles.payPortfolio = handles.payPortfolio.fitMethod(handles.payCurve,handles.payFit,handles.payPoly,handles.paySF);
 
 % Current curve
-handles.receiveCC = handles.receive.currentCurve;
-handles.payCC = handles.pay.currentCurve;
+handles.receiveCC = handles.receivePortfolio.currentCurve;
+handles.payCC = handles.payPortfolio.currentCurve;
 
 % HÉR ÞARF SWAP AÐ REIKNAST
 pay = get(handles.radiobutton2,'Value');
 receive = get(handles.radiobutton4,'Value');
 payments = [str2double(get(handles.edit16,'String')) str2double(get(handles.edit17,'String'))]; 
-principal = str2double(get(handles.edit5, 'String'));
+principal = str2double(get(handles.edit5, 'String'))
 startDate = get(handles.edit6, 'String');
 settleDate = get(handles.edit7, 'String');
 endDate = get(handles.edit18,'String');
 basisPoints = [handles.receiveBP handles.payBP];
 
+disp("YOUR JOURNEY IS ABOUT TO BEGIN")
 
-handles.swap =  swap(handles.pay, handles.receive, pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
-handles.swap
-
-
-
-
-
+handles.swap = swap(handles.payPortfolio, handles.receivePortfolio, pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
+axes(handles.axes1)
+handles.swap.plotCashFlow;
 
 
 
 set(handles.axes1,'visible','off')
-
-
-
 
 guidata(hObject, handles);
 
@@ -560,6 +554,10 @@ function radiobutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if get(handles.radiobutton3,'Value') == 1
+    set(handles.radiobutton3,'Value',0);
+end
+
 % Hint: get(hObject,'Value') returns toggle state of radiobutton2
 
 
@@ -568,6 +566,11 @@ function radiobutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to radiobutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if get(handles.radiobutton2,'Value') == 1
+    set(handles.radiobutton2,'Value',0);
+end
+
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton3
 
@@ -578,6 +581,10 @@ function radiobutton4_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if get(handles.radiobutton5,'Value') == 1
+    set(handles.radiobutton5,'Value',0);
+end
+
 % Hint: get(hObject,'Value') returns toggle state of radiobutton4
 
 
@@ -586,6 +593,10 @@ function radiobutton5_Callback(hObject, eventdata, handles)
 % hObject    handle to radiobutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if get(handles.radiobutton4,'Value') == 1
+    set(handles.radiobutton4,'Value',0);
+end
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton5
 

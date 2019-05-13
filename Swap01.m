@@ -19,7 +19,7 @@ spread = 20;
 Settle = today;         %Input
 RateSpec = intenvset('Rates', rates,'StartDates',Settle, 'EndDates',enddates');
 Maturity = datenum('15-Sep-2030'); %Input
-coupon_rate = .05;     %Ef NaN þá finnur fuctionið Swap rate - annars ákveðum við föstu greiðslunar
+coupon_rate = NaN;     %Ef NaN þá finnur fuctionið Swap rate - annars ákveðum við föstu greiðslunar
 spread = 20;            %Input
 
 LegRate = [coupon_rate spread];
@@ -43,6 +43,10 @@ plot(curve)
 hold on 
 plot(dates,Rates,'ob')
 
+figure
+bar(RecCFDates, RecCF)
+hold on 
+bar(PayCFDates, PayCF*(-1))
 
 %% Pricing Forward swap  
 clc

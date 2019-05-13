@@ -9,68 +9,92 @@ classdef swap
         receive
         payments % per year 1x2 array 
         principal
-        couponRate
+        couponRate % TODO
+        compounding % TODO 
         startDate
         settleDate
         endDate
         payCurve
         receiveCurve
         basisPoints % 1x2 array
+        price
+        swapRate
+        AI % Accrued interest
+        payCF
+        payDates
+        receiveCF
+        receiveDates
     end
     
     methods
         function obj = swap(payPortfolio, receivePortfolio, pay, receive, payments, principal, startDate, settleDate, endDate, payCurve, receiveCurve, basisPoints)
             % Initialise swap object
-            obj.payPortfolio;
-            obj.receivePortfolio;
+            obj.payPortfolio = payPortfolio;
+            obj.receivePortfolio = receivePortfolio;
             obj.pay = pay;
             obj.receive = receive;
             obj.payments = payments;
             obj.principal = principal;
-            obj.couponRate = 0.05;
             obj.startDate = startDate;
             obj.settleDate = settleDate;
             obj.endDate = endDate;
             obj.payCurve = payCurve;
             obj.receiveCurve = receiveCurve;
             obj.basisPoints = basisPoints;
-            
-            obj = obj.valueSwap;
+            obj.valueSwap;
         end
         
         function obj = valueSwap(obj)
-            % TODO: Evaluate swap
             alpha = obj.payments.^(-1);
             Settle = datenum(obj.settleDate);
+            endDatesPay = {};
+            endDatesReceive = {};
             
-            datesPay = datenum(payPortfolio.maturity,'dd/mm/yyyy');
-            xPay = linspace(today,max(datesPay),max(datesPay)-today);
-            endDatePay = today:round(365/2):max(datesPay);
-            ratePay = y(endDatePay-today+1);
+            datesPay = datenum(obj.payPortfolio.maturity,'dd/mm/yyyy')
+            payDates = datenum(obj.startDate)+1:round(365/obj.payments(1)):max(datesPay)
             
-            datesReceive = datenum(payPortfolio.maturity,'dd/mm/yyyy');
-            xReceive = linspace(today,max(datesReceive),max(datesReceive)-today);
-            endDateReceive = today:round(365/2):max(datesReceive);
-            rateReceive = y(endDateReceive-today+1);
+            y = obj.payCurve
+            ratePay = y(payDates-datenum(obj.startDate)+1)
             
-            RateSpecPay = intenvset('Rates', ratePay,'StartDates',Settle, 'EndDates',endDatesReceive);
-            RateSpecReceive = intenvset('Rates', rateReceive,'StartDates',Settle, 'EndDates',endDatePay);
+            for i = 1:length(ratePay)
+                endDatesPay{i} = {datestr(payDates(i),'dd-mmm-yyyy')};
+            end
             
-            Maturity = datenum(obj.endDate); 
+            datesReceive = datenum(obj.payPortfolio.maturity,'dd/mm/yyyy')
+            receiveDates = datenum(obj.startDate)+1:round(365/obj.payments(2)):max(datesReceive)
+            
+            yy = obj.receiveCurve
+            rateReceive = yy(receiveDates-datenum(obj.startDate)+1)
+            
+            for i = 1:length(rateReceive)
+                endDatesReceive(end+1) = {datestr(receiveDates(i),'dd-mmm-yyyy')}
+            end
+            
+            RateSpecPay = intenvset('Rates', ratePay,'StartDates',Settle, 'EndDates', endDatesPay')
+            RateSpecReceive = intenvset('Rates', rateReceive,'StartDates',Settle, 'EndDates',endDatesReceive')
+            
+            Maturity = datenum(obj.endDate)
             Spread = obj.basisPoints;
             
-            LegRate = [obj.couponRate spread];
+            LegRate = [NaN spread];
             LegType = [obj.pay obj.receive];
- 
-            [Price, SwapRate, AI, RecCF, RecCFDates, PayCF,PayCFDates] = ...
-            swapbyzero(RateSpec, LegRate, Settle, Maturity,'LegType',LegType,...
-            'AdjustCashFlowsBasis',true,...
-            'BusinessDayConvention','modifiedfollow')       %'LatestFloatingRate',LatestFloatingRate,
-
             
-            
-            
-            
+            if sum(LegType) == 1
+                if(LegType(1) == 0)
+                    [obj.price, obj.swapRate, obj.AI, obj.RecCF, obj.receiveCFDates, obj.payCF, obj.payCFDates] = ...
+                        swapbyzero(RateSpecPay, LegRate, Settle, Maturity,'LegType',LegType,...
+                        'AdjustCashFlowsBasis',true,...
+                        'BusinessDayConvention','modifiedfollow')       %'LatestFloatingRate',LatestFloatingRate,
+                elseif LegType(2) == 0
+                    [obj.price, obj.swapRate, obj.AI, obj.receiveCF, obj.receiveDates, obj.payCF, obj.payCFDates] = ...
+                        swapbyzero(RateSpecPay, LegRate, Settle, Maturity,'LegType',LegType,...
+                        'AdjustCashFlowsBasis',true,...
+                        'BusinessDayConvention','modifiedfollow')       %'LatestFloatingRate',LatestFloatingRate,
+                end
+            elseif (sum(LegType) == 0)
+                RateSpec = [RateSpecPay RateSpecReceive];
+                [obj.price, ~ ,obj.AI,obj.receiveCF, obj.receiveDates, obj.payCF, obj.payDates] = swapbyzero(RateSpec, LegRate, Settle, Maturity, 'Principal', obj.principal);
+            end
         end
     end
 end

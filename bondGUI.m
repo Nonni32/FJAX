@@ -32,7 +32,7 @@ function varargout = bondGUI(varargin)
 
 % Edit the above text to modify the response to help bondGUI
 
-% Last Modified by GUIDE v2.5 03-May-2019 13:23:12
+% Last Modified by GUIDE v2.5 13-May-2019 12:11:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -140,6 +140,7 @@ set(handles.checkbox4,'Value',0);
 set(handles.checkbox5,'Value',0);
 set(handles.checkbox6,'Value',0);
 set(handles.checkbox7,'Value',0);
+set(handles.checkbox8,'Value',0);
 legend(handles.legends)
 guidata(hObject, handles);
 
@@ -516,6 +517,32 @@ if get(hObject,'Value')~= 0
     handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
     portfolio.fitMethod(curve, "Lagrange interpolation", 0, 0);
+    legend(handles.axes1,handles.legends);
+    guidata(hObject, handles);
+end
+
+
+% --- Executes on button press in checkbox8.
+function checkbox8_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox8
+hold on
+if get(hObject,'Value')~= 0
+    ind = get(handles.radiobutton1,'Value');
+    if(ind == 0)
+        portfolio = handles.NonIndexedPortfolio;
+    else
+        portfolio = handles.IndexedPortfolio;
+    end
+    portfolio = portfolio.calculateCurves;
+    contents = get(handles.popupmenu1,'String'); 
+    fittingTechnique = get(handles.checkbox8,'String');
+    handles.legends{end+1} = fittingTechnique;
+    curve = contents{get(handles.popupmenu1,'Value')};
+    portfolio.fitMethod(curve, "Nelson-Siegel-Svensson", 0, 0);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end

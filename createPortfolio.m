@@ -5,9 +5,10 @@
 %
 % This code might run into some errors which are related to internet
 % connection, e.g. "Could not access server. Host not found: www.bonds.is." or
-% the connection disconnecting if for some reason the web scraping takes
-% more than 30 seconds. Running the code again usually fixes these
-% problems.
+% "The connection to URL 
+% 'http://www.bonds.is/api/market/LoadIndexedDetail?orderbookId=131839&lang=en' 
+% timed out after 30 seconds. Set options.Timeout to a higher value."
+% Running the code again usually fixes these  problems.
  
 % WEB SCRAPING DATA FROM BONDS.IS
 IndexedUrl = "http://www.bonds.is/api/market/LoadIndexed?lang=en&nonIndexed=false&nOrderbookId=-1";
