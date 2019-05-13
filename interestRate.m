@@ -284,6 +284,32 @@ classdef interestRate
                 errorValue = (trueTheta-meanTheta)^2+(trueKappa-meanKappa)^2+(trueSigma-meanSigma)^2;
                 end
         end 
+        
+        function [meanTheta, meanKappa, meanSigma, errorValue] = ordinaryLeastSquaresIterative(obj, n)
+            % ESTIMATING THE PARATMETERS OF THE VASICEK MODEL WITH ORDINARY LEAST 
+            % SQUARES METHOD 
+            % 
+            % Returns the average theta, kappa and sigma values and the
+            % error value.
+            % 
+            % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2  
+            
+            if obj.model == "Vasicek"
+                obj.data;
+                trueTheta = obj.longTermMeanLevel;
+                trueKappa = obj.speedOfReversion;
+                trueSigma = obj.volatility;
+
+                for i = 1:10
+                    [theta(i), kappa(i), sigma(i)] = OLS_OU(obj.data(randi(obj.nrOfSimulations),1:n),obj.stepSize);
+                end
+
+                meanTheta = mean(theta);
+                meanKappa = mean(kappa);
+                meanSigma = mean(real(sigma));
+                errorValue = (trueTheta-meanTheta)^2+(trueKappa-meanKappa)^2+(trueSigma-meanSigma)^2;
+                end
+        end 
     end
 end
 
