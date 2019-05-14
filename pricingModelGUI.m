@@ -77,6 +77,19 @@ handles.optionMaturity = str2double(get(handles.edit9,'String'));
 handles.IR = interestRate(handles.model, handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, handles.nrOfSimulations);
 handles.PM = pricingModel(handles.IR, handles.strikePrice, handles.optionMaturity);
 
+obj = handles.PM;
+[obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
+[obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
+[obj.caps, obj.floors] = obj.capsAndFloor;
+
+set(handles.edit11,'String',""+obj.simulatedCalls);
+set(handles.edit12,'String',""+obj.calculatedCall);
+set(handles.edit13,'String',""+obj.simulatedPuts);
+set(handles.edit14,'String',""+obj.calculatedCall);
+
+set(handles.edit15,'String',""+obj.caps*100);
+set(handles.edit16,'String',""+obj.floors*100);
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -130,6 +143,19 @@ handles.optionMaturity = str2double(get(handles.edit9,'String'));
 
 handles.IR = interestRate(handles.model, handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, handles.nrOfSimulations);
 handles.PM = pricingModel(handles.IR, handles.strikePrice, handles.optionMaturity);
+
+obj = handles.PM;
+[obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
+[obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
+[obj.caps, obj.floors] = obj.capsAndFloor;
+
+set(handles.edit11,'String',""+obj.simulatedCalls);
+set(handles.edit12,'String',""+obj.calculatedCall);
+set(handles.edit13,'String',""+obj.simulatedPuts);
+set(handles.edit14,'String',""+obj.calculatedCall);
+
+set(handles.edit15,'String',""+obj.caps*100);
+set(handles.edit16,'String',""+obj.floors*100);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -215,7 +241,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
      set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', {'Simple', 'Brownian', 'Vasicek'});
+set(hObject, 'String', {'Vasicek', 'Brownian', 'Simple'});
 
 
 

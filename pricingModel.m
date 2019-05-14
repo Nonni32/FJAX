@@ -38,7 +38,7 @@ classdef pricingModel
             [obj.simulatedBonds, obj.simulatedBondPrices] = obj.zeroCouponBondSimulation;
             [obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
             [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
-            [obj.caps, obj.floors] = obj.capsAndFloors;
+            [obj.caps, obj.floors] = obj.capsAndFloor;
         end
         
         function [B, bT] = zeroCouponBondSimulation(obj)
@@ -194,7 +194,7 @@ classdef pricingModel
             end
         end
          
-        function capsAndFloor(obj)
+        function [caps, floors] = capsAndFloor(obj)
             % Calculating the caps and floor
             dt = obj.interestRateModel.stepSize;
             T = obj.optionMaturity;     %Time2mat
@@ -227,10 +227,11 @@ classdef pricingModel
             d2 = d1-sigma*sqrt(tk);
             caplet = ones(1,T/dt)*alpha*Q*D(n)*(Fk(n)*normcdf(d1)-LC(n)*normcdf(d2));
             floorlet = ones(1,T/dt)*alpha*Q*D(n)*(LC(n)*normcdf(-d2)-Fk(n)*normcdf(-d1));
-            
-            plot(caplet)
-            hold on 
-            plot(floorlet)
+            caps = caplet(1);
+            floors = floorlet(1);
+%             plot(caplet)
+%             hold on 
+%             plot(floorlet)
         end
     end
 end
