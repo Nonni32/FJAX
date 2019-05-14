@@ -80,7 +80,7 @@ classdef swap
 
             LegType = [obj.pay obj.receive];
             
-            LegRate = [0.05 Spread(1)]; % TODO LAGA ÞETTA SKÍTAMIX
+            LegRate = [0.05 Spread(1)]; 
             
             if sum(LegType) == 1
                 if(LegType(1) == 0)

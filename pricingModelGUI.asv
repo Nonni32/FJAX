@@ -22,7 +22,7 @@ function varargout = pricingModelGUI(varargin)
 
 % Edit the above text to modify the response to help pricingModelGUI
 
-% Last Modified by GUIDE v2.5 14-May-2019 09:47:56
+% Last Modified by GUIDE v2.5 14-May-2019 09:16:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,13 +53,10 @@ function pricingModelGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
 set(handles.edit1,'String','5.0');
 set(handles.edit2,'String','0.004');
-set(handles.edit4,'String','20');
-set(handles.edit5,'String','3.5');
-set(handles.edit6,'String','7.5');
-set(handles.edit7,'String','5');
-set(handles.edit8,'String','1000');
-set(handles.edit9,'String','3');
-set(handles.edit10,'String','0.9');
+set(handles.edit4,'String','0.2');
+set(handles.edit5,'String','0.035');
+set(handles.edit6,'String','0.035');
+set(handles.edit5,'String','0.035');
 
 contents = get(handles.popupmenu1,'String'); 
 handles.model = contents{get(handles.popupmenu1,'Value')};
@@ -73,6 +70,8 @@ handles.nrOfSimulations= str2double(get(handles.edit8,'String'));
 
 handles.strikePrice = str2double(get(handles.edit10,'String'));
 handles.optionMaturity = str2double(get(handles.edit9,'String')); 
+
+handles
 
 handles.IR = interestRate(handles.model, handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, handles.nrOfSimulations);
 handles.PM = pricingModel(handles.IR, handles.strikePrice, handles.optionMaturity);
@@ -90,9 +89,9 @@ guidata(hObject, handles);
 % so window can get raised using pricingModelGUI.
 if strcmp(get(hObject,'Visible'),'off')
     axes(handles.axes1);
-    handles.IR.plotSimulations;
+    IR.plotSimulations;
     axes(handles.axes2);
-    handles.PM.plotBonds;
+    PM.plotBonds;
 end
 
 % UIWAIT makes pricingModelGUI wait for user response (see UIRESUME)
@@ -114,44 +113,18 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-contents = get(handles.popupmenu1,'String'); 
-handles.model = contents{get(handles.popupmenu1,'Value')};
-handles.initialRate = str2double(get(handles.edit1,'String'))/100;
-handles.stepSize = str2double(get(handles.edit2,'String'));
-handles.volatility = str2double(get(handles.edit5,'String'))/100;
-handles.speedOfReversion = str2double(get(handles.edit4,'String'))/100;
-handles.longTermMeanLevel = str2double(get(handles.edit6,'String'))/100;
-handles.maturity = str2double(get(handles.edit7,'String'));
-handles.nrOfSimulations= str2double(get(handles.edit8,'String'));
-
-handles.strikePrice = str2double(get(handles.edit10,'String'));
-handles.optionMaturity = str2double(get(handles.edit9,'String')); 
-
-handles.IR = interestRate(handles.model, handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, handles.nrOfSimulations);
-handles.PM = pricingModel(handles.IR, handles.strikePrice, handles.optionMaturity);
-
-% Update handles structure
-guidata(hObject, handles);
-
-% Choose default command line output for pricingModelGUI
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-% This sets up the initial plot - only do when we are invisible
-% so window can get raised using pricingModelGUI.
-cla(handles.axes1,'reset')
-cla(handles.axes2,'reset')
-
 axes(handles.axes1);
-handles.IR.plotSimulations;
-axes(handles.axes2);
-handles.PM.plotBonds;
+cla;
 
-
-
+popup_sel_index = get(handles.popupmenu1, 'Value');
+switch popup_sel_index
+    case 1
+        handles.model = "Simple";
+    case 2
+        handles.model = "Brownian";
+    case 3
+        handles.model = "Vasicek";
+end
 
 
 % --------------------------------------------------------------------
@@ -415,144 +388,6 @@ function edit10_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit10_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit11_Callback(hObject, eventdata, handles)
-% hObject    handle to edit11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit11 as text
-%        str2double(get(hObject,'String')) returns contents of edit11 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit12_Callback(hObject, eventdata, handles)
-% hObject    handle to edit12 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit12 as text
-%        str2double(get(hObject,'String')) returns contents of edit12 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit12_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit12 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit13_Callback(hObject, eventdata, handles)
-% hObject    handle to edit13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit13 as text
-%        str2double(get(hObject,'String')) returns contents of edit13 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit13_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit14_Callback(hObject, eventdata, handles)
-% hObject    handle to edit14 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit14 as text
-%        str2double(get(hObject,'String')) returns contents of edit14 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit14_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit14 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit15_Callback(hObject, eventdata, handles)
-% hObject    handle to edit15 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit15 as text
-%        str2double(get(hObject,'String')) returns contents of edit15 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit15_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit15 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit16_Callback(hObject, eventdata, handles)
-% hObject    handle to edit16 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit16 as text
-%        str2double(get(hObject,'String')) returns contents of edit16 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit16_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit16 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
