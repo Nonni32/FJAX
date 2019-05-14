@@ -1,6 +1,12 @@
 classdef swap
-    %UNTITLED8 Summary of this class goes here
-    %   Detailed explanation goes here
+    % About
+    % Swap object, used to calculate multiple scenarios for swap
+    % 
+    % Properties accessible: 
+    % payPortfolio, receivePortfolio, pay, receive, payments, principal, 
+    % couponRate, compounding, startDate, settleDate, endDate, payCurve, 
+    % receiveCurve,basisPoints, price, swapRate, AI (Accrued interest), 
+    % payCF, payDates, receiveCF, receiveDates
     
     properties
         payPortfolio
@@ -28,7 +34,7 @@ classdef swap
     
     methods
         function obj = swap(payPortfolio, receivePortfolio, pay, receive, payments, principal, startDate, settleDate, endDate, payCurve, receiveCurve, basisPoints)
-            % Initialise swap object
+            % INITIALISING THE SWAP OPJECT
             obj.payPortfolio = payPortfolio;
             obj.receivePortfolio = receivePortfolio;
             obj.pay = pay;
@@ -45,6 +51,7 @@ classdef swap
         end
         
         function obj = valueSwap(obj)
+            % VALUING THE SWAP CONTRACT
             alpha = obj.payments.^(-1)
             obj.payments;
             Settle = datenum(obj.settleDate);
@@ -106,6 +113,7 @@ classdef swap
         end
         
         function plotCashFlow(obj)
+           % PLOTTING THE CASH FLOW OF THE SWAP AGREEMENT
            grid on
            bar(obj.receiveCF)
            hold on

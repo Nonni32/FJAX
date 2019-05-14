@@ -1,6 +1,12 @@
 classdef swap
-    %UNTITLED8 Summary of this class goes here
-    %   Detailed explanation goes here
+    % About
+    % Swap object, used to calculate multiple scenarios for swap
+    % 
+    % Properties accessible: 
+    % interestRateModel, maturity, optionMaturity, simulatedBonds,
+    % simulatedBondPrices, calculatedBondPrices, strikePrice,
+    % simulatedCalls, simulatedPuts, calculatedCall, calculatedPut, caps
+    % and floor
     
     properties
         payPortfolio
@@ -80,7 +86,7 @@ classdef swap
 
             LegType = [obj.pay obj.receive];
             
-            LegRate = [0.05 Spread(1)]; % TODO LAGA ÞETTA SKÍTAMIX
+            LegRate = [0.05 Spread(1)]; 
             
             if sum(LegType) == 1
                 if(LegType(1) == 0)
