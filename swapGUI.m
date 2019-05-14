@@ -217,15 +217,9 @@ settleDate = get(handles.edit7, 'String');
 endDate = get(handles.edit18,'String');
 basisPoints = [handles.receiveBP handles.payBP];
 
-disp("YOUR JOURNEY IS ABOUT TO BEGIN")
-
 handles.swap = swap(handles.payPortfolio, handles.receivePortfolio, pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
 axes(handles.axes1)
 handles.swap.plotCashFlow;
-
-
-
-set(handles.axes1,'visible','off')
 
 guidata(hObject, handles);
 
