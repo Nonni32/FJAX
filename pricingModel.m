@@ -25,7 +25,7 @@ classdef pricingModel
             
             [obj.simulatedBonds, obj.simulatedBondPrices] = obj.zeroCouponBondSimulation;
             [obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
-            [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer;
+            [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
         end
         
         function [B, bT] = zeroCouponBondSimulation(obj)
@@ -88,52 +88,22 @@ classdef pricingModel
             putPrice = exp(-r0*T)*putPayoff; 
         end
         
-        
-        %Skoða þetta . .skoða núvirðingu og price á Call og put
         function obj = optionPathSimulation(obj)
-            % Sleppa?
-            % TODO: LAGA ÞETTA
-            
-            [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer;
-            T = obj.optionMaturity;
-            R = obj.interestRateModel.data;
-            r = R(1,1);
-            K = obj.strikePrice; %0.95
+            call = [];
+            put = [];
             dt = obj.interestRateModel.stepSize;
-            
-            dates = linspace(today(),today()+365*T, T/dt);
-            callPricePath = zeros(1,T/dt);
-            putPricePath = zeros(1,T/dt);
-            
-            callPayoff = mean(max(obj.simulatedBonds(:,T/dt)-K,0));
-            putPayoff = mean(max(K-obj.simulatedBonds(:,T/dt),0));
-            
-            for i = dt:dt:T
-                tt = round(i/dt);
-                r = mean(R(:,tt));
-                callPricePath(tt) = callPayoff*exp(-r*(T-i)); %exp(-r*(T-i)) 
-                putPricePath(tt) = putPayoff*exp(-r*(T-i));
+            for i = 0:dt:obj.optionMaturity
+                [call(end+1), put(end+1)] = obj.optionPricer(i);
             end
-            
-            plot(dates, callPricePath)
+            plot(call)
             hold on
-            plot(dates, putPricePath)
-            hold on
-            plot([min(dates) max(dates)],[obj.calculatedCall obj.calculatedCall],'k-')
-            hold on
-            plot([min(dates) max(dates)],[obj.calculatedPut obj.calculatedPut],'r-')
-            datetick('x','dd/mm/yyyy')
-            grid on
-            xlim([today() today()+365*T])
-            legend('Call option','Put option','Calculated Call','Calculated Put')
+            plot(put)
         end
         
         
         function plotBonds(obj)
             N = obj.interestRateModel.nrOfSimulations;
             dates = linspace(today(),today()+365*obj.maturity, 250*obj.maturity);
-            size(dates)
-            size(obj.simulatedBonds)
             for i = 1:N
                 plot(dates,obj.simulatedBonds(i,:),'HandleVisibility','off')%,'Color',[0.5 0.5 0.5])
                 hold on
@@ -147,23 +117,22 @@ classdef pricingModel
             xlim([min(dates) max(dates)])
         end
 
-        %SKOÐDA ÞETTA - !!!!!!!!!!!!
-        function [C, P] = optionPricer(obj)    
+        function [C, P] = optionPricer(obj,t)    
             
             model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
             sigma = obj.interestRateModel.volatility;
             
-            S = obj.maturity; % S > T
-            T = obj.optionMaturity;
+            S = obj.maturity-t; % S > T
+            T = obj.optionMaturity-t;
             
             B = obj.simulatedBonds(1,1); %starting price
             R = obj.interestRateModel.data;
             K = obj.strikePrice;
             
             rt = obj.interestRateModel.initialRate;
-            rT = mean(R(:,T/dt));
-            rS = mean(R(:,S/dt));
+            rT = mean(R(:,(T+t)/dt));
+            rS = mean(R(:,(S+t)/dt));
 
             % Call
             switch model.model

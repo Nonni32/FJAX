@@ -40,7 +40,7 @@ volatility = 0.03;
 speedOfReversion = 0.25;    % Notað fyrir alpha í brownian og kappa í vasicek
 longTermMeanLevel = 0.035;  % Notað fyrir theta í vasicek
 maturity = 5;
-nrOfSimulations = 10000;
+nrOfSimulations = 1000;
 
 IR1 = interestRate(model(1), initialRate, stepSize, volatility, speedOfReversion, longTermMeanLevel, maturity, nrOfSimulations);
 IR2 = interestRate(model(2), initialRate, stepSize, volatility, speedOfReversion, longTermMeanLevel, maturity, nrOfSimulations);
@@ -76,9 +76,20 @@ PM1 = pricingModel(IR1, StrikePrice, OptionMaturity)
 PM2 = pricingModel(IR2, StrikePrice, OptionMaturity)
 PM3 = pricingModel(IR3, StrikePrice, OptionMaturity)
 
-%% Plot zero coupon bonds
+%% Plot zero coupon bonds með Simple
 PM1.plotBonds
 
+%% Plot zero coupon bonds með Brownian
+PM2.plotBonds
 
+%% Plot zero coupon bonds með Vasicek
+PM3.plotBonds
 
+%% 
+PM1.optionPathSimulation
 
+%% 
+PM2.optionPathSimulation
+
+%% 
+PM3.optionPathSimulation

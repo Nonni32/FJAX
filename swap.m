@@ -46,7 +46,7 @@ classdef swap
         
         function obj = valueSwap(obj)
             alpha = obj.payments.^(-1)
-            obj.payments
+            obj.payments;
             Settle = datenum(obj.settleDate);
             endDatesPay = {};
             endDatesReceive = {};
@@ -55,7 +55,9 @@ classdef swap
             payDates = datenum(obj.startDate)+1:round(365/obj.payments(1)):max(datesPay);
             size(payDates)
             y = obj.payCurve/100;
-            ratePay = y(payDates-datenum(obj.startDate)+1);
+            size(y)
+            ratePay = y(payDates-datenum(obj.startDate));
+            size(ratePay)
             
             for i = 1:length(ratePay)
                 endDatesPay{i} = datestr(payDates(i),'dd-mmm-yyyy');
