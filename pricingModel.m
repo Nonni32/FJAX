@@ -188,16 +188,18 @@ classdef pricingModel
                     
 %                     d1 = (log(PtS/(K*PtT))+(1/2)*sigma^2*((S-T)^2)*T)/(sigma*(S-T)*sqrt(T));
 %                     d2 = d1 - sigma*(S-T)*sqrt(T);
-                    
+%N1 = 0.5*(1+erf(d1/sqrt(2)));
+                    %N2 = 0.5*(1+erf(d2/sqrt(2)));
+
+                       %C = B*N1 - K*exp(-R(1,1)*S)*N2;
+                 
                     PtT = exp( -rT * T - (1/2) * alpha * T^2 + (1/6) * sigma^2 * T^3);
                     d1 = log(B/K + (sigma^2)*(T/2))/(sigma*sqrt(T));
                     d2 = log(B/K - (sigma^2)*(T/2))/(sigma*sqrt(T));
 
-                    %N1 = 0.5*(1+erf(d1/sqrt(2)));
+                    
                     N1 = normcdf(d1);
-                    %N2 = 0.5*(1+erf(d2/sqrt(2)));
                     N2 = normcdf(d2);
-                    %C = B*N1 - K*exp(-R(1,1)*S)*N2;
                     C = PtT*(B*N1-K*N2);
                     % Put
                     N1 = normcdf(-d1);
@@ -261,6 +263,39 @@ classdef pricingModel
         
         function capsAndFloor(obj)
             % TODO: Þetta
+            dt = obj.interestRateModel.stepSize;
+            T = obj.optionMaturity;     %Time2mat
+            Tk = 0:dt:T;                %Time vec
+
+            Fk = [0.04, 0.039, 0.041];  %Forward rate = HJALP GODI MADUR
+            Fk = obj.interestRateModel.forwardRate
+            D = [1, 0.95, 0.9];         %discount rate
+            
+            %R = obj.interestRateModel.data; Spurning um ad nota tetta
+            %fyrir LIBOR
+            LC = 0.05;                  %Libor rate
+            
+            for i = 1:1:T/dt
+                dL = LC
+                LC(i) = dL;
+            end
+            
+            LC = [initial LC]
+                
+            Q = 1;                      %Pricipal BITCH TITS
+            alpha = 0.5;                %Time period
+            
+            sigma = obj.interestRateModel.volatility;
+            
+            d1 = (log(Fk/LC) + 0.5*tk*sigma^2)\(sigma*sqrt(tk));
+            d2 = d1-sigma*sqrt(tk);
+            
+            caplet = alpha*Q*D*(Fk*normcdf(d1)-LC*normcdf(d2));
+            floorlet = alpha*Q*D*(LC*normcdf(-d2)-Fk*normcdf(-d1));
+            
+            plot(caplet)
+            hold on 
+            plot(floorlet)
         end
             
     end
