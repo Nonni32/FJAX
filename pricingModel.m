@@ -1,7 +1,15 @@
 classdef pricingModel
-    % Class for pricing
+    % About
+    % Pricing Model, used to simulate zero coupon bond and price option of
+    % zero coupon bonds.
+    % 
+    % Properties accessible: 
+    % interestRateModel, maturity, optionMaturity, simulatedBonds,
+    % simulatedBondPrices, calculatedBondPrices, strikePrice,
+    % simulatedCalls, simulatedPuts, calculatedCall, calculatedPut, caps
+    % and floor
+    
     properties
-        %contractType
         interestRateModel
         maturity
         optionMaturity
@@ -13,23 +21,29 @@ classdef pricingModel
         simulatedPuts
         calculatedCall
         calculatedPut
+        caps
+        floors
     end
     
     methods
+        
         function obj = pricingModel(interestRateModel, strikePrice, optionMaturity)
-            %obj.contractType = contractType;
+            % INITIALISING THE PRICING MODEL FROM INPUTS
             obj.interestRateModel = interestRateModel;
             obj.strikePrice = strikePrice;
             obj.optionMaturity = optionMaturity;
             obj.maturity = interestRateModel.maturity; 
             
+            % CALCULATING THE OPTION PRICES
             [obj.simulatedBonds, obj.simulatedBondPrices] = obj.zeroCouponBondSimulation;
             [obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
             [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
+            [obj.caps, obj.floors] = obj.capsAndFloors;
         end
         
         function [B, bT] = zeroCouponBondSimulation(obj)
             % ZERO COUPON SIMULATION
+            % Returns bond price path and bond price at the option maturity
             interestRateModel = obj.interestRateModel;
             r0 = interestRateModel.initialRate;
             dt = interestRateModel.stepSize;
@@ -74,21 +88,22 @@ classdef pricingModel
             end
         end
         
-        %Option Simulation
         function [callPrice, putPrice] = optionSimulation(obj)
+            % Pricing call and put prices from the simulated bond prices
             K = obj.strikePrice;
             T = obj.optionMaturity;
             N = T/obj.interestRateModel.stepSize; 
             callPayoff = mean(max(obj.simulatedBonds(:,N)-K,0));
             putPayoff = mean(max(K-obj.simulatedBonds(:,N),0));
             
-            %Skoða þetta ... og eitthvað meira
             r0 = obj.interestRateModel.initialRate;
             callPrice = exp(-r0*T)*callPayoff;
             putPrice = exp(-r0*T)*putPayoff; 
         end
         
         function obj = optionPathSimulation(obj)
+            % Shows how the price of the call and put options develop over
+            % time as time reaches the option's maturity
             call = [];
             put = [];
             dt = obj.interestRateModel.stepSize;
@@ -102,6 +117,7 @@ classdef pricingModel
         
         
         function plotBonds(obj)
+            % Plotting the simulated zero coupon bonds
             N = obj.interestRateModel.nrOfSimulations;
             dates = linspace(today(),today()+365*obj.maturity, 250*obj.maturity);
             for i = 1:N
@@ -118,7 +134,7 @@ classdef pricingModel
         end
 
         function [C, P] = optionPricer(obj,t)    
-            
+            % Pricing the options at time t. t = 0 at the beginning
             model = obj.interestRateModel;
             dt = obj.interestRateModel.stepSize;
             sigma = obj.interestRateModel.volatility;
@@ -136,49 +152,24 @@ classdef pricingModel
 
             % Call
             switch model.model
-                case "Simple"
-%                     d1 = (log(B/K) + (R(1,1) + 0.5*sigma^2)*T)/(sigma*sqrt(T));
-%                     d2 = d1 - sigma*sqrt(T); %Breytti úr S í T líka fyrir ofan
-%                     N1 = 0.5*(1+erf(d1/sqrt(2)));
-%                     N2 = 0.5*(1+erf(d2/sqrt(2)));
-%                     C = B*N1-K*exp(-R(1,1)*T)*N2; %Breytti úr S í T
-%                     % Put
-%                     N1 = 0.5*(1+erf(-d1/sqrt(2)));
-%                     N2 = 0.5*(1+erf(-d2/sqrt(2)));
-%                     P = K*exp(-R(1,1)*S)*N2 - B*N1;
-                    %[C, P] = blsprice(B,K,rT,T,sigma);                    
+                case "Simple"                 
                     [C, P] = blkprice(B,K,rT,T,sigma);
 
                 case "Brownian"
-                    % TODO: LAGA VILLUNA HÉR 
                     alpha = model.longTermMeanLevel;
-%                     PtT = exp(-rT*T-(1/2) * alpha * T^2 + (1/6) * sigma^2 * T^3);
-%                     PtS = exp(-rT*S-(1/2) * alpha * S^2 + (1/6) * sigma^2 * S^3);
-                    
-%                     d1 = (log(PtS/(K*PtT))+(1/2)*sigma^2*((S-T)^2)*T)/(sigma*(S-T)*sqrt(T));
-%                     d2 = d1 - sigma*(S-T)*sqrt(T);
-%N1 = 0.5*(1+erf(d1/sqrt(2)));
-                    %N2 = 0.5*(1+erf(d2/sqrt(2)));
 
-                       %C = B*N1 - K*exp(-R(1,1)*S)*N2;
-                 
                     PtT = exp( -rT * T - (1/2) * alpha * T^2 + (1/6) * sigma^2 * T^3);
                     d1 = log(B/K + (sigma^2)*(T/2))/(sigma*sqrt(T));
                     d2 = log(B/K - (sigma^2)*(T/2))/(sigma*sqrt(T));
-
-                    
+                    % Call
                     N1 = normcdf(d1);
                     N2 = normcdf(d2);
                     C = PtT*(B*N1-K*N2);
                     % Put
                     N1 = normcdf(-d1);
                     N2 = normcdf(-d2);
-                    %N1 = 0.5*(1+erf(-d1/sqrt(2)));
-                    %N2 = 0.5*(1+erf(-d2/sqrt(2)));
-                    %P = K*exp(-R(1,1)*S)*N2 - B*N1;
                     P = PtT*(K*N2-B*N1);
                     
-                    %Vasicek KOMID
                 case "Vasicek"
                     Q = 1; % Principal of the bond
                     kappa = model.speedOfReversion;
@@ -198,75 +189,49 @@ classdef pricingModel
 
                     N = @(x) normcdf(x);
                     
-
                     C = Q * PtS * N(d) - K * PtT * N(d-sigmaP);
                     P = K * PtT * N(-d+sigmaP) - Q * PtS * N(-d);            
             end
         end
-        
-        function [meanTheta, meanKappa, meanSigma, errorValue] = ordinaryLeastSquaresIterative(obj, n)
-            % ESTIMATING THE PARATMETERS OF THE VASICEK MODEL WITH ORDINARY LEAST 
-            % SQUARES METHOD 
-            % 
-            % Returns the average theta, kappa and sigma values and the
-            % error value.
-            % 
-            % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2  
-            
-            if obj.model == "Vasicek"
-                obj.data;
-                trueTheta = obj.longTermMeanLevel;
-                trueKappa = obj.speedOfReversion;
-                trueSigma = obj.volatility;
-
-                for i = 1:10
-                    [theta(i), kappa(i), sigma(i)] = OLS_OU(obj.data(randi(obj.nrOfSimulations),1:n),obj.stepSize);
-                end
-
-                meanTheta = mean(theta);
-                meanKappa = mean(kappa);
-                meanSigma = mean(real(sigma));
-                errorValue = (trueTheta-meanTheta)^2+(trueKappa-meanKappa)^2+(trueSigma-meanSigma)^2;
-                end
-        end
-        
+         
         function capsAndFloor(obj)
-            % TODO: Þetta
+            % Calculating the caps and floor
             dt = obj.interestRateModel.stepSize;
             T = obj.optionMaturity;     %Time2mat
-            Tk = 0:dt:T;                %Time vec
 
-            Fk = [0.04, 0.039, 0.041];  %Forward rate = HJALP GODI MADUR
-            Fk = obj.interestRateModel.forwardRate
-            D = [1, 0.95, 0.9];         %discount rate
-            
-            %R = obj.interestRateModel.data; Spurning um ad nota tetta
-            %fyrir LIBOR
-            LC = 0.05;                  %Libor rate
-            
-            for i = 1:1:T/dt
-                dL = LC
-                LC(i) = dL;
-            end
-            
-            LC = [initial LC]
-                
-            Q = 1;                      %Pricipal BITCH TITS
-            alpha = 0.5;                %Time period
-            
             sigma = obj.interestRateModel.volatility;
+            LC = obj.interestRateModel.initialRate;                 
+            N = obj.interestRateModel.nrOfSimulations;
             
-            d1 = (log(Fk/LC) + 0.5*tk*sigma^2)\(sigma*sqrt(tk));
+            for n = 1:N
+                for i = 2:1:T/dt-1
+                    dL = sigma* LC(i-1) *randn*sqrt(dt);
+                    LC(i) = dL + LC(i-1);
+                end
+                LL(n,:) = LC;
+            end
+                
+            LC = [obj.interestRateModel.initialRate mean(LL)];
+            settle = today;
+            curveDates = today+1:365/(1/dt):today+T*365;
+            
+            [Fk,date] = zero2fwd(LC',curveDates',settle');
+            [D,cdate] = zero2disc(LC',curveDates',settle');
+                
+            Q = 1;                      %Pricipal
+            alpha = 0.5;                %Time period
+
+            tk = T;
+            n = round(tk/dt);
+            d1 = (log(Fk(n)/LC(n)) + 0.5*tk*sigma^2)/(sigma*sqrt(tk));
             d2 = d1-sigma*sqrt(tk);
-            
-            caplet = alpha*Q*D*(Fk*normcdf(d1)-LC*normcdf(d2));
-            floorlet = alpha*Q*D*(LC*normcdf(-d2)-Fk*normcdf(-d1));
+            caplet = ones(1,T/dt)*alpha*Q*D(n)*(Fk(n)*normcdf(d1)-LC(n)*normcdf(d2));
+            floorlet = ones(1,T/dt)*alpha*Q*D(n)*(LC(n)*normcdf(-d2)-Fk(n)*normcdf(-d1));
             
             plot(caplet)
             hold on 
             plot(floorlet)
         end
-            
     end
 end
 
