@@ -58,14 +58,14 @@ classdef pricingModel
             R = interestRateModel.data;
             
             switch interestRateModel.model
-                case "Simple"
+                case 'Simple'
                     for i = 1:N 
                         for j = 1:L
                             B(i,j) = exp(-R(i,j)*((L-(j-1))*dt)+(1/6)*sigma^2*((L-(j-1))*dt)^3);
                         end
                         bT(1,i) = B(i,O/dt);
                     end 
-                case "Brownian"
+                case 'Brownian'
                     alpha = interestRateModel.longTermMeanLevel;
                     for i = 1:N 
                         for j = 1:L
@@ -73,7 +73,7 @@ classdef pricingModel
                         end
                         bT(1,i) = B(i,O/dt);
                     end 
-                case "Vasicek"
+                case 'Vasicek'
                     kappa = interestRateModel.speedOfReversion;
                     theta = interestRateModel.longTermMeanLevel;
                     
@@ -152,10 +152,10 @@ classdef pricingModel
 
             % Call
             switch model.model
-                case "Simple"                 
+                case 'Simple'                 
                     [C, P] = blkprice(B,K,rT,T,sigma);
 
-                case "Brownian"
+                case 'Brownian'
                     alpha = model.longTermMeanLevel;
 
                     PtT = exp( -rT * T - (1/2) * alpha * T^2 + (1/6) * sigma^2 * T^3);
@@ -170,7 +170,7 @@ classdef pricingModel
                     N2 = normcdf(-d2);
                     P = PtT*(K*N2-B*N1);
                     
-                case "Vasicek"
+                case 'Vasicek'
                     Q = 1; % Principal of the bond
                     kappa = model.speedOfReversion;
                     theta = model.longTermMeanLevel;

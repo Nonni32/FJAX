@@ -15,8 +15,8 @@ function varargout = swapGUI(varargin)
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to swapGUI_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+%      *See GUI Options on GUIDE's Tools menu.  Choose 'GUI allows only one
+%      instance to run (singleton)'.
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
@@ -63,12 +63,12 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-NonIndexedPortfolio = NonIndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0);
-IndexedPortfolio = IndexedPortfolio.fitMethod("Yield","Nelson-Siegel",0,0);
+NonIndexedPortfolio = NonIndexedPortfolio.fitMethod('Yield','Nelson-Siegel',0,0);
+IndexedPortfolio = IndexedPortfolio.fitMethod('Yield','Nelson-Siegel',0,0);
 
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
-handles.legends = {"Data points"};
+handles.legends = {'Data points'};
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
@@ -102,10 +102,10 @@ if strcmp(get(hObject,'Visible'),'off')
 end
 set(handles.axes1,'visible','off')
 
-set(handles.edit5, 'String', "100");
-set(handles.edit6, 'String', "" + datestr(today,'dd/mm/yyyy'));
-set(handles.edit7, 'String', "" + datestr(today,'dd/mm/yyyy'));
-set(handles.edit18,'String', "" + datestr(max(handles.dates),'dd/mm/yyyy'));
+set(handles.edit5, 'String', '100');
+set(handles.edit6, 'String', '' + datestr(today,'dd/mm/yyyy'));
+set(handles.edit7, 'String', '' + datestr(today,'dd/mm/yyyy'));
+set(handles.edit18,'String', '' + datestr(max(handles.dates),'dd/mm/yyyy'));
 
 
 % Update handles structure

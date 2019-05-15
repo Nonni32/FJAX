@@ -62,7 +62,7 @@ classdef interestRate
             N = obj.maturity/obj.stepSize;
             W = randn(L,N)*sqrt(obj.stepSize);
             switch obj.model
-                case "Simple"
+                case 'Simple'
                     for i = 1:L
                         obj.data(i,1) = obj.initialRate;
                         for j = 2:N
@@ -71,7 +71,7 @@ classdef interestRate
                         end
                         obj.rateAtMaturity(i) = obj.data(i,N);
                     end
-                case "Brownian"
+                case 'Brownian'
                     a = obj.longTermMeanLevel;
                     for i = 1:L
                         obj.data(i,1) = obj.initialRate;
@@ -81,7 +81,7 @@ classdef interestRate
                         end
                         obj.rateAtMaturity(i) = obj.data(i,N);
                     end    
-                case "Vasicek"
+                case 'Vasicek'
                     r0 = obj.initialRate;
                     kappa = obj.speedOfReversion;
                     theta = obj.longTermMeanLevel;
@@ -130,7 +130,7 @@ classdef interestRate
             % 
             % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2
             
-            if obj.model == "Vasicek"
+            if obj.model == 'Vasicek'
                 theta = obj.longTermMeanLevel;
                 kappa = obj.speedOfReversion;
                 sigma = obj.volatility;
@@ -153,7 +153,7 @@ classdef interestRate
             % 
             % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2
             
-            if obj.model == "Vasicek"
+            if obj.model == 'Vasicek'
                 theta = obj.longTermMeanLevel;
                 kappa = obj.speedOfReversion;
                 sigma = obj.volatility;
@@ -188,8 +188,8 @@ classdef interestRate
             hold on
             plot([min(x) max(x)],[trueKappa*100 trueKappa*100],'k--') 
             ytickformat('%.2f%%')
-            title("Kappa estimation (" + trueKappa*100 + "%)")
-            xlabel("Nr of iterations")
+            title('Kappa estimation (' + trueKappa*100 + '%)')
+            xlabel('Nr of iterations')
             xlim([min(x) max(x)])
             
             subplot(3,1,2)
@@ -197,8 +197,8 @@ classdef interestRate
             hold on
             plot([min(x) max(x)],[trueTheta*100 trueTheta*100],'k--') 
             ytickformat('%.2f%%')
-            title("Theta estimation (" + trueTheta*100 + "%)")
-            xlabel("Nr of iterations")
+            title('Theta estimation (' + trueTheta*100 + '%)')
+            xlabel('Nr of iterations')
             xlim([min(x) max(x)])
             
             subplot(3,1,3)
@@ -206,8 +206,8 @@ classdef interestRate
             hold on
             plot([min(x) max(x)],[trueSigma*100 trueSigma*100],'k--')
             ytickformat('%.2f%%')
-            title("Sigma estimation (" + trueSigma*100+ "%)")
-            xlabel("Nr of iterations")
+            title('Sigma estimation (' + trueSigma*100+ '%)')
+            xlabel('Nr of iterations')
             xlim([min(x) max(x)])
             
             sgtitle('Parameter estimation - Maximum likelihood estimation','FontSize',14)
@@ -234,8 +234,8 @@ classdef interestRate
             hold on
             plot([min(x) max(x)],[trueKappa*100 trueKappa*100],'k--') 
             ytickformat('%.2f%%')
-            title("Kappa estimation (" + trueKappa*100 + "%)")
-            xlabel("Nr of iterations")
+            title('Kappa estimation (' + trueKappa*100 + '%)')
+            xlabel('Nr of iterations')
             xlim([min(x) max(x)])
             
             subplot(3,1,2)
@@ -243,8 +243,8 @@ classdef interestRate
             hold on
             plot([min(x) max(x)],[trueTheta*100 trueTheta*100],'k--') 
             ytickformat('%.2f%%')
-            title("Theta estimation (" + trueTheta*100 + "%)")
-            xlabel("Nr of iterations")
+            title('Theta estimation (' + trueTheta*100 + '%)')
+            xlabel('Nr of iterations')
             xlim([min(x) max(x)])
             
             subplot(3,1,3)
@@ -252,8 +252,8 @@ classdef interestRate
             hold on
             plot([min(x) max(x)],[trueSigma*100 trueSigma*100],'k--')
             ytickformat('%.2f%%')
-            title("Sigma estimation (" + trueSigma*100+ "%)")
-            xlabel("Nr of iterations")
+            title('Sigma estimation (' + trueSigma*100+ '%)')
+            xlabel('Nr of iterations')
             xlim([min(x) max(x)])
             
             sgtitle('Parameter estimation - Ordinary least squares','FontSize',14)
@@ -268,7 +268,7 @@ classdef interestRate
             % 
             % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2  
             
-            if obj.model == "Vasicek"
+            if obj.model == 'Vasicek'
                 obj.data;
                 trueTheta = obj.longTermMeanLevel;
                 trueKappa = obj.speedOfReversion;
@@ -294,7 +294,7 @@ classdef interestRate
             % 
             % E = (avgTheta-theta)^2+(avgKappa-kappa)^2+(avgSigma-sigma)^2  
             
-            if obj.model == "Vasicek"
+            if obj.model == 'Vasicek'
                 obj.data;
                 trueTheta = obj.longTermMeanLevel;
                 trueKappa = obj.speedOfReversion;

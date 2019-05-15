@@ -15,8 +15,8 @@ function varargout = pricingModelGUI(varargin)
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to pricingModelGUI_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+%      *See GUI Options on GUIDE's Tools menu.  Choose 'GUI allows only one
+%      instance to run (singleton)'.
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
@@ -82,13 +82,13 @@ obj = handles.PM;
 [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
 [obj.caps, obj.floors] = obj.capsAndFloor;
 
-set(handles.edit11,'String',""+obj.simulatedCalls);
-set(handles.edit12,'String',""+obj.calculatedCall);
-set(handles.edit13,'String',""+obj.simulatedPuts);
-set(handles.edit14,'String',""+obj.calculatedCall);
+set(handles.edit11,'String',''+obj.simulatedCalls);
+set(handles.edit12,'String',''+obj.calculatedCall);
+set(handles.edit13,'String',''+obj.simulatedPuts);
+set(handles.edit14,'String',''+obj.calculatedCall);
 
-set(handles.edit15,'String',""+obj.caps*100);
-set(handles.edit16,'String',""+obj.floors*100);
+set(handles.edit15,'String',''+obj.caps*100);
+set(handles.edit16,'String',''+obj.floors*100);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -149,13 +149,13 @@ obj = handles.PM;
 [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
 [obj.caps, obj.floors] = obj.capsAndFloor;
 
-set(handles.edit11,'String',""+obj.simulatedCalls);
-set(handles.edit12,'String',""+obj.calculatedCall);
-set(handles.edit13,'String',""+obj.simulatedPuts);
-set(handles.edit14,'String',""+obj.calculatedCall);
+set(handles.edit11,'String',''+obj.simulatedCalls);
+set(handles.edit12,'String',''+obj.calculatedCall);
+set(handles.edit13,'String',''+obj.simulatedPuts);
+set(handles.edit14,'String',''+obj.calculatedCall);
 
-set(handles.edit15,'String',""+obj.caps*100);
-set(handles.edit16,'String',""+obj.floors*100);
+set(handles.edit15,'String',''+obj.caps*100);
+set(handles.edit16,'String',''+obj.floors*100);
 
 % Update handles structure
 guidata(hObject, handles);

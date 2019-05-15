@@ -47,7 +47,7 @@ classdef portfolio
             
             % Most bonds are conventional coupons or bullet bonds but in
             % some cases the coupon payment is semi-annual
-            if(string(bond.coupon) == "Semiannual")
+            if(string(bond.coupon) == 'Semiannual')
                 obj.frequency = 2;
             else
                 obj.frequency = 1;
@@ -72,7 +72,7 @@ classdef portfolio
             
             % Most bonds are conventional coupons or bullet bonds but in
             % some cases the coupon payment is semi-annual
-            if(string(bond.coupon) == "Semiannual")
+            if(string(bond.coupon) == 'Semiannual')
                 obj.frequency = horzcat(obj.frequency, 2);
             else
                 obj.frequency = horzcat(obj.frequency, 1);
@@ -164,32 +164,32 @@ classdef portfolio
             % INPUT 4 = SMOOTHING FACTOR (DOUBLE)
             % 
             %   CURVES AVAILABLE: 
-            %       "Yield", "Zero rates", "Forward rates", "Discount rates", "Swap rates"
+            %       'Yield', 'Zero rates', 'Forward rates', 'Discount rates', 'Swap rates'
             %   METHODS AVAILABLE:
-            %       "Bootstrapping", "Nelson-Siegel", "Polynomial", "Spline", "Cubic spline", "Constrained cubic spline"
+            %       'Bootstrapping', 'Nelson-Siegel', 'Polynomial', 'Spline', 'Cubic spline', 'Constrained cubic spline'
             %   POLYNOMIAL DEGREE: 1 <= X <= NUMBER OF BONDS IN PORTFOLIO
             %   SMOOTHING FACTOR: 0 <= X <= 1
             
             % Choosing the curve
             obj = obj.calculateCurves;
             dates = datenum(obj.maturity,'dd/mm/yyyy');
-            if curve == "Yield"
+            if curve == 'Yield'
                 rates = obj.yield;
-            elseif curve == "Zero rates"
+            elseif curve == 'Zero rates'
                 rates = obj.zeroRates;
-            elseif curve == "Forward rates"
+            elseif curve == 'Forward rates'
                 rates = obj.forwardRates;
-            elseif curve == "Discount rates"
+            elseif curve == 'Discount rates'
                 rates = obj.discountRates;
-            elseif curve == "Swap rates"
+            elseif curve == 'Swap rates'
                 rates = obj.swapRates;
             end
             
             % Choosing the fitting method and plotting
-            if method == "Bootstrapping"
+            if method == 'Bootstrapping'
                 hold on
                 plot(dates, rates)
-            elseif method == "Nelson-Siegel"
+            elseif method == 'Nelson-Siegel'
                 % SPECIAL CASE 
                 % REQUIRES FINANCIAL INSTRUMENTS TOOLBOX FOR IRFunctionCurve 
                 Settle = repmat(today,[length(obj.maturity) 1]);
@@ -198,11 +198,11 @@ classdef portfolio
                 CouponRate = obj.interest';
                 Instruments = [Settle Maturity CleanPrice CouponRate];
                 PlottingPoints = linspace(today,max(dates),max(dates)-today);
-                % Type is either "Forward" or "Zero"
-                if curve == "Zero rates" || curve == "Yield"
+                % Type is either 'Forward' or 'Zero'
+                if curve == 'Zero rates' || curve == 'Yield'
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
                     NSModel.Parameters
-                elseif curve == "Forward rates"
+                elseif curve == 'Forward rates'
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
                     NSModel.Parameters
                 end
@@ -211,7 +211,7 @@ classdef portfolio
                 datetick('x','dd/mm/yyyy')
                 ytickformat('%.2f%%')
                 xlim([today max(dates)])
-            elseif method == "Nelson-Siegel-Svensson"
+            elseif method == 'Nelson-Siegel-Svensson'
                 % SPECIAL CASE 
                 % REQUIRES FINANCIAL INSTRUMENTS TOOLBOX FOR IRFunctionCurve 
                 Settle = repmat(today,[length(obj.maturity) 1]);
@@ -221,11 +221,11 @@ classdef portfolio
                 Instruments = [Settle Maturity CleanPrice CouponRate];
                 PlottingPoints = linspace(today,max(dates),max(dates)-today);
                 
-                % Type is either "Forward" or "Zero"
-                if curve == "Zero rates" || curve == "Yield"
+                % Type is either 'Forward' or 'Zero'
+                if curve == 'Zero rates' || curve == 'Yield'
                     SvenssonModel  = IRFunctionCurve.fitSvensson('Zero',today,Instruments)
                     SvenssonModel.Parameters
-                elseif curve == "Forward rates"
+                elseif curve == 'Forward rates'
                     SvenssonModel  = IRFunctionCurve.fitSvensson('Forward',today,Instruments)
                     SvenssonModel.Parameters
                 end
@@ -234,15 +234,15 @@ classdef portfolio
                 datetick('x','dd/mm/yyyy')
                 ytickformat('%.2f%%')
                 xlim([today max(dates)])
-            elseif method == "Polynomial"
+            elseif method == 'Polynomial'
                 obj = obj.polynomialFit(dates, rates, polyDegree);
-            elseif method == "Lagrange interpolation"
+            elseif method == 'Lagrange interpolation'
                 obj = obj.lagrangeFit(dates,rates);
-            elseif method == "Spline"
+            elseif method == 'Spline'
                 obj = obj.splineFit(dates, rates);
-            elseif method == "Cubic spline"
+            elseif method == 'Cubic spline'
                 obj = obj.cubicSplineFit(dates, rates);
-            elseif method == "Constrained cubic spline"
+            elseif method == 'Constrained cubic spline'
                 obj = obj.constrainedCubicSplineFit(dates, rates, smoothingFactor);
             end
         end    
