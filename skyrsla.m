@@ -4,15 +4,15 @@ createPortfolio;
 % Núna eru til 2 portfolio object, NonIndexedPortfolio og IndexedPortfolio
 
 %% Þetta eru öll curve og fitting methods í boði
-curves = ["Yield", "Zero rates", "Forward rates", "Discount rates", "Swap rates"];
-fitMethods = ["Bootstrapping","Nelson-Siegel","Nelson-Siegel-Svensson","Polynomial",... 
-    "Lagrange interpolation","Spline","Cubic spline","Constrained cubic spline"];
+curves = ['Yield', 'Zero rates', 'Forward rates', 'Discount rates', 'Swap rates'];
+fitMethods = ['Bootstrapping','Nelson-Siegel','Nelson-Siegel-Svensson','Polynomial',... 
+    'Lagrange interpolation','Spline','Cubic spline','Constrained cubic spline'];
 
 PolynomialDegree = 2;       % Fyrir Polynomial
 SmoothingFactor = 0.75;     % Fyrir Constrained cubic spline [0,1]
 
 %% Til að fitta curve með ákveðinni aðferð + plotta
-NonIndexedPortfolio = NonIndexedPortfolio.fitMethod("Forward rates", "Lagrange interpolation",PolynomialDegree, SmoothingFactor);
+NonIndexedPortfolio = NonIndexedPortfolio.fitMethod('Forward rates', 'Lagrange interpolation',PolynomialDegree, SmoothingFactor);
 IndexedPortfolio = IndexedPortfolio.fitMethod(curves(2),fitMethods(6),PolynomialDegree, SmoothingFactor);
 % Núna eru þessi fittuðu curve geymd sem .currentCurve í báðum portfolioum
 
@@ -31,9 +31,9 @@ plot(datesNI, NonIndexedPortfolio.currentCurve)
 bondGUI
 
 %% INTEREST RATE SIMULATIONS
-% Model í boði: "Simple", "Brownian", "Vasicek"
+% Model í boði: 'Simple', 'Brownian', 'Vasicek'
 % Sjá help interestRate fyrir útskýringar
-model = ["Simple", "Brownian", "Vasicek"];
+model = ['Simple', 'Brownian', 'Vasicek'];
 initialRate = 0.05;
 stepSize = 1/250;   
 volatility = 0.03;
@@ -85,11 +85,4 @@ PM2.plotBonds
 %% Plot zero coupon bonds með Vasicek
 PM3.plotBonds
 
-%% 
-PM1.optionPathSimulation
 
-%% 
-PM2.optionPathSimulation
-
-%% 
-PM3.optionPathSimulation
