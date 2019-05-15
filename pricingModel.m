@@ -15,7 +15,7 @@ classdef pricingModel
         optionMaturity
         simulatedBonds
         simulatedBondPrices
-        calculatedBondPrices
+        %calculatedBondPrices held thetta se ekkert notad
         strikePrice
         simulatedCalls
         simulatedPuts
@@ -38,7 +38,7 @@ classdef pricingModel
             [obj.simulatedBonds, obj.simulatedBondPrices] = obj.zeroCouponBondSimulation;
             [obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
             [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
-            [obj.caps, obj.floors] = obj.capsAndFloor;
+            %[obj.caps, obj.floors] = obj.capsAndFloor;
         end
         
         function [B, bT] = zeroCouponBondSimulation(obj)
@@ -87,6 +87,14 @@ classdef pricingModel
                     end      
             end
         end
+        
+        function histModel(obj)
+           % PLOTTING THE HISTOGRAM OF THE DISTRIBUTION OF BOND PRICES AT OPTION EXPIRY
+           
+           histfit(obj.simulatedBondPrices, 100,'lognormal')
+           grid on
+        end
+        
         
         function [callPrice, putPrice] = optionSimulation(obj)
             % Pricing call and put prices from the simulated bond prices
@@ -194,44 +202,53 @@ classdef pricingModel
             end
         end
          
-        function [caps, floors] = capsAndFloor(obj)
+        function [caps, floors] = capsAndFloor(obj,Lcc,Lcf) 
             % Calculating the caps and floor
-            dt = obj.interestRateModel.stepSize;
-            T = obj.optionMaturity;     %Time2mat
+            dt = obj.interestRateModel.stepSize;            
+            T = obj.optionMaturity;                         %Time2mat
 
             sigma = obj.interestRateModel.volatility;
-            LC = obj.interestRateModel.initialRate;                 
+            Lk = obj.interestRateModel.initialRate;                 
             N = obj.interestRateModel.nrOfSimulations;
+
+            %Simulation of Rates and calculation of forward and discount
+            %rate
             
             for n = 1:N
                 for i = 2:1:T/dt-1
-                    dL = sigma* LC(i-1) *randn*sqrt(dt);
-                    LC(i) = dL + LC(i-1);
+                    dL = sigma* Lk(i-1) *randn*sqrt(dt);
+                    Lk(i) = dL + Lk(i-1);
                 end
-                LL(n,:) = LC;
+                LL(n,:) = Lk;
             end
-                
-            LC = [obj.interestRateModel.initialRate mean(LL)];
-            settle = today;
+            
+            % Average of simulated rates
+            Lk = [obj.interestRateModel.initialRate mean(LL)];
+            
+            Q = 100000;                                     %Pricipal
+            alpha = dt;                                     %Time period            
+            settle = today;                                 %Settle time
             curveDates = today+1:365/(1/dt):today+T*365;
             
-            [Fk,date] = zero2fwd(LC',curveDates',settle');
-            [D,cdate] = zero2disc(LC',curveDates',settle');
+            % Calculations of forward and discount rate
+            [Fk,date] = zero2fwd(Lk',curveDates',settle');
+            [D,cdate] = zero2disc(Lk',curveDates',settle');
+            
+            for i = dt:dt:T
+                n = round(i/dt);
                 
-            Q = 1;                      %Pricipal
-            alpha = 0.5;                %Time period
+                d1 = real((log(Fk(n)/Lcc)) + 0.5*i*sigma^2)/(sigma*sqrt(i));
+                d2 = d1-sigma*sqrt(i);
+                d11 = real((log(Fk(n)/Lcf)) + 0.5*i*sigma^2)/(sigma*sqrt(i));
+                d22 = d1-sigma*sqrt(i);
+                
+                caplet(n) = alpha*Q*D(n)*(Fk(n)*normcdf(d1)-Lcc*normcdf(d2));
+                floorlet(n) = alpha*Q*D(n)*(Lcf*normcdf(-d22)-Fk(n)*normcdf(-d11));
+            end
+            
+            caps = sum(caplet)
+            floor = sum(floorlet)            
 
-            tk = T;
-            n = round(tk/dt);
-            d1 = (log(Fk(n)/LC(n)) + 0.5*tk*sigma^2)/(sigma*sqrt(tk));
-            d2 = d1-sigma*sqrt(tk);
-            caplet = ones(1,T/dt)*alpha*Q*D(n)*(Fk(n)*normcdf(d1)-LC(n)*normcdf(d2));
-            floorlet = ones(1,T/dt)*alpha*Q*D(n)*(LC(n)*normcdf(-d2)-Fk(n)*normcdf(-d1));
-            caps = caplet(1);
-            floors = floorlet(1);
-%             plot(caplet)
-%             hold on 
-%             plot(floorlet)
         end
     end
 end
