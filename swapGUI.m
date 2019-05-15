@@ -22,7 +22,7 @@ function varargout = swapGUI(varargin)
 
 % Edit the above text to modify the response to help swapGUI
 
-% Last Modified by GUIDE v2.5 10-May-2019 09:37:44
+% Last Modified by GUIDE v2.5 15-May-2019 20:24:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,9 +72,6 @@ handles.legends = {'Data points'};
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
-% Choose default command line output for swapGUI
-handles.output = hObject;
-
 handles.dates = datenum(NonIndexedPortfolio.maturity,'dd/mm/yyyy');
 handles.x = linspace(today,max(handles.dates),max(handles.dates)-today);
 handles.currentCurve = NonIndexedPortfolio.currentCurve;
@@ -102,10 +99,10 @@ if strcmp(get(hObject,'Visible'),'off')
 end
 set(handles.axes1,'visible','off')
 
-set(handles.edit5, 'String', '100');
-set(handles.edit6, 'String', '' + datestr(today,'dd/mm/yyyy'));
-set(handles.edit7, 'String', '' + datestr(today,'dd/mm/yyyy'));
-set(handles.edit18,'String', '' + datestr(max(handles.dates),'dd/mm/yyyy'));
+set(handles.edit5, 'String', "100");
+set(handles.edit6, 'String', "" + datestr(today,'dd/mm/yyyy'));
+set(handles.edit7, 'String', "" + datestr(today,'dd/mm/yyyy'));
+set(handles.edit18,'String', "" + datestr(max(handles.dates),'dd/mm/yyyy'));
 
 
 % Update handles structure
@@ -134,6 +131,9 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 createPortfolio;
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
+% BÆTA Í PLOT
+handles.fixedPay = str2double(get(handles.edit21,'String'));
+handles.fixedReceive = str2double(get(handles.edit22,'String'));
 
 receiveIndexed = get(handles.radiobutton7,'Value');
 payIndexed = get(handles.radiobutton8,'Value');
@@ -195,13 +195,13 @@ cla(handles.axes1);
 cla(handles.axes2);
 cla(handles.axes3);
 
-axes(handles.axes3)
-grid on
+axes(handles.axes3);
 handles.receivePortfolio = handles.receivePortfolio.fitMethod(handles.receiveCurve,handles.receiveFit,handles.receivePoly,handles.receiveSF);
+grid(handles.axes3,'on')
 
-axes(handles.axes2)
-grid on
+axes(handles.axes2);
 handles.payPortfolio = handles.payPortfolio.fitMethod(handles.payCurve,handles.payFit,handles.payPoly,handles.paySF);
+grid(handles.axes2,'on')
 
 % Current curve
 handles.receiveCC = handles.receivePortfolio.currentCurve;
@@ -210,16 +210,15 @@ handles.payCC = handles.payPortfolio.currentCurve;
 % HÉR ÞARF SWAP AÐ REIKNAST
 pay = get(handles.radiobutton2,'Value');
 receive = get(handles.radiobutton4,'Value');
-payments = [str2double(get(handles.edit16,'String')) str2double(get(handles.edit17,'String'))]; 
-principal = str2double(get(handles.edit5, 'String'))
+payments = [str2double(get(handles.edit16,'String')) str2double(get(handles.edit17,'String'))];
+principal = str2double(get(handles.edit5, 'String'));
 startDate = get(handles.edit6, 'String');
 settleDate = get(handles.edit7, 'String');
 endDate = get(handles.edit18,'String');
 basisPoints = [handles.receiveBP handles.payBP];
 
-handles.swap = swap(handles.payPortfolio, handles.receivePortfolio, pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
 axes(handles.axes1)
-handles.swap.plotCashFlow;
+handles.swap = swap(handles.payPortfolio, handles.receivePortfolio, handles.fixedPay, handles.fixedReceive, pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
 
 guidata(hObject, handles);
 
@@ -260,7 +259,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
      set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', {'Yield', 'Zero rates', 'Forward rates', 'Discount rates', 'Swap rates'});
+set(hObject, 'String', {"Yield", "Zero rates", "Forward rates", "Discount rates", "Swap rates"});
 
 
 % --- Executes on selection change in popupmenu2.
@@ -285,7 +284,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', {'Nelson-Siegel', 'Polynomial', 'Spline', 'Cubic spline', 'Constrained cubic spline'});
+set(hObject, 'String', {"Nelson-Siegel", "Polynomial", "Spline", "Cubic spline", "Constrained cubic spline"});
 
 % --- Executes on selection change in popupmenu3.
 function popupmenu3_Callback(hObject, eventdata, handles)
@@ -308,7 +307,7 @@ function popupmenu3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-set(hObject, 'String', {'Yield', 'Zero rates', 'Forward rates', 'Discount rates', 'Swap rates'});
+set(hObject, 'String', {"Yield", "Zero rates", "Forward rates", "Discount rates", "Swap rates"});
 
 
 
@@ -379,7 +378,7 @@ function popupmenu4_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-set(hObject, 'String', {'Nelson-Siegel', 'Polynomial', 'Spline', 'Cubic spline', 'Constrained cubic spline'});
+set(hObject, 'String', {"Nelson-Siegel", "Polynomial", "Spline", "Cubic spline", "Constrained cubic spline"});
 
 
 function edit5_Callback(hObject, eventdata, handles)
@@ -679,7 +678,7 @@ function radiobutton7_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton7
+% Hint: get(hObject,'Value') returns toggle state of radiobutton6
 
 
 % --- Executes on button press in radiobutton8.
@@ -689,3 +688,95 @@ function radiobutton8_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton8
+
+
+
+function edit19_Callback(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit19 as text
+%        str2double(get(hObject,'String')) returns contents of edit19 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit19_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit20_Callback(hObject, eventdata, handles)
+% hObject    handle to edit20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit20 as text
+%        str2double(get(hObject,'String')) returns contents of edit20 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit20_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit21_Callback(hObject, eventdata, handles)
+% hObject    handle to edit21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit21 as text
+%        str2double(get(hObject,'String')) returns contents of edit21 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit21_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit22_Callback(hObject, eventdata, handles)
+% hObject    handle to edit22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit22 as text
+%        str2double(get(hObject,'String')) returns contents of edit22 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit22_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

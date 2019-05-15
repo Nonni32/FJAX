@@ -38,14 +38,14 @@ classdef bond
             obj.yield = str2double(overview.yield([1:strfind(overview.yield,'%')-1]))/100;
            
             % Adjusting for some inconsistencies in the tables
-            if attributes.attributes(7).name == 'Coupon'
+            if attributes.attributes(7).name == "Coupon"
                 obj.coupon = attributes.attributes(7).value;
             else
                 obj.coupon = attributes.attributes(6).value;
             end
                 
             for i = 6:10
-                if attributes.attributes(i).name == 'Interest'
+                if attributes.attributes(i).name == "Interest"
                     obj.interest = str2double(attributes.attributes(i).value([1:strfind(attributes.attributes(i).value,'%')-1]))/100;
                 end
             end
