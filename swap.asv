@@ -25,7 +25,7 @@ classdef swap
         payCurve
         receiveCurve
         basisPoints % 1x2 array
-        price
+        swapValue
         swapRate
         AI % Accrued interest
         payCF
@@ -79,41 +79,67 @@ classdef swap
             discountRec = polyval(pReceive, receiveDates);
             discountPay = polyval(pPay, payDates);
 
-            % Fixed receive
             if ~isnan(obj.fixedReceive)
-                disp("RECEIVE CASH")
-                receiveCash(:) = obj.fixedReceive;
+                % Fixed receive
+                receiveCash(:) = obj.fixedReceive/obj.payments(1);
                 receiveCash(end) = receiveCash(end)+principal;
-                %receiveCash = receiveCash.*discountRec
-            %else
+                receiveCash = receiveCash.*discountRec
+            else
                 % Floating receive 
+                receiveCash = obj.receiveCurve;
+                receiveCash(end) = receiveCash(end)+principal;
+                receiveCash = receiveCash.*discountRec;
             end
             
             % Fixed pay
             if ~isnan(obj.fixedPay) 
-                disp("PAY CASH")
-                payCash(:) = obj.fixedPay;
+                payCash(:) = obj.fixedPay/obj.payments(2);
                 payCash(end) = payCash(end)+principal
-                %payCash = payCash.*discountPay
-            %else
+                payCash = -payCash.*discountPay
+            else
                 % Floating pay
+                payCash = obj.payCurve(receiveDates-today);
+                payCash(end) = payCash(end)+principal;
+                payCash = payCash.*discountRec;
             end
+
+            obj.swapValue = sum(receiveCash)+sum(payCash);
             
-            totalDates = unique(sort([payDates receiveDates]));
+            totalDates = sort(unique([payDates receiveDates]));
             totalCash = zeros(1,length(totalDates));
-            for i = 1:length(totalDates)
-                for j = 1:length(receiveDates)
-                    if(totalDates(i) == receiveDates(j))
-                        totalCash(i) = 
-                        
+
+            if totalDates(1) == payDates(1)
+                totalCash(1) = totalCash(1) + payCash(1);
+            end
+            if totalDates(1) == receiveDates(1)
+                totalCash(1) = totalCash(1) + receiveCash(1);
+            end
+
+            for i = 2:length(totalDates)
+                for j = 1:length(payDates)
+                   if payDates(j) == totalDates(i)
+                       totalCash(i) = totalCash(i-1) + payCash(j);
+                   end
+                end
+
+                for k = 1:length(receiveDates)
+                   if receiveDates(k) == totalDates(i)
+                       if totalCash(i) == 0
+                           totalCash(i) = totalCash(i-1) + receiveCash(k);
+                       else
+                           totalCash(i) = totalCash(i) + receiveCash(k);
+                       end
+                   end
                 end
             end
-            
-            
-            bar(receiveDates, receiveCash)
+            totalCash
+
+            bar(payDates,payCash)
             hold on
-            bar(payDates, -payCash)
             grid on
+            bar(receiveDates,receiveCash)
+            hold on
+            plot(totalDates, totalCash,'k-','LineWidth',2)
         end
         
 %         function obj = valueSwap(obj)

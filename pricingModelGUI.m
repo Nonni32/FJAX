@@ -22,7 +22,7 @@ function varargout = pricingModelGUI(varargin)
 
 % Edit the above text to modify the response to help pricingModelGUI
 
-% Last Modified by GUIDE v2.5 14-May-2019 09:47:56
+% Last Modified by GUIDE v2.5 16-May-2019 16:52:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,24 +71,29 @@ handles.longTermMeanLevel = str2double(get(handles.edit6,'String'))/100;
 handles.maturity = str2double(get(handles.edit7,'String'));
 handles.nrOfSimulations= str2double(get(handles.edit8,'String'));
 
+handles.principal = str2double(get(handles.edit17,'String'));
+
 handles.strikePrice = str2double(get(handles.edit10,'String'));
 handles.optionMaturity = str2double(get(handles.edit9,'String')); 
 
 handles.IR = interestRate(handles.model, handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, handles.nrOfSimulations);
 handles.PM = pricingModel(handles.IR, handles.strikePrice, handles.optionMaturity);
 
+handles.capsinput = str2double(get(handles.edit15,'String'))/100;
+handles.floorsinput = str2double(get(handles.edit16,'String'))/100;
+
 obj = handles.PM;
-[obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
-[obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
-[obj.caps, obj.floors] = obj.capsAndFloor;
+[obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation
+[obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0)
+[obj.caps, obj.floors] = obj.capsAndFloor(handles.capsinput, handles.floorsinput, handles.principal)
 
-set(handles.edit11,'String',''+obj.simulatedCalls);
-set(handles.edit12,'String',''+obj.calculatedCall);
-set(handles.edit13,'String',''+obj.simulatedPuts);
-set(handles.edit14,'String',''+obj.calculatedCall);
+set(handles.edit11,'String',""+obj.simulatedCalls);
+set(handles.edit12,'String',""+obj.calculatedCall);
+set(handles.edit13,'String',""+obj.simulatedPuts);
+set(handles.edit14,'String',""+obj.calculatedCall);
 
-set(handles.edit15,'String',''+obj.caps*100);
-set(handles.edit16,'String',''+obj.floors*100);
+set(handles.edit18,'String',""+obj.caps);
+set(handles.edit19,'String',""+obj.floors);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -138,6 +143,11 @@ handles.longTermMeanLevel = str2double(get(handles.edit6,'String'))/100;
 handles.maturity = str2double(get(handles.edit7,'String'));
 handles.nrOfSimulations= str2double(get(handles.edit8,'String'));
 
+handles.principal = str2double(get(handles.edit17,'String'));
+
+handles.capsinput = str2double(get(handles.edit15,'String'))/100;
+handles.floorsinput = str2double(get(handles.edit16,'String'))/100;
+
 handles.strikePrice = str2double(get(handles.edit10,'String'));
 handles.optionMaturity = str2double(get(handles.edit9,'String')); 
 
@@ -147,15 +157,15 @@ handles.PM = pricingModel(handles.IR, handles.strikePrice, handles.optionMaturit
 obj = handles.PM;
 [obj.simulatedCalls, obj.simulatedPuts] = obj.optionSimulation;
 [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
-[obj.caps, obj.floors] = obj.capsAndFloor;
+[obj.caps, obj.floors] = obj.capsAndFloor(handles.capsinput, handles.floorsinput, handles.principal);
 
 set(handles.edit11,'String',''+obj.simulatedCalls);
 set(handles.edit12,'String',''+obj.calculatedCall);
 set(handles.edit13,'String',''+obj.simulatedPuts);
 set(handles.edit14,'String',''+obj.calculatedCall);
 
-set(handles.edit15,'String',''+obj.caps*100);
-set(handles.edit16,'String',''+obj.floors*100);
+set(handles.edit18,'String',''+obj.caps);
+set(handles.edit19,'String',''+obj.floors);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -579,6 +589,75 @@ function edit16_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit16_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit17_Callback(hObject, eventdata, handles)
+% hObject    handle to edit17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit17 as text
+%        str2double(get(hObject,'String')) returns contents of edit17 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit17_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit18_Callback(hObject, eventdata, handles)
+% hObject    handle to edit18 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit18 as text
+%        str2double(get(hObject,'String')) returns contents of edit18 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit18_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit18 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit19_Callback(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit19 as text
+%        str2double(get(hObject,'String')) returns contents of edit19 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit19_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit19 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

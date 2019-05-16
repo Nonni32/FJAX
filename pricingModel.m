@@ -202,7 +202,7 @@ classdef pricingModel
             end
         end
          
-        function [caps, floors] = capsAndFloor(obj,Lcc,Lcf) 
+        function [caps, floors] = capsAndFloor(obj,Lcc,Lcf, Q) 
             % Calculating the caps and floor
             dt = obj.interestRateModel.stepSize;            
             T = obj.optionMaturity;                         %Time2mat
@@ -225,7 +225,6 @@ classdef pricingModel
             % Average of simulated rates
             Lk = [obj.interestRateModel.initialRate mean(LL)];
             
-            Q = 100000;                                     %Pricipal
             alpha = dt;                                     %Time period            
             settle = today;                                 %Settle time
             curveDates = today+1:365/(1/dt):today+T*365;
@@ -247,7 +246,7 @@ classdef pricingModel
             end
             
             caps = sum(caplet)
-            floor = sum(floorlet)            
+            floors = sum(floorlet)            
 
         end
     end

@@ -218,7 +218,7 @@ endDate = get(handles.edit18,'String');
 basisPoints = [handles.receiveBP handles.payBP];
 
 axes(handles.axes1)
-handles.swap = swap(handles.payPortfolio, handles.receivePortfolio, handles.fixedPay, handles.fixedReceive, pay, receive, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
+handles.swap = swap(handles.receivePortfolio, handles.payPortfolio, handles.fixedReceive, handles.fixedPay, receive, pay, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
 
 guidata(hObject, handles);
 

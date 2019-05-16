@@ -43,7 +43,7 @@ classdef bond
             else
                 obj.coupon = attributes.attributes(6).value;
             end
-                
+            
             for i = 6:10
                 if attributes.attributes(i).name == "Interest"
                     obj.interest = str2double(attributes.attributes(i).value([1:strfind(attributes.attributes(i).value,'%')-1]))/100;
