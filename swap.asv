@@ -60,27 +60,18 @@ classdef swap
             endDate = obj.endDate;
             principal = obj.principal;
             
-            obj
-            
-            receiveDates = datenum(settleDate):round(365/obj.payments(1)):datenum(endDate)
-            payDates = datenum(settleDate):round(365/obj.payments(2)):datenum(endDate)
-            
-            size(receiveDates)
-            size(payDates)
-            
+            receiveDates = datenum(settleDate,'dd/mm/yyyy'):round(365/obj.payments(1)):datenum(endDate,'dd/mm/yyyy');
+            payDates = datenum(settleDate,'dd/mm/yyyy'):round(365/obj.payments(2)):datenum(endDate,'dd/mm/yyyy');
+
             receiveCash = zeros(1, length(receiveDates));
             payCash = zeros(1, length(payDates));
             
-            size(receiveCash)
-            size(payCash)
-            
-            
             % Discount rates
             payDisc = obj.payPortfolio.discountRates;
-            payMaturity = datenum(obj.payPortfolio.maturity)';
+            payMaturity = datenum(obj.payPortfolio.maturity,'dd/mm/yyyy')'
             
             receiveDisc = obj.receivePortfolio.discountRates;
-            receiveMaturity = datenum(obj.receivePortfolio.maturity)';
+            receiveMaturity = datenum(obj.receivePortfolio.maturity,'dd/mm/yyyy')'
             
             pReceive = polyfit(receiveMaturity,receiveDisc,1);
             pPay = polyfit(payMaturity,payDisc,1);
@@ -107,11 +98,22 @@ classdef swap
             %else
                 % Floating pay
             end
+            
+            totalDates = unique(sort([payDates receiveDates]));
+            totalCash = zeros(1,length(totalDates));
+            for i = 1:length(totalDates)
+                for j = 1:length(receiveDates)
+                    if(totalDates(i) == receiveDates(j))
+                        totalCash(i) = 
+                        
+                end
+            end
+            
+            
             bar(receiveDates, receiveCash)
             hold on
             bar(payDates, -payCash)
-            xlim([datenum(settleDate) datenum(endDate)+100])
-            
+            grid on
         end
         
 %         function obj = valueSwap(obj)

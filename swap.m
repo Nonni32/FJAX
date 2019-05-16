@@ -98,11 +98,31 @@ classdef swap
             %else
                 % Floating pay
             end
+            
+            totalDates = unique(sort([payDates receiveDates]));
+            totalCash = zeros(1,length(totalDates));
+            for i = 1:length(totalDates)
+                if i == 1
+                   totalCash(i) = receiveCash(i)-payCash(i); 
+                end
+                for j = 2:length(receiveDates)
+                    if(totalDates(i) == receiveDates(j))
+                        totalCash(i) = totalCash(i-1)+receiveCash(j);
+                    end
+                end
+                for k = 2:length(payDates)
+                    if(totalDates(i) == payDates(k))
+                        totalCash(i) = totalCash(i-1)-payCash(k);
+                    end
+                end
+            end
+            
             bar(receiveDates, receiveCash)
             hold on
             bar(payDates, -payCash)
+            hold on
+            plot(totalDates, totalCash,'k')
             grid on
-            
         end
         
 %         function obj = valueSwap(obj)
