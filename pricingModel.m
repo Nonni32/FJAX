@@ -26,7 +26,6 @@ classdef pricingModel
     end
     
     methods
-        
         function obj = pricingModel(interestRateModel, strikePrice, optionMaturity)
             % INITIALISING THE PRICING MODEL FROM INPUTS
             obj.interestRateModel = interestRateModel;
