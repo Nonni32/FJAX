@@ -57,6 +57,9 @@ IndexedPortfolio.calculateCurves;
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
 
+set(handles.radiobutton2,'Value',1);
+set(handles.radiobutton4,'Value',1);
+
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
@@ -131,9 +134,8 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 createPortfolio;
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
-% BÆTA Í PLOT
-handles.fixedPay = str2double(get(handles.edit21,'String'));
-handles.fixedReceive = str2double(get(handles.edit22,'String'));
+handles.fixedPay = str2double(get(handles.edit22,'String'));
+handles.fixedReceive = str2double(get(handles.edit21,'String'));
 
 receiveIndexed = get(handles.radiobutton7,'Value');
 payIndexed = get(handles.radiobutton8,'Value');
@@ -174,11 +176,13 @@ handles.receiveSF = str2double(get(handles.edit4,'String'));
 handles.paySF = str2double(get(handles.edit14,'String'));
 
 % Basis points
-handles.receiveBP = str2double(get(handles.edit8,'String'))*100;
-handles.payBP = str2double(get(handles.edit15,'String'))*100;
+handles.receiveBP = str2double(get(handles.edit8,'String'))/100;
+handles.payBP = str2double(get(handles.edit15,'String'))/100;
 
 % Choose default command line output for bondGUI
 handles.output = hObject;
+
+% 
 
 %handles.dates = datenum(NonIndexedPortfolio.maturity,'dd/mm/yyyy');
 %handles.x = linspace(min(handles.dates),max(handles.dates),max(handles.dates)-min(handles.dates));
@@ -207,19 +211,18 @@ grid(handles.axes2,'on')
 handles.receiveCC = handles.receivePortfolio.currentCurve;
 handles.payCC = handles.payPortfolio.currentCurve;
 
-% HÉR ÞARF SWAP AÐ REIKNAST
-pay = get(handles.radiobutton2,'Value');
-receive = get(handles.radiobutton4,'Value');
+pay = get(handles.radiobutton2,'Value');        % Fixed or not
+receive = get(handles.radiobutton4,'Value');    % Fixed or not
 payments = [str2double(get(handles.edit16,'String')) str2double(get(handles.edit17,'String'))];
-principal = str2double(get(handles.edit5, 'String'));
+handles.principal = str2double(get(handles.edit5, 'String'));
 startDate = get(handles.edit6, 'String');
 settleDate = get(handles.edit7, 'String');
 endDate = get(handles.edit18,'String');
 basisPoints = [handles.receiveBP handles.payBP];
 
 axes(handles.axes1)
-handles.swap = swap(handles.receivePortfolio, handles.payPortfolio, handles.fixedReceive, handles.fixedPay, receive, pay, payments, principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
-
+handles.swap = swap(handles.receivePortfolio, handles.payPortfolio, handles.fixedReceive, handles.fixedPay, receive, pay, payments, handles.principal, startDate, settleDate, endDate, handles.payCC, handles.receiveCC, basisPoints);
+set(handles.edit19,'String',"" + handles.swap.swapValue);
 guidata(hObject, handles);
 
 % --------------------------------------------------------------------

@@ -14,7 +14,7 @@ function varargout = pricingModelGUI(varargin)
 %      applied to the GUI before pricingModelGUI_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to pricingModelGUI_OpeningFcn via varargin.
-%
+%   
 %      *See GUI Options on GUIDE's Tools menu.  Choose 'GUI allows only one
 %      instance to run (singleton)'.
 %
@@ -90,7 +90,7 @@ obj = handles.PM;
 set(handles.edit11,'String',""+obj.simulatedCalls);
 set(handles.edit12,'String',""+obj.calculatedCall);
 set(handles.edit13,'String',""+obj.simulatedPuts);
-set(handles.edit14,'String',""+obj.calculatedCall);
+set(handles.edit14,'String',""+obj.calculatedPut);
 
 set(handles.edit18,'String',""+obj.caps);
 set(handles.edit19,'String',""+obj.floors);
@@ -159,13 +159,13 @@ obj = handles.PM;
 [obj.calculatedCall, obj.calculatedPut] = obj.optionPricer(0);
 [obj.caps, obj.floors] = obj.capsAndFloor(handles.capsinput, handles.floorsinput, handles.principal);
 
-set(handles.edit11,'String',''+obj.simulatedCalls);
-set(handles.edit12,'String',''+obj.calculatedCall);
-set(handles.edit13,'String',''+obj.simulatedPuts);
-set(handles.edit14,'String',''+obj.calculatedCall);
+set(handles.edit11,'String',""+obj.simulatedCalls);
+set(handles.edit12,'String',""+obj.calculatedCall);
+set(handles.edit13,'String',""+obj.simulatedPuts);
+set(handles.edit14,'String',""+obj.calculatedPut);
 
-set(handles.edit18,'String',''+obj.caps);
-set(handles.edit19,'String',''+obj.floors);
+set(handles.edit18,'String',""+obj.caps);
+set(handles.edit19,'String',""+obj.floors);
 
 % Update handles structure
 guidata(hObject, handles);

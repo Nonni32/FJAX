@@ -66,7 +66,7 @@ NonIndexedPortfolio.calculateCurves;
 IndexedPortfolio.calculateCurves;
 handles.NonIndexedPortfolio = NonIndexedPortfolio;
 handles.IndexedPortfolio = IndexedPortfolio;
-handles.legends = {'Data points'};
+handles.legends = {"Data points"};
 % Choose default command line output for bondGUI
 handles.output = hObject;
 
@@ -111,7 +111,7 @@ cla;
 popup_sel_index = get(handles.popupmenu1, 'Value');
 % createPortfolio;
 clear handles.legends;
-handles.legends = {'Data points'};
+handles.legends = {"Data points"};
 
 ind = get(handles.radiobutton1,'Value');
 if(ind == 0)
@@ -223,7 +223,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
      set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', {'Yield', 'Zero rates', 'Forward rates', 'Discount rates'}); % TODO: 'Swap rates'
+set(hObject, 'String', {"Yield", "Zero rates", "Forward rates", "Discount rates"});
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu2_CreateFcn(hObject, eventdata, handles)
@@ -237,7 +237,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
      set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'String', {'Yield', 'Zero rates', 'Forward rates', 'Discount rates'}); % TODO: 'Swap rates'
+set(hObject, 'String', {"Yield", "Zero rates", "Forward rates", "Discount rates"});
 
 
 % --- Executes on button press in checkbox1.
@@ -260,13 +260,13 @@ if get(hObject,'Value')~= 0
     handles.legends{end+1} = fittingTechnique;
     dates = datenum(portfolio.maturity,'dd/mm/yyyy');
     switch curve
-        case 'Yield'
+        case "Yield"
             rates = portfolio.yield;
-        case 'Zero rates'
+        case "Zero rates"
             rates = portfolio.zeroRates;
-        case 'Forward rates'
+        case "Forward rates"
             rates = portfolio.forwardRates;
-        case 'Discount rates'
+        case "Discount rates"
             rates = portfolio.discountRates;
     end
     plot(dates, rates*100,'b--')
@@ -304,7 +304,7 @@ if get(hObject,'Value')~= 0
     fittingTechnique = get(handles.checkbox2,'String');
     handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
-    portfolio.fitMethod(curve, 'Nelson-Siegel', 0, 0);
+    portfolio.fitMethod(curve, "Nelson-Siegel", 0, 0);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end
@@ -328,9 +328,9 @@ if get(hObject,'Value')~= 0
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
     fittingTechnique = get(handles.checkbox3,'String');
-    handles.legends{end+1} = fittingTechnique + ' (n = ' + degree + ')';
+    handles.legends{end+1} = fittingTechnique + " (n = " + degree + ")";
     curve = contents{get(handles.popupmenu1,'Value')};
-    portfolio.fitMethod(curve, 'Polynomial', degree, 0);
+    portfolio.fitMethod(curve, "Polynomial", degree, 0);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end
@@ -355,7 +355,7 @@ if get(hObject,'Value')~= 0
     fittingTechnique = get(handles.checkbox4,'String');
     handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
-    portfolio.fitMethod(curve, 'Spline', 0, 0);
+    portfolio.fitMethod(curve, "Spline", 0, 0);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end
@@ -430,9 +430,9 @@ if get(hObject,'Value')~= 0
     portfolio = portfolio.calculateCurves;
     contents = get(handles.popupmenu1,'String'); 
     fittingTechnique = get(handles.checkbox6,'String');
-    handles.legends{end+1} = fittingTechnique + ' (p = ' + smoothingFactor + ')';
+    handles.legends{end+1} = fittingTechnique + " (p = " + smoothingFactor + ")";
     curve = contents{get(handles.popupmenu1,'Value')};
-    portfolio.fitMethod(curve, 'Constrained cubic spline', 0, smoothingFactor);
+    portfolio.fitMethod(curve, "Constrained cubic spline", 0, smoothingFactor);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end
@@ -515,7 +515,7 @@ if get(hObject,'Value')~= 0
     fittingTechnique = get(handles.checkbox7,'String');
     handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
-    portfolio.fitMethod(curve, 'Lagrange interpolation', 0, 0);
+    portfolio.fitMethod(curve, "Lagrange interpolation", 0, 0);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end
@@ -541,7 +541,7 @@ if get(hObject,'Value')~= 0
     fittingTechnique = get(handles.checkbox8,'String');
     handles.legends{end+1} = fittingTechnique;
     curve = contents{get(handles.popupmenu1,'Value')};
-    portfolio.fitMethod(curve, 'Nelson-Siegel-Svensson', 0, 0);
+    portfolio.fitMethod(curve, "Nelson-Siegel-Svensson", 0, 0);
     legend(handles.axes1,handles.legends);
     guidata(hObject, handles);
 end

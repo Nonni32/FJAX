@@ -84,11 +84,11 @@ handles.speedOfReversion = str2double(get(handles.edit9,'String'))/100;
 handles.longTermMeanLevel = str2double(get(handles.edit10,'String'))/100;
 handles.legend = {};
 
-simple = interestRate('Simple', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+simple = interestRate("Simple", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.simple = simple;
-brownian = interestRate('Brownian', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+brownian = interestRate("Brownian", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.brownian = brownian;
-vasicek = interestRate('Vasicek', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+vasicek = interestRate("Vasicek", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.vasicek = vasicek;
 guidata(hObject, handles);
 maturityDate = today + handles.maturity*365;
@@ -134,11 +134,11 @@ handles.maturity = str2double(get(handles.edit1,'String'));
 handles.speedOfReversion = str2double(get(handles.edit9,'String'))/100;
 handles.longTermMeanLevel = str2double(get(handles.edit10,'String'))/100;
 
-simple = interestRate('Simple', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+simple = interestRate("Simple", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.simple = simple;
-brownian = interestRate('Brownian', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+brownian = interestRate("Brownian", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.brownian = brownian;
-vasicek = interestRate('Vasicek', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+vasicek = interestRate("Vasicek", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.vasicek = vasicek;
 
 handles.vasicek
@@ -147,30 +147,30 @@ handles.legend = {};
 
 if get(handles.checkbox1, 'Value') == 1
     handles.simple.plotSimulations;
-    handles.legend{end+1} = 'Simple';
+    handles.legend{end+1} = "Simple";
 end
 if get(handles.checkbox2, 'Value') == 1 
     handles.brownian.plotSimulations;
-    handles.legend{end+1} = 'Brownian';
+    handles.legend{end+1} = "Brownian";
 end
 if get(handles.checkbox3, 'Value') == 1         
     handles.vasicek.plotSimulations;
-    handles.legend{end+1} = 'Vasicek';
+    handles.legend{end+1} = "Vasicek";
     
-    IR = interestRate('Vasicek',handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 50);
+    IR = interestRate("Vasicek",handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 50);
     [theta_est, kappa_est, sigma_est, errorValue] = IR.estimateParameters;
     %IR.estimationImprovement;
-    set(handles.text21, 'String', ''+ sigma_est*100);
-    set(handles.text22, 'String', ''+ kappa_est*100);
-    set(handles.text23, 'String', ''+ theta_est*100);
-    set(handles.text25, 'String', ''+ errorValue);
+    set(handles.text21, 'String', ""+ sigma_est*100);
+    set(handles.text22, 'String', ""+ kappa_est*100);
+    set(handles.text23, 'String', ""+ theta_est*100);
+    set(handles.text25, 'String', ""+ errorValue);
     
     [theta_OLS, kappa_OLS, sigma_OLS, errorValue_OLS] = IR.ordinaryLeastSquares;
     %IR.estimationImprovementOLS;
-    set(handles.text27, 'String', ''+ sigma_OLS*100);
-    set(handles.text28, 'String', ''+ kappa_OLS*100);
-    set(handles.text29, 'String', ''+ theta_OLS*100);
-    set(handles.text30, 'String', ''+ errorValue_OLS);
+    set(handles.text27, 'String', ""+ sigma_OLS*100);
+    set(handles.text28, 'String', ""+ kappa_OLS*100);
+    set(handles.text29, 'String', ""+ theta_OLS*100);
+    set(handles.text30, 'String', ""+ errorValue_OLS);
     
     guidata(hObject, handles);
 end
@@ -237,12 +237,12 @@ function checkbox1_Callback(hObject, eventdata, handles)
 handles.simple.plotSimulations;
 exists = false;
 for i = 1:length(handles.legend)
-    if(handles.legend{i} == 'Simple')
+    if(handles.legend{i} == "Simple")
         exists = true;
     end
 end
 if ~exists
-    handles.legend{end+1} = 'Simple';    
+    handles.legend{end+1} = "Simple";    
 end
 legend(handles.axes1,handles.legend)
 guidata(hObject, handles);
@@ -257,12 +257,12 @@ function checkbox2_Callback(hObject, eventdata, handles)
 handles.brownian.plotSimulations;
 exists = false;
 for i = 1:length(handles.legend)
-    if(handles.legend{i} == 'Brownian')
+    if(handles.legend{i} == "Brownian")
         exists = true;
     end
 end
 if ~exists
-    handles.legend{end+1} = 'Brownian';
+    handles.legend{end+1} = "Brownian";
 end
 legend(handles.axes1,handles.legend)
 guidata(hObject, handles);
@@ -282,32 +282,32 @@ handles.maturity = str2double(get(handles.edit1,'String'));
 handles.speedOfReversion = str2double(get(handles.edit9,'String'))/100;
 handles.longTermMeanLevel = str2double(get(handles.edit10,'String'))/100;
 
-vasicek = interestRate('Vasicek', handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
+vasicek = interestRate("Vasicek", handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 1);
 handles.vasicek = vasicek;
 handles.vasicek.plotSimulations;
 
-IR = interestRate('Vasicek',handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 50);
+IR = interestRate("Vasicek",handles.initialRate, handles.stepSize, handles.volatility, handles.speedOfReversion, handles.longTermMeanLevel, handles.maturity, 50);
 [theta_est, kappa_est, sigma_est, errorValue] = IR.estimateParameters;
 
-set(handles.text21, 'String', ''+ sigma_est*100);
-set(handles.text22, 'String', ''+ kappa_est*100);
-set(handles.text23, 'String', ''+ theta_est*100);
-set(handles.text25, 'String', ''+ errorValue);
+set(handles.text21, 'String', ""+ sigma_est*100);
+set(handles.text22, 'String', ""+ kappa_est*100);
+set(handles.text23, 'String', ""+ theta_est*100);
+set(handles.text25, 'String', ""+ errorValue);
 
 [theta_OLS, kappa_OLS, sigma_OLS, errorValue_OLS] = IR.ordinaryLeastSquares;
-set(handles.text27, 'String', ''+ sigma_OLS*100);
-set(handles.text28, 'String', ''+ kappa_OLS*100);
-set(handles.text29, 'String', ''+ theta_OLS*100);
-set(handles.text30, 'String', ''+ errorValue_OLS);
+set(handles.text27, 'String', ""+ sigma_OLS*100);
+set(handles.text28, 'String', ""+ kappa_OLS*100);
+set(handles.text29, 'String', ""+ theta_OLS*100);
+set(handles.text30, 'String', ""+ errorValue_OLS);
 
 exists = false;
 for i = 1:length(handles.legend)
-    if(handles.legend{i} == 'Vasicek')
+    if(handles.legend{i} == "Vasicek")
         exists = true;
     end
 end
 if ~exists
-    handles.legend{end+1} = 'Vasicek';
+    handles.legend{end+1} = "Vasicek";
 end
 legend(handles.axes1,handles.legend)
 guidata(hObject, handles);

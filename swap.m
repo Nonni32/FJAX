@@ -48,15 +48,17 @@ classdef swap
             obj.startDate = startDate;
             obj.settleDate = settleDate;
             obj.endDate = endDate;
-            obj.payCurve = payCurve;
-            obj.receiveCurve = receiveCurve;
+            obj.payCurve = payPortfolio.currentCurve;
+            obj.receiveCurve = receivePortfolio.currentCurve;
             obj.basisPoints = basisPoints;
             obj = obj.valueSwap;
         end
         
         function obj = valueSwap(obj)
-            startDate = obj.startDate;
-            settleDate = obj.settleDate; % First payment 
+            % Calculating the value of the swap and plotting the
+            % (discounted) cash flow for each leg
+            startDate = obj.startDate;   
+            settleDate = obj.settleDate; 
             endDate = obj.endDate;
             principal = obj.principal;
             
@@ -68,10 +70,10 @@ classdef swap
             
             % Discount rates
             payDisc = obj.payPortfolio.discountRates;
-            payMaturity = datenum(obj.payPortfolio.maturity,'dd/mm/yyyy')'
+            payMaturity = datenum(obj.payPortfolio.maturity,'dd/mm/yyyy')';
             
             receiveDisc = obj.receivePortfolio.discountRates;
-            receiveMaturity = datenum(obj.receivePortfolio.maturity,'dd/mm/yyyy')'
+            receiveMaturity = datenum(obj.receivePortfolio.maturity,'dd/mm/yyyy')';
             
             pReceive = polyfit(receiveMaturity,receiveDisc,1);
             pPay = polyfit(payMaturity,payDisc,1);
@@ -81,33 +83,41 @@ classdef swap
 
             if ~isnan(obj.fixedReceive)
                 % Fixed receive
-                receiveCash(:) = obj.fixedReceive/obj.payments(1);
+                receiveCash(:) = obj.fixedReceive*principal/(100*obj.payments(1));
                 receiveCash(end) = receiveCash(end)+principal;
                 receiveCash = receiveCash.*discountRec;
+                receiveBond = sum(receiveCash);
             else
                 % Floating receive 
-                receiveCash = obj.receiveCurve(receiveDates- datenum(settleDate,'dd/mm/yyyy')+1);
-                receiveCash(end) = receiveCash(end)+principal;
+                receiveRates = obj.receiveCurve(receiveDates-datenum(settleDate,'dd/mm/yyyy')+1)/obj.payments(1);
+                receiveCash(:) = ((receiveRates+obj.basisPoints(1))/100).*principal;
+                receiveCash(end) = receiveCash(end) + principal;
                 receiveCash = receiveCash.*discountRec;
+                receiveBond = ((receiveRates(1)/100)*principal+principal)*discountRec(1);
             end
             
             % Fixed pay
             if ~isnan(obj.fixedPay) 
-                payCash(:) = obj.fixedPay/obj.payments(2);
+                payCash(:) = obj.fixedPay*principal/(100*obj.payments(2));
                 payCash(end) = payCash(end)+principal;
-                payCash = payCash.*discountPay
+                payCash = payCash.*discountPay;
+                payBond = sum(payCash);
             else
                 % Floating pay
-                payCash = obj.payCurve(payDates- datenum(settleDate,'dd/mm/yyyy')+1);
-                payCash(end) = payCash(end)+principal;
-                payCash = payCash.*discountRec
+                payRates = obj.payCurve(payDates-datenum(settleDate,'dd/mm/yyyy')+1)/obj.payments(2);
+                payCash(:) = (((payRates+obj.basisPoints(2))/100).* principal);
+                payCash(end) = payCash(end) + principal;
+                payCash = payCash.*discountPay;
+                payBond = ((payRates(1)/100)*principal+principal)*discountPay(1);
             end
 
-            obj.swapValue = sum(receiveCash)-sum(payCash);
-            
+            obj.swapValue = sum(receiveBond)-sum(payBond);
+
+            % Joining the dates of the paying and receiving cash flows            
             totalDates = sort(unique([payDates receiveDates]));
             totalCash = zeros(1,length(totalDates));
 
+            % Calculating the cumulative total cash received/paid 
             if totalDates(1) == payDates(1)
                 totalCash(1) = totalCash(1)-payCash(1);
             end
@@ -131,15 +141,13 @@ classdef swap
                    end
                 end
             end
-            totalCash
-
-            
             bar(receiveDates,receiveCash)
             hold on
             bar(payDates,-payCash)
             grid on
             hold on
             plot(totalDates, totalCash,'k-','LineWidth',2)
+            datetick('x','dd/mm/yyyy')
         end
         
 %         function obj = valueSwap(obj)

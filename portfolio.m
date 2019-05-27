@@ -201,10 +201,10 @@ classdef portfolio
                 % Type is either 'Forward' or 'Zero'
                 if curve == "Zero rates" || curve == "Yield"
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Zero',today,Instruments);
-                    NSModel.Parameters
+                    NSModel.Parameters;
                 elseif curve == "Forward rates"
                     NSModel = IRFunctionCurve.fitNelsonSiegel('Forward',today,Instruments);
-                    NSModel.Parameters
+                    NSModel.Parameters;
                 end
                 plot(PlottingPoints, getParYields(NSModel, PlottingPoints)*100)
                 obj.currentCurve = getParYields(NSModel, PlottingPoints)*100;
@@ -223,11 +223,11 @@ classdef portfolio
                 
                 % Type is either 'Forward' or 'Zero'
                 if curve == "Zero rates" || curve == "Yield"
-                    SvenssonModel  = IRFunctionCurve.fitSvensson('Zero',today,Instruments)
-                    SvenssonModel.Parameters
+                    SvenssonModel  = IRFunctionCurve.fitSvensson('Zero',today,Instruments);
+                    SvenssonModel.Parameters;
                 elseif curve == "Forward rates"
-                    SvenssonModel  = IRFunctionCurve.fitSvensson('Forward',today,Instruments)
-                    SvenssonModel.Parameters
+                    SvenssonModel  = IRFunctionCurve.fitSvensson('Forward',today,Instruments);
+                    SvenssonModel.Parameters;
                 end
                 plot(PlottingPoints, getParYields(SvenssonModel , PlottingPoints)*100)
                 obj.currentCurve = getParYields(SvenssonModel , PlottingPoints)*100;
